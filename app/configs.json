@@ -1,0 +1,9 @@
+{
+  "RemoteCredentials": {
+    "OPENAI_API_KEY": "/ContentGenerator/Credentials/OpenAi/Password"
+  },
+  "Flags": {
+    "EnableFeatureX": true,
+    "EnableFeatureY": false
+  }
+}
