@@ -1,3 +1,8 @@
+from typing import List
+
+import logging
+
+from agent.crew import ContentGen
 from configurations.configs import Configs
 from crosscutting.app_logger import AppLogger
 from configurations.di_container import DiContainer
@@ -20,16 +25,15 @@ class ConfigurationModule:
     @classmethod
     @AppLogger.timeit()
     def initialize(cls) -> bool:
-
         if cls.HAS_INITIALIZED:
             return True
-
         try:
             cls.__load_env_vars()
             cls.__configure_logger()
             configs = cls.__load_configs()
             cls.__override_env_vars(configs)
-            cls.__build_di_container(configs)
+            pre_instantiated = cls.__pre_instantiate(configs)
+            cls.__build_di_container(pre_instantiated)
         except Exception as e:
             AppLogger.error(f"Unable to conclude application initialization -> {type(e).__name__}: {e}")
             cls.HAS_INITIALIZED = False
@@ -43,16 +47,15 @@ class ConfigurationModule:
     def __load_env_vars(cls) -> None:
         try:
             env_file = os.path.join(os.getcwd(), '.env')
-            if not os.path.exists(env_file):
-                return
 
-            load_dotenv()
+            if os.path.isfile(env_file):
+                load_dotenv()
+                AppLogger.info("Environment variables loaded.")
 
             for key in cls.REQUIRED_ENV_VARS:
                 if key not in os.environ:
                     raise ValueError(f"Missing required environment variable: {key}")
 
-            AppLogger.info("Environment variables loaded.")
         except Exception as e:
             AppLogger.error(f"Failed to load environment variables: {e}", exception=e)
             raise
@@ -61,6 +64,8 @@ class ConfigurationModule:
     def __configure_logger(cls) -> None:
         if "STRUCTURED_LOGS" in os.environ and os.environ["STRUCTURED_LOGS"].lower() == "false":
             AppLogger.STRUCTURED = False
+
+        logging.getLogger("crewai").setLevel(logging.CRITICAL)
 
         AppLogger.info("Logger configured.")
 
@@ -113,7 +118,7 @@ class ConfigurationModule:
         client = None
         overriden_values = []
         try:
-            for env_var, param_name in configs.RemoteCredentials.items():
+            for env_var, param_name in configs.remote_credentials.items():
                 if env_var in os.environ and os.environ[env_var]:
                     continue
                 if client is None:
@@ -129,12 +134,22 @@ class ConfigurationModule:
             raise
 
     @classmethod
-    def __build_di_container(cls, configs: Configs) -> None:
+    def __pre_instantiate(cls, configs: Configs) -> List[object]:
+        try:
+            agent = ContentGen(configs)
+
+            AppLogger.info(f"Pre instantiation complete.")
+            return [configs, agent]
+        except Exception as e:
+            AppLogger.error(f"Unable to preinstantiate: {e}", exception=e)
+            raise
+
+    @classmethod
+    def __build_di_container(cls, pre_instantiated) -> None:
         """
         Build the Dependency Injection container.
         """
         try:
-            pre_instantiated = [configs]
             injections = ServiceCollection.get_services()
             DiContainer.build_container(pre_instantiated, injections)
             AppLogger.info("DI container built.")

@@ -13,9 +13,13 @@ class AppController:
         self.configs = configs
         self.agent = agent
 
-    def run(self):
+    @AppLogger.timeit()
+    def run(self, input: dict) -> None:
         try:
-            result = self.agent.crew().kickoff()
-            print(result.raw)
+            self.logger.highlight("Executing agent ...")
+            result = self.agent.crew().kickoff(inputs=input)
+            # self.logger.highlight(result.raw)
+            self.logger.highlight("Agent execution finished.")
+
         except Exception as e:
             raise Exception(f"An error occurred while running the crew: {e}")

@@ -1,3 +1,4 @@
+from agent.crew import ContentGen
 from crosscutting.app_logger import AppLogger
 import inspect
 
