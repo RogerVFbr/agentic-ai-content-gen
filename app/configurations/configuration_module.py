@@ -15,6 +15,8 @@ import boto3
 
 class ConfigurationModule:
 
+    INSTANCE = None
+
     HAS_INITIALIZED = False
 
     REQUIRED_ENV_VARS = [
@@ -23,28 +25,33 @@ class ConfigurationModule:
     ]
 
     @classmethod
+    def get(cls):
+        if cls.INSTANCE is None:
+            cls.INSTANCE = ConfigurationModule()
+        return cls.INSTANCE
+
+
     @AppLogger.timeit()
-    def initialize(cls) -> bool:
-        if cls.HAS_INITIALIZED:
+    def initialize(self) -> bool:
+        if self.HAS_INITIALIZED:
             return True
         try:
-            cls.__load_env_vars()
-            cls.__configure_logger()
-            configs = cls.__load_configs()
-            cls.__override_env_vars(configs)
-            pre_instantiated = cls.__pre_instantiate(configs)
-            cls.__build_di_container(pre_instantiated)
+            self.__load_env_vars()
+            self.__configure_logger()
+            configs = self.__load_configs()
+            self.__override_env_vars(configs)
+            pre_instantiated = self.__pre_instantiate(configs)
+            self.__build_di_container(pre_instantiated)
         except Exception as e:
             AppLogger.error(f"Unable to conclude application initialization -> {type(e).__name__}: {e}")
-            cls.HAS_INITIALIZED = False
+            self.HAS_INITIALIZED = False
             # raise
             return False
 
-        cls.HAS_INITIALIZED = True
+        self.HAS_INITIALIZED = True
         return True
 
-    @classmethod
-    def __load_env_vars(cls) -> None:
+    def __load_env_vars(self) -> None:
         try:
             env_file = os.path.join(os.getcwd(), '.env')
 
@@ -52,7 +59,7 @@ class ConfigurationModule:
                 load_dotenv()
                 AppLogger.info("Environment variables loaded.")
 
-            for key in cls.REQUIRED_ENV_VARS:
+            for key in self.REQUIRED_ENV_VARS:
                 if key not in os.environ:
                     raise ValueError(f"Missing required environment variable: {key}")
 
@@ -60,8 +67,7 @@ class ConfigurationModule:
             AppLogger.error(f"Failed to load environment variables: {e}", exception=e)
             raise
 
-    @classmethod
-    def __configure_logger(cls) -> None:
+    def __configure_logger(self) -> None:
         if "STRUCTURED_LOGS" in os.environ and os.environ["STRUCTURED_LOGS"].lower() == "false":
             AppLogger.STRUCTURED = False
 
@@ -69,8 +75,7 @@ class ConfigurationModule:
 
         AppLogger.info("Logger configured.")
 
-    @classmethod
-    def __load_configs(cls) -> Configs:
+    def __load_configs(self) -> Configs:
         def merge_configs(base: dict, override: dict) -> dict:
             for key, value in override.items():
                 if key in base:
@@ -110,8 +115,7 @@ class ConfigurationModule:
             AppLogger.error(f"Failed to load configs: {e}", exception=e)
             raise
 
-    @classmethod
-    def __override_env_vars(cls, configs: Configs) -> None:
+    def __override_env_vars(self, configs: Configs) -> None:
         """
         Override environment variables with remote credentials if applicable.
         """
@@ -133,8 +137,7 @@ class ConfigurationModule:
             AppLogger.error(f"Failed to override environment variables: {e}", exception=e)
             raise
 
-    @classmethod
-    def __pre_instantiate(cls, configs: Configs) -> List[object]:
+    def __pre_instantiate(self, configs: Configs) -> List[object]:
         try:
             agent = ContentGen(configs)
 
@@ -144,8 +147,7 @@ class ConfigurationModule:
             AppLogger.error(f"Unable to preinstantiate: {e}", exception=e)
             raise
 
-    @classmethod
-    def __build_di_container(cls, pre_instantiated) -> None:
+    def __build_di_container(self, pre_instantiated) -> None:
         """
         Build the Dependency Injection container.
         """
@@ -157,8 +159,7 @@ class ConfigurationModule:
             AppLogger.error(f"Failed to build DI container: {e}", exception=e)
             raise
 
-    @classmethod
-    def get_instance(cls, obj):
+    def get_instance(self, obj):
         return DiContainer.get(obj)
 
 
