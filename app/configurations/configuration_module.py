@@ -1,16 +1,13 @@
+import boto3
+import json
+import os
+from dotenv import load_dotenv
 from typing import List
 
-import logging
-
-from agent.crew import ContentGen
 from configurations.configs import Configs
-from crosscutting.app_logger import AppLogger
 from configurations.di_container import DiContainer
 from configurations.service_collection import ServiceCollection
-from dotenv import load_dotenv
-import os
-import json
-import boto3
+from crosscutting.app_logger import AppLogger
 
 
 class ConfigurationModule:
@@ -141,10 +138,8 @@ class ConfigurationModule:
 
     def __pre_instantiate(self, configs: Configs) -> List[object]:
         try:
-            agent = ContentGen(configs)
-
             AppLogger.info(f"Pre instantiation complete.")
-            return [configs, agent]
+            return [configs]
         except Exception as e:
             AppLogger.error(f"Unable to preinstantiate: {e}", exception=e)
             raise

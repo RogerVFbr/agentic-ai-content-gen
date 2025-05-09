@@ -9,5 +9,6 @@ class ServiceCollection:
     def get_services(cls):
         return [
             AppController,
-            AppLogger
+            AppLogger,
+            ContentGen
         ]
