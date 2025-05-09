@@ -35,6 +35,9 @@ class ConfigurationModule:
     def initialize(self) -> bool:
         if self.HAS_INITIALIZED:
             return True
+
+        AppLogger.highlight(f"Initializing configuration ...")
+
         try:
             self.__load_env_vars()
             self.__configure_logger()
@@ -43,12 +46,13 @@ class ConfigurationModule:
             pre_instantiated = self.__pre_instantiate(configs)
             self.__build_di_container(pre_instantiated)
         except Exception as e:
-            AppLogger.error(f"Unable to conclude application initialization -> {type(e).__name__}: {e}")
+            AppLogger.error(f"Unable to finish application initialization -> {type(e).__name__}: {e}")
             self.HAS_INITIALIZED = False
             # raise
             return False
 
         self.HAS_INITIALIZED = True
+        AppLogger.highlight(f"Configuration completed.")
         return True
 
     def __load_env_vars(self) -> None:
@@ -57,21 +61,19 @@ class ConfigurationModule:
 
             if os.path.isfile(env_file):
                 load_dotenv()
-                AppLogger.info("Environment variables loaded.")
+                AppLogger.info("'.env' File environment variables loaded.")
 
             for key in self.REQUIRED_ENV_VARS:
                 if key not in os.environ:
                     raise ValueError(f"Missing required environment variable: {key}")
 
         except Exception as e:
-            AppLogger.error(f"Failed to load environment variables: {e}", exception=e)
+            AppLogger.error(f"Failed to load or verify environment variables: {e}", exception=e)
             raise
 
     def __configure_logger(self) -> None:
         if "STRUCTURED_LOGS" in os.environ and os.environ["STRUCTURED_LOGS"].lower() == "false":
             AppLogger.STRUCTURED = False
-
-        logging.getLogger("crewai").setLevel(logging.CRITICAL)
 
         AppLogger.info("Logger configured.")
 

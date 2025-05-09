@@ -7,7 +7,6 @@ class DiContainer:
     CONTAINER = {}
 
     @classmethod
-    @AppLogger.timeit()
     def build_container(cls, pre_instantiated, injections) -> None:
         try:
             injections_dependencies = {}
