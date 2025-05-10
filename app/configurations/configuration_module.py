@@ -1,3 +1,5 @@
+import signal
+
 import boto3
 import json
 import os
@@ -7,6 +9,7 @@ from typing import List
 from configurations.configs import Configs
 from configurations.di_container import DiContainer
 from configurations.service_collection import ServiceCollection
+from controllers.app_controller import AppController
 from crosscutting.app_logger import AppLogger
 
 
@@ -36,23 +39,23 @@ class ConfigurationModule:
         AppLogger.highlight(f"Initializing configuration ...")
 
         try:
-            self.__load_env_vars()
-            self.__configure_logger()
-            configs = self.__load_configs()
-            self.__override_env_vars(configs)
-            pre_instantiated = self.__pre_instantiate(configs)
-            self.__build_di_container(pre_instantiated)
+            self._load_env_vars()
+            self._configure_logger()
+            configs = self._load_configs()
+            self._override_env_vars(configs)
+            pre_instantiated = self._pre_instantiate(configs)
+            self._build_di_container(pre_instantiated)
+            self._listen_termination_signals()
         except Exception as e:
             AppLogger.error(f"Unable to finish application initialization -> {type(e).__name__}: {e}")
             self.HAS_INITIALIZED = False
-            # raise
             return False
 
         self.HAS_INITIALIZED = True
         AppLogger.highlight(f"Configuration completed.")
         return True
 
-    def __load_env_vars(self) -> None:
+    def _load_env_vars(self) -> None:
         try:
             env_file = os.path.join(os.getcwd(), '.env')
 
@@ -68,13 +71,13 @@ class ConfigurationModule:
             AppLogger.error(f"Failed to load or verify environment variables: {e}", exception=e)
             raise
 
-    def __configure_logger(self) -> None:
+    def _configure_logger(self) -> None:
         if "STRUCTURED_LOGS" in os.environ and os.environ["STRUCTURED_LOGS"].lower() == "false":
             AppLogger.STRUCTURED = False
 
         AppLogger.info("Logger configured.")
 
-    def __load_configs(self) -> Configs:
+    def _load_configs(self) -> Configs:
         def merge_configs(base: dict, override: dict) -> dict:
             for key, value in override.items():
                 if key in base:
@@ -114,7 +117,7 @@ class ConfigurationModule:
             AppLogger.error(f"Failed to load configs: {e}", exception=e)
             raise
 
-    def __override_env_vars(self, configs: Configs) -> None:
+    def _override_env_vars(self, configs: Configs) -> None:
         """
         Override environment variables with remote credentials if applicable.
         """
@@ -136,7 +139,7 @@ class ConfigurationModule:
             AppLogger.error(f"Failed to override environment variables: {e}", exception=e)
             raise
 
-    def __pre_instantiate(self, configs: Configs) -> List[object]:
+    def _pre_instantiate(self, configs: Configs) -> List[object]:
         try:
             AppLogger.info(f"Pre instantiation complete.")
             return [configs]
@@ -144,7 +147,7 @@ class ConfigurationModule:
             AppLogger.error(f"Unable to preinstantiate: {e}", exception=e)
             raise
 
-    def __build_di_container(self, pre_instantiated) -> None:
+    def _build_di_container(self, pre_instantiated) -> None:
         """
         Build the Dependency Injection container.
         """
@@ -154,6 +157,16 @@ class ConfigurationModule:
             AppLogger.info("DI container built.")
         except Exception as e:
             AppLogger.error(f"Failed to build DI container: {e}", exception=e)
+            raise
+
+    def _listen_termination_signals(self):
+        try:
+            controller = self.get_instance(AppController)
+            signal.signal(signal.SIGINT, controller.terminate)
+            signal.signal(signal.SIGTERM, controller.terminate)
+            AppLogger.info("Termination callbacks configured.")
+        except Exception as e:
+            AppLogger.error(f"Failed configure termination signals listening: {e}", exception=e)
             raise
 
     def get_instance(self, obj):

@@ -1,3 +1,5 @@
+import asyncio
+
 import traceback
 
 import json, inspect
@@ -373,39 +375,51 @@ class AppLogger:
     @classmethod
     def timeit(cls):
         """
-        Decorator to log current function execution time.
-        :param name: Procedure name to be displayed.
-        :return: void.
+        Decorator to log execution time for both synchronous and asynchronous functions.
         """
 
         def decorator(method):
-            def measure(*args, **kw):
-                ts = time.time()
-                result = method(*args, **kw)
-                te = time.time()
-                tf = te - ts
-                tf_str = ''
-                if tf < 60:
-                    tf_str = str(round(tf, 3)) + 's'
-                else:
-                    seconds = tf % 60
-                    tf_str = f"{int(tf // 60)}m{' ' + str(round(seconds, 3)) + 's' if seconds > 0 else '' }"
-                method_module = inspect.getmodule(method).__name__
-                method_class = method.__qualname__
-                if not cls.STRUCTURED and cls.SHORT_SOURCE:
-                    method_module = ".".join([x[:1] for x in method_module.split(".")])
-                source = "{}.{}()".format(method_module, method_class)
-                if not cls.STRUCTURED:
-                    cls.log_timeit(f"Elapsed: {tf_str}", source=source)
-                else:
-                    cls.log_timeit(f"Elapsed: {tf_str}", source=source, data={"seconds": round(tf, 3)})
-                cls.MEASUREMENT_STORAGE.append({
-                    'time': cls.__get_now('%H:%M:%S'),
-                    'duration': tf
-                })
-                return result
-            return measure
+            if asyncio.iscoroutinefunction(method):
+                async def async_measure(*args, **kw):
+                    ts = time.time()
+                    result = await method(*args, **kw)
+                    te = time.time()
+                    cls._log_execution_time(method, ts, te)
+                    return result
+
+                return async_measure
+            else:
+                def sync_measure(*args, **kw):
+                    ts = time.time()
+                    result = method(*args, **kw)
+                    te = time.time()
+                    cls._log_execution_time(method, ts, te)
+                    return result
+
+                return sync_measure
+
         return decorator
+
+    @classmethod
+    def _log_execution_time(cls, method, start_time, end_time):
+        """
+        Logs the execution time of a method.
+        """
+        elapsed_time = end_time - start_time
+        elapsed_str = f"{round(elapsed_time, 3)}s" if elapsed_time < 60 else f"{int(elapsed_time // 60)}m {round(elapsed_time % 60, 3)}s"
+        method_module = inspect.getmodule(method).__name__
+        method_class = method.__qualname__
+        if not cls.STRUCTURED and cls.SHORT_SOURCE:
+            method_module = ".".join([x[:1] for x in method_module.split(".")])
+        source = f"{method_module}.{method_class}()"
+        if not cls.STRUCTURED:
+            cls.log_timeit(f"Elapsed: {elapsed_str}", source=source)
+        else:
+            cls.log_timeit(f"Elapsed: {elapsed_str}", source=source, data={"seconds": round(elapsed_time, 3)})
+        cls.MEASUREMENT_STORAGE.append({
+            'time': cls.__get_now('%H:%M:%S'),
+            'duration': elapsed_time
+        })
 
     @classmethod
     def set_correlation_id(cls, corr_id: str):

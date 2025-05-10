@@ -2,6 +2,7 @@ from configurations.configs import Configs
 from crosscutting.app_logger import AppLogger
 from agent.crew import ContentGen
 
+
 class AppController:
     def __init__(
             self,
@@ -14,12 +15,13 @@ class AppController:
         self.agent = agent
 
     @AppLogger.timeit()
-    def run(self, input: dict) -> None:
+    async def run(self, input: dict) -> None:
         try:
             self.logger.highlight("Executing agent ...")
-            result = self.agent.crew().kickoff(inputs=input)
-            # self.logger.highlight(result.raw)
-            self.logger.highlight("Agent execution finished.")
-
+            await self.agent.crew().kickoff_async(inputs=input)
+            self.logger.highlight("Agent executed.")
         except Exception as e:
             raise Exception(f"An error occurred while running the crew: {e}")
+
+    def terminate(self, signum, frame) -> None:
+        self.logger.highlight("Termination requested. Shutting down ...")
