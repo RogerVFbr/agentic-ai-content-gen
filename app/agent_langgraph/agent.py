@@ -54,5 +54,5 @@ class ResearchAgent:
         self.shutdown.finish()
         return None
 
-    async def request_shutdown(self):
+    async def terminate(self):
         await self.shutdown.request()

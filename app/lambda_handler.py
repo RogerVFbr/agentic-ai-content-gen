@@ -9,6 +9,9 @@ def handler(event, context):
         config = ConfigurationModule.get()
         if config.initialize():
             controller = config.get_instance(LangGraphController)
-            await controller.run(event)
+            try:
+                await controller.run(event)
+            finally:
+                await controller.terminate()
 
     asyncio.run(execute())
