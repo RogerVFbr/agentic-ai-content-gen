@@ -1,6 +1,7 @@
 from controllers.app_controller import AppController
 from crosscutting.app_logger import AppLogger
 from agent.crew import ContentGen
+from crosscutting.graceful_shutdown import GracefulShutdown
 
 
 class ServiceCollection:
@@ -10,5 +11,6 @@ class ServiceCollection:
         return [
             AppController,
             AppLogger,
-            ContentGen
+            ContentGen,
+            GracefulShutdown
         ]

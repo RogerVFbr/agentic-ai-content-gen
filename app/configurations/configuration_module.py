@@ -1,5 +1,5 @@
+import asyncio
 import signal
-
 import boto3
 import json
 import os
@@ -162,11 +162,17 @@ class ConfigurationModule:
     def _listen_termination_signals(self):
         try:
             controller = self.get_instance(AppController)
-            signal.signal(signal.SIGINT, controller.terminate)
-            signal.signal(signal.SIGTERM, controller.terminate)
+
+            def handle_signal(signum, frame):
+                loop = asyncio.get_running_loop()
+                asyncio.run_coroutine_threadsafe(controller.terminate(signum, frame), loop)
+
+            signal.signal(signal.SIGINT, handle_signal)
+            signal.signal(signal.SIGTERM, handle_signal)
+
             AppLogger.info("Termination callbacks configured.")
         except Exception as e:
-            AppLogger.error(f"Failed configure termination signals listening: {e}", exception=e)
+            AppLogger.error(f"Failed to configure termination signals listening: {e}", exception=e)
             raise
 
     def get_instance(self, obj):

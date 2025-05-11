@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from crosscutting.graceful_shutdown import GracefulShutdown
 
+
 # === LLM and Search Setup ===
 load_dotenv()
 llm = ChatOpenAI(model="gpt-4", temperature=0.3)
@@ -94,19 +95,22 @@ class LangGraphRunner:
     def __init__(self, graph, input_data):
         self.graph = graph
         self.input_data = input_data
+        self.is_running = True
 
     async def run(self):
         try:
-            result = await self.graph.ainvoke(self.input_data)
-            return result
+            async for step in self.graph.astream(self.input_data):
+                print(f"Step executed: {step}")
+            return await self.graph.ainvoke(self.input_data)
         except asyncio.CancelledError:
             print("[-] Task was cancelled.")
+            self.is_running = False
             raise
 
 # === Main Execution ===
 async def main():
-    loop = asyncio.get_running_loop()
-    shutdown = GracefulShutdown(loop)
+    # loop = asyncio.get_running_loop()
+    shutdown = GracefulShutdown()
     shutdown.register()
 
     input_data = {
