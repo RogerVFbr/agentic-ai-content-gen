@@ -67,7 +67,7 @@ class AppLogger:
 
         if not cls.STRUCTURED:
             magenta, reverse, default = cls.ANSI.get('magenta'), cls.ANSI.get('reversed'), cls.ANSI.get('default')
-            msg = f"{magenta}{reverse}{cls.__get_now('%H:%M:%S')}{default}{magenta} {magenta}{reverse}{cls.get_source()}{default}{magenta} {msg}{default}"
+            msg = f"{magenta}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default}{magenta} {magenta}{reverse}{cls.get_source()}{default}{magenta} {msg}{default}"
             cls.log(msg, print_on_screen=print_on_screen, data=data)
             if say:
                 cls.__say(f'{msg}')
@@ -85,7 +85,7 @@ class AppLogger:
 
         if not cls.STRUCTURED:
             reverse, default = cls.ANSI.get('reversed'), cls.ANSI.get('default')
-            msg_ansi = f"{reverse}{cls.__get_now('%H:%M:%S')}{default} {reverse}{cls.get_source()}{default} {msg}"
+            msg_ansi = f"{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {reverse}{cls.get_source()}{default} {msg}"
             cls.log(msg_ansi, print_on_screen=print_on_screen, data=data)
             if say:
                 cls.__say(f'{msg}')
@@ -103,7 +103,7 @@ class AppLogger:
 
         if not cls.STRUCTURED:
             yellow, reverse, default = cls.ANSI.get('yellow'), cls.ANSI.get('reversed'), cls.ANSI.get('default')
-            msg_ansi = f"{yellow}{reverse}{cls.__get_now('%H:%M:%S')}{default} {yellow}{reverse}{cls.get_source()}{default} {yellow}{msg}{default}"
+            msg_ansi = f"{yellow}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {yellow}{reverse}{cls.get_source()}{default} {yellow}{msg}{default}"
             cls.log(msg_ansi, print_on_screen=print_on_screen, data=data)
             if say:
                 cls.__say(f'Alert. {msg}')
@@ -121,7 +121,7 @@ class AppLogger:
 
         if not cls.STRUCTURED:
             red, reverse, default = cls.ANSI.get('red'), cls.ANSI.get('reversed'), cls.ANSI.get('default')
-            msg_ansi = f"{red}{reverse}{cls.__get_now('%H:%M:%S')}{default} {red}{reverse}{cls.get_source()}{default} {red}{msg}{default}"
+            msg_ansi = f"{red}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {red}{reverse}{cls.get_source()}{default} {red}{msg}{default}"
 
             if exception:
                 msg_ansi += f"\n{red}"
@@ -149,7 +149,7 @@ class AppLogger:
 
         if not cls.STRUCTURED:
             yellow, reverse, default = cls.ANSI.get('yellow'), cls.ANSI.get('reversed'), cls.ANSI.get('default')
-            msg_ansi = f"{yellow}{reverse}{cls.__get_now('%H:%M:%S')}{default} {yellow}{reverse} {source} {default} {yellow}{msg}{default}"
+            msg_ansi = f"{yellow}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {yellow}{reverse} {source} {default} {yellow}{msg}{default}"
             cls.log(msg_ansi, print_on_screen=print_on_screen)
         else:
             cls.log(msg, level="INFO", print_on_screen=print_on_screen, data=data, source=source)

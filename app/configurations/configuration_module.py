@@ -9,7 +9,7 @@ from typing import List
 from configurations.configs import Configs
 from configurations.di_container import DiContainer
 from configurations.service_collection import ServiceCollection
-from controllers.app_controller import AppController
+from controllers.langgraph_controller import LangGraphController
 from crosscutting.app_logger import AppLogger
 
 
@@ -161,7 +161,7 @@ class ConfigurationModule:
 
     def _listen_termination_signals(self):
         try:
-            controller = self.get_instance(AppController)
+            controller = self.get_instance(LangGraphController)
 
             def handle_signal(signum, frame):
                 loop = asyncio.get_running_loop()

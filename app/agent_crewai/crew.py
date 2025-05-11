@@ -58,8 +58,8 @@ class ContentGen:
         # https://docs.crewai.com/concepts/knowledge#what-is-knowledge
 
         return Crew(
-            agents=self.agents, # Automatically created by the @agent decorator
-            tasks=self.tasks, # Automatically created by the @task decorator
+            agents=self.agents,
+            tasks=self.tasks,
             process=Process.sequential,
             verbose=self.configs.flags.agent_log_verbose,
             step_callback=lambda x: self.logs_callback('Step', x),
