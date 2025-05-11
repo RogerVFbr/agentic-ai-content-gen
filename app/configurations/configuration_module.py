@@ -1,5 +1,3 @@
-import asyncio
-import signal
 import boto3
 import json
 import os
@@ -9,7 +7,6 @@ from typing import List
 from configurations.configs import Configs
 from configurations.di_container import DiContainer
 from configurations.service_collection import ServiceCollection
-from controllers.langgraph_controller import LangGraphController
 from crosscutting.app_logger import AppLogger
 
 
@@ -45,7 +42,6 @@ class ConfigurationModule:
             self._override_env_vars(configs)
             pre_instantiated = self._pre_instantiate(configs)
             self._build_di_container(pre_instantiated)
-            self._listen_termination_signals()
         except Exception as e:
             AppLogger.error(f"Unable to finish application initialization -> {type(e).__name__}: {e}")
             self.HAS_INITIALIZED = False
@@ -157,22 +153,6 @@ class ConfigurationModule:
             AppLogger.info("DI container built.")
         except Exception as e:
             AppLogger.error(f"Failed to build DI container: {e}", exception=e)
-            raise
-
-    def _listen_termination_signals(self):
-        try:
-            controller = self.get_instance(LangGraphController)
-
-            def handle_signal(signum, frame):
-                loop = asyncio.get_running_loop()
-                asyncio.run_coroutine_threadsafe(controller.terminate(signum, frame), loop)
-
-            signal.signal(signal.SIGINT, handle_signal)
-            signal.signal(signal.SIGTERM, handle_signal)
-
-            AppLogger.info("Termination callbacks configured.")
-        except Exception as e:
-            AppLogger.error(f"Failed to configure termination signals listening: {e}", exception=e)
             raise
 
     def get_instance(self, obj):

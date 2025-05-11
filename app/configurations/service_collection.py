@@ -1,10 +1,13 @@
+from agent_crewai.agent import ContentGenAgent
 from agent_langgraph.agent import ResearchAgent
 from agent_langgraph.graph import ResearchAgentGraph
 from agent_langgraph.elements import ResearchAgentElements
+from controllers.crewai_controller import CrewAiController
 from controllers.langgraph_controller import LangGraphController
 from crosscutting.app_logger import AppLogger
 from agent_crewai.crew import ContentGen
-from crosscutting.graceful_shutdown import GracefulShutdown
+from workers.crewai_worker import CrewAiWorker
+from workers.langgraph_worker import LangGraphWorker
 
 
 class ServiceCollection:
@@ -12,12 +15,16 @@ class ServiceCollection:
     @classmethod
     def get_services(cls):
         return [
-            LangGraphController,
-            AppLogger,
-            ContentGen,
-            GracefulShutdown
+            AppLogger
         ] + [
+            CrewAiWorker,
+            CrewAiController,
+            ContentGenAgent,
+            ContentGen
+        ] + [
+            LangGraphWorker,
+            LangGraphController,
             ResearchAgent,
-            ResearchAgentElements,
-            ResearchAgentGraph
+            ResearchAgentGraph,
+            ResearchAgentElements
         ]
