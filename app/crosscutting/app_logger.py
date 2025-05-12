@@ -46,9 +46,18 @@ class AppLogger:
         'red': '\u001b[31m',
         'green': '\u001b[32m',
         'cyan': '\u001b[36m',
+        'gray': '\u001b[37m',
         'blue': '\u001b[34m',
-        'bg_green': '\u001b[42m',
+        'orange': '\u001b[38;2;255;165;0m',
+        'dark_orange': '\u001b[38;2;204;102;0m',
+        'bg_black': '\u001b[40m',
         'bg_red': '\u001b[41m',
+        'bg_green': '\u001b[42m',
+        'bg_yellow': '\u001b[43m',
+        'bg_blue': '\u001b[44m',
+        'bg_magenta': '\u001b[45m',
+        'bg_cyan': '\u001b[46m',
+        'bg_white': '\u001b[47m',
         'bold': '\u001b[1m',
         'underline': '\u001b[4m',
         'reversed': '\u001b[7m',
@@ -59,102 +68,60 @@ class AppLogger:
     CUSTOMER_NAME = None
 
     @classmethod
-    def highlight(cls, msg: str, print_on_screen: bool = True, say = False, data = None):
+    def _log_message(cls, msg: str, level: str, color: str, print_on_screen: bool, say: bool, data: dict = None,
+                     exception: Exception = None, source_level: int = 3, source=None):
         """
-        Logs default alert message.
-        :param msg: Message to be logged.
-        :param print_on_screen: Flags whether message is to be printed on screen or only on file.
-        :return: void
+        Generic method to handle logging logic.
         """
-
         if not cls.STRUCTURED:
-            magenta, reverse, default = cls.ANSI.get('magenta'), cls.ANSI.get('reversed'), cls.ANSI.get('default')
-            msg = f"{magenta}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {magenta}{reverse} INFO {default}{magenta} {reverse}{cls.get_source()}{default}{magenta} {cls.bold(msg)}{default}"
-            cls.log(msg, print_on_screen=print_on_screen, data=data)
-            if say:
-                cls.__say(f'{msg}')
-        else:
-            cls.log(msg, level="INFO", print_on_screen=print_on_screen, data=data)
-
-    @classmethod
-    def info(cls, msg: str, print_on_screen: bool = True, say = False, data = None):
-        """
-        Logs default alert message.
-        :param msg: Message to be logged.
-        :param print_on_screen: Flags whether message is to be printed on screen or only on file.
-        :return: void
-        """
-
-        if not cls.STRUCTURED:
-            reverse, default = cls.ANSI.get('reversed'), cls.ANSI.get('default')
-            msg_ansi = f"{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {reverse} INFO {default} {reverse}{cls.get_source()}{default} {msg}"
-            cls.log(msg_ansi, print_on_screen=print_on_screen, data=data)
-            if say:
-                cls.__say(f'{msg}')
-        else:
-            cls.log(msg, level="INFO", print_on_screen=print_on_screen, data=data)
-
-    @classmethod
-    def warn(cls, msg: str, print_on_screen: bool = True, say = False, data = None):
-        """
-        Logs default alert message.
-        :param msg: Message to be logged.
-        :param print_on_screen: Flags whether message is to be printed on screen or only on file.
-        :return: void
-        """
-
-        if not cls.STRUCTURED:
-            yellow, reverse, default = cls.ANSI.get('yellow'), cls.ANSI.get('reversed'), cls.ANSI.get('default')
-            msg_ansi = f"{yellow}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {yellow}{reverse} WARN {default} {reverse}{yellow}{reverse}{cls.get_source()}{default} {yellow}{msg}{default}"
-            cls.log(msg_ansi, print_on_screen=print_on_screen, data=data)
-            if say:
-                cls.__say(f'Alert. {msg}')
-        else:
-            cls.log(msg, level="WARN", print_on_screen=print_on_screen, data=data)
-
-    @classmethod
-    def error(cls, msg: str, exception: Exception = None, print_on_screen: bool = True, say = False, data = None):
-        """
-        Logs default error message.
-        :param msg: Message to be logged.
-        :param print_on_screen: Flags whether message is to be printed on screen of only on file.
-        :return: void
-        """
-
-        if not cls.STRUCTURED:
-            red, reverse, default = cls.ANSI.get('red'), cls.ANSI.get('reversed'), cls.ANSI.get('default')
-            msg_ansi = f"{red}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {red}{reverse} ERR  {default} {red}{reverse}{cls.get_source()}{default} {red}{msg}{default}"
+            color_code, default, reverse = cls.ANSI.get(color), cls.ANSI.get('default'), cls.ANSI.get('reversed')
+            color_code = color_code if color_code else default
+            level = "ERR " if level == "ERROR" else level
+            level = "DBG " if level == "DEBUG" else level
+            level = "CRIT" if level == "CRITICAL" else level
+            msg_ansi = f"{color_code}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {color_code}{reverse} {level} {default} {color_code}{reverse} {cls.get_source(source_level) if not source else source} {default} {color_code}{msg}{default}"
 
             if exception:
-                msg_ansi += f"\n{red}"
+                msg_ansi += f"\n{color_code}"
                 msg_ansi += "\n".join(traceback.format_exception(type(exception), exception, exception.__traceback__))
                 msg_ansi += f"{default}"
 
             cls.log(msg_ansi, print_on_screen=print_on_screen, data=data)
-
             if say:
-                cls.__say(f'Error. {msg}')
+                cls.__say(msg)
         else:
-            cls.log(msg, level="ERROR", print_on_screen=print_on_screen, data=data)
+            cls.log(msg, level=level, print_on_screen=print_on_screen, data=data)
             if exception:
                 stack_trace = "".join(traceback.format_exception(type(exception), exception, exception.__traceback__))
                 cls.log(stack_trace, print_on_screen=print_on_screen)
 
     @classmethod
-    def log_timeit(cls, msg: str, print_on_screen: bool = True, data=None, source=None):
-        """
-        Logs default alert message.
-        :param msg: Message to be logged.
-        :param print_on_screen: Flags whether message is to be printed on screen or only on file.
-        :return: void
-        """
+    def highlight(cls, msg: str, print_on_screen: bool = True, say: bool = False, data: dict = None):
+        cls._log_message(msg, level="INFO", color="magenta", print_on_screen=print_on_screen, say=say, data=data)
 
-        if not cls.STRUCTURED:
-            yellow, reverse, default = cls.ANSI.get('cyan'), cls.ANSI.get('reversed'), cls.ANSI.get('default')
-            msg_ansi = f"{yellow}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {yellow}{reverse} INFO {default} {yellow}{reverse} {source} {default} {yellow}{cls.bold(msg)}{default}"
-            cls.log(msg_ansi, print_on_screen=print_on_screen)
-        else:
-            cls.log(msg, level="INFO", print_on_screen=print_on_screen, data=data, source=source)
+    @classmethod
+    def debug(cls, msg: str, print_on_screen: bool = True, say: bool = False, data: dict = None):
+        cls._log_message(msg, level="DEBUG", color="gray", print_on_screen=print_on_screen, say=say, data=data)
+
+    @classmethod
+    def info(cls, msg: str, print_on_screen: bool = True, say: bool = False, data: dict = None):
+        cls._log_message(msg, level="INFO", color="", print_on_screen=print_on_screen, say=say, data=data)
+
+    @classmethod
+    def warn(cls, msg: str, print_on_screen: bool = True, say: bool = False, data: dict = None):
+        cls._log_message(msg, level="WARN", color="yellow", print_on_screen=print_on_screen, say=say, data=data)
+
+    @classmethod
+    def error(cls, msg: str, exception: Exception = None, print_on_screen: bool = True, say: bool = False, data: dict = None):
+        cls._log_message(msg, level="ERROR", color="red", print_on_screen=print_on_screen, say=say, data=data, exception=exception)
+
+    @classmethod
+    def critical(cls, msg: str, exception: Exception = None, print_on_screen: bool = True, say: bool = False, data: dict = None):
+        cls._log_message(msg, level="CRITICAL", color="dark_orange", print_on_screen=print_on_screen, say=say, data=data, exception=exception)
+
+    @classmethod
+    def log_timeit(cls, msg: str, print_on_screen: bool = True, data=None, source=None):
+        cls._log_message(msg, level="INFO", color="cyan", print_on_screen=print_on_screen, say=False, data=data, source=source)
 
     @classmethod
     def empty_line(cls):
@@ -338,22 +305,30 @@ class AppLogger:
     @classmethod
     def get_source(cls, level=2) -> str:
         try:
-            stack = inspect.stack()
-            locals_key = "self" if "self" in stack[level][0].f_locals.keys() else "cls"
-            the_module = stack[level][0].f_locals[locals_key].__class__.__module__
-            the_class = stack[level][0].f_locals[locals_key].__class__.__name__
-            the_method = stack[level][0].f_code.co_name
+            frame = inspect.currentframe()
+            for _ in range(level):
+                if frame is None:
+                    return "N.A."
+                frame = frame.f_back
+
+            if frame is None:
+                return "N.A."
+
+            locals_key = "self" if "self" in frame.f_locals else "cls"
+            obj = frame.f_locals.get(locals_key)
+            if obj is None:
+                return "N.A."
+
+            the_module = obj.__class__.__module__
+            the_class = obj.__class__.__name__
+            the_method = frame.f_code.co_name
+
             if cls.SHORT_SOURCE:
                 the_module = ".".join([x[:1] for x in the_module.split(".")])
-            result = "{}.{}.{}()".format(the_module, the_class, the_method)
-            if not cls.STRUCTURED:
-                result = f" {result} "
-            return result
-        except Exception as e:
-            if not cls.STRUCTURED:
-                return " N.A. "
-            else:
-                return "N.A."
+
+            return f"{the_module}.{the_class}.{the_method}()"
+        except Exception:
+            return "N.A."
 
     @classmethod
     def get_measurements(cls):

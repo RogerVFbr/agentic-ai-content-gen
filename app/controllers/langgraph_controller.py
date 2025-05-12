@@ -17,8 +17,7 @@ class LangGraphController:
         try:
             _ = await self.agent.run(input)
         except Exception as e:
-            self.logger.error(f"An error occurred while running the agent: {e}.", exception=e)
-            # raise
+            self.logger.critical(f"An error occurred while running the agent: {e}.", exception=e)
 
     @AppLogger.timeit()
     async def terminate(self) -> None:
