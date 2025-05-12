@@ -2,11 +2,15 @@ import asyncio
 import signal
 from abc import ABC, abstractmethod
 
+from crosscutting.cancellation_token import CancellationTokenSource, CancellationToken
+
+
 class BackgroundService(ABC):
     def __init__(self):
         self._shutdown_event = asyncio.Event()
         self._loop = asyncio.get_running_loop()
         self._register_signal_handlers()
+        self._cancellation_token_source = CancellationTokenSource()
 
     async def run(self, input=None):
         """Entrypoint to start and manage the full lifecycle."""
@@ -20,6 +24,8 @@ class BackgroundService(ABC):
         )
 
         if shutdown_task in done:
+            self._cancellation_token_source.cancel()
+            await self.on_terminate()
             lifecycle_task.cancel()
             try:
                 await lifecycle_task
@@ -34,16 +40,20 @@ class BackgroundService(ABC):
 
     async def _lifecycle(self, input=None):
         try:
-            await self.start(input)
+            await self.start(self._cancellation_token_source.token, input)
         finally:
             await self.stop()
 
     @abstractmethod
-    async def start(self, input=None):
+    async def start(self, cancellation_token: CancellationToken, input=None):
         """To be implemented by subclass"""
         pass
 
     @abstractmethod
     async def stop(self):
         """To be implemented by subclass"""
+        pass
+
+    async def on_terminate(self):
+        """To be optionally overridden by subclass"""
         pass
