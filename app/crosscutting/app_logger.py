@@ -45,6 +45,8 @@ class AppLogger:
         'yellow': '\u001b[33m',
         'red': '\u001b[31m',
         'green': '\u001b[32m',
+        'cyan': '\u001b[36m',
+        'blue': '\u001b[34m',
         'bg_green': '\u001b[42m',
         'bg_red': '\u001b[41m',
         'bold': '\u001b[1m',
@@ -67,7 +69,7 @@ class AppLogger:
 
         if not cls.STRUCTURED:
             magenta, reverse, default = cls.ANSI.get('magenta'), cls.ANSI.get('reversed'), cls.ANSI.get('default')
-            msg = f"{magenta}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default}{magenta} {magenta}{reverse}{cls.get_source()}{default}{magenta} {msg}{default}"
+            msg = f"{magenta}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {magenta}{reverse} INFO {default}{magenta} {reverse}{cls.get_source()}{default}{magenta} {cls.bold(msg)}{default}"
             cls.log(msg, print_on_screen=print_on_screen, data=data)
             if say:
                 cls.__say(f'{msg}')
@@ -85,7 +87,7 @@ class AppLogger:
 
         if not cls.STRUCTURED:
             reverse, default = cls.ANSI.get('reversed'), cls.ANSI.get('default')
-            msg_ansi = f"{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {reverse}{cls.get_source()}{default} {msg}"
+            msg_ansi = f"{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {reverse} INFO {default} {reverse}{cls.get_source()}{default} {msg}"
             cls.log(msg_ansi, print_on_screen=print_on_screen, data=data)
             if say:
                 cls.__say(f'{msg}')
@@ -103,7 +105,7 @@ class AppLogger:
 
         if not cls.STRUCTURED:
             yellow, reverse, default = cls.ANSI.get('yellow'), cls.ANSI.get('reversed'), cls.ANSI.get('default')
-            msg_ansi = f"{yellow}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {yellow}{reverse}{cls.get_source()}{default} {yellow}{msg}{default}"
+            msg_ansi = f"{yellow}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {yellow}{reverse} WARN {default} {reverse}{yellow}{reverse}{cls.get_source()}{default} {yellow}{msg}{default}"
             cls.log(msg_ansi, print_on_screen=print_on_screen, data=data)
             if say:
                 cls.__say(f'Alert. {msg}')
@@ -121,7 +123,7 @@ class AppLogger:
 
         if not cls.STRUCTURED:
             red, reverse, default = cls.ANSI.get('red'), cls.ANSI.get('reversed'), cls.ANSI.get('default')
-            msg_ansi = f"{red}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {red}{reverse}{cls.get_source()}{default} {red}{msg}{default}"
+            msg_ansi = f"{red}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {red}{reverse} ERR  {default} {red}{reverse}{cls.get_source()}{default} {red}{msg}{default}"
 
             if exception:
                 msg_ansi += f"\n{red}"
@@ -148,8 +150,8 @@ class AppLogger:
         """
 
         if not cls.STRUCTURED:
-            yellow, reverse, default = cls.ANSI.get('yellow'), cls.ANSI.get('reversed'), cls.ANSI.get('default')
-            msg_ansi = f"{yellow}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {yellow}{reverse} {source} {default} {yellow}{msg}{default}"
+            yellow, reverse, default = cls.ANSI.get('cyan'), cls.ANSI.get('reversed'), cls.ANSI.get('default')
+            msg_ansi = f"{yellow}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {yellow}{reverse} INFO {default} {yellow}{reverse} {source} {default} {yellow}{cls.bold(msg)}{default}"
             cls.log(msg_ansi, print_on_screen=print_on_screen)
         else:
             cls.log(msg, level="INFO", print_on_screen=print_on_screen, data=data, source=source)
@@ -413,9 +415,9 @@ class AppLogger:
             method_module = ".".join([x[:1] for x in method_module.split(".")])
         source = f"{method_module}.{method_class}()"
         if not cls.STRUCTURED:
-            cls.log_timeit(f"Elapsed: {elapsed_str}", source=source)
+            cls.log_timeit(f"Elapsed: {elapsed_str}.", source=source)
         else:
-            cls.log_timeit(f"Elapsed: {elapsed_str}", source=source, data={"seconds": round(elapsed_time, 3)})
+            cls.log_timeit(f"Elapsed: {elapsed_str}.", source=source, data={"seconds": round(elapsed_time, 3)})
         cls.MEASUREMENT_STORAGE.append({
             'time': cls.__get_now('%H:%M:%S'),
             'duration': elapsed_time
