@@ -36,7 +36,7 @@ class AppLogger:
     MAXIMUM_LOG_FILES_STORED = 5                    # :int: Maximum amount of stored log files.
     LOG_STORAGE = []                                # :list: Logs memory storage.
     MEASUREMENT_STORAGE = []                        # :list: Measurements memory storage.
-    # TIMEZONE = 'UTC'
+    SOURCE_LENGTH = 47
     STRUCTURED = True
     SHORT_SOURCE = True
     TIMEZONE = ''
@@ -76,9 +76,7 @@ class AppLogger:
         if not cls.STRUCTURED:
             color_code, default, reverse = cls.ANSI.get(color), cls.ANSI.get('default'), cls.ANSI.get('reversed')
             color_code = color_code if color_code else default
-            level = "ERR " if level == "ERROR" else level
-            level = "DBG " if level == "DEBUG" else level
-            level = "CRIT" if level == "CRITICAL" else level
+            level = level[:4]
             msg_ansi = f"{color_code}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {color_code}{reverse} {level} {default} {color_code}{reverse} {cls.get_source(source_level) if not source else source} {default} {color_code}{msg}{default}"
 
             if exception:
@@ -326,7 +324,7 @@ class AppLogger:
             if cls.SHORT_SOURCE:
                 the_module = ".".join([x[:1] for x in the_module.split(".")])
 
-            return f"{the_module}.{the_class}.{the_method}()"
+            return f"{the_module}.{the_class}.{the_method}()".ljust(cls.SOURCE_LENGTH)[:cls.SOURCE_LENGTH]
         except Exception:
             return "N.A."
 
@@ -388,7 +386,7 @@ class AppLogger:
         method_class = method.__qualname__
         if not cls.STRUCTURED and cls.SHORT_SOURCE:
             method_module = ".".join([x[:1] for x in method_module.split(".")])
-        source = f"{method_module}.{method_class}()"
+        source = f"{method_module}.{method_class}() <timeit>".ljust(cls.SOURCE_LENGTH)[:cls.SOURCE_LENGTH]
         if not cls.STRUCTURED:
             cls.log_timeit(f"Elapsed: {elapsed_str}.", source=source)
         else:
