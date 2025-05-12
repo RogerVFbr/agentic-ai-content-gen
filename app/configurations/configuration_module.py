@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from typing import List
 
 from configurations.configs import Configs
+from configurations.configs_parser import ConfigsParser
 from configurations.di_container import DiContainer
 from configurations.service_collection import ServiceCollection
 from crosscutting.app_logger import AppLogger
@@ -74,41 +75,10 @@ class ConfigurationModule:
         AppLogger.info("Logger configured.")
 
     def _load_configs(self) -> Configs:
-        def merge_configs(base: dict, override: dict) -> dict:
-            for key, value in override.items():
-                if key in base:
-                    if isinstance(base[key], dict) and isinstance(value, dict):
-                        merge_configs(base[key], value)
-                    elif isinstance(base[key], list) and isinstance(value, list):
-                        base[key] = value
-                    else:
-                        base[key] = value
-                else:
-                    base[key] = value
-            return base
-
         try:
-            env = os.getenv('APP_ENV')
-
-            base_config_file = f'{os.getcwd()}/configs.json'
-            env_config_file = f'{os.getcwd()}/configs.{env}.json'
-
-            if not os.path.exists(base_config_file):
-                raise FileNotFoundError(f"Configuration file '{base_config_file}'")
-
-            if not os.path.exists(env_config_file):
-                raise FileNotFoundError(f"Configuration file '{env_config_file}'")
-
-            with open(base_config_file, 'r') as file:
-                config = json.load(file)
-
-            if os.path.exists(env_config_file):
-                with open(env_config_file, 'r') as file:
-                    env_config = json.load(file)
-                config = merge_configs(config, env_config)
-
+            configs = ConfigsParser().parse()
             AppLogger.info("Configs loaded.")
-            return Configs(**config)
+            return configs
         except Exception as e:
             AppLogger.error(f"Failed to load configs: {e}", exception=e)
             raise
