@@ -15,7 +15,9 @@ class LangGraphController:
     @AppLogger.timeit()
     async def run(self, input: dict) -> None:
         try:
+            self.logger.highlight("Executing agent ...")
             _ = await self.agent.run(input)
+            self.logger.highlight("Agent executed.")
         except Exception as e:
             self.logger.critical(f"An error occurred while running the agent: {e}.", exception=e)
 

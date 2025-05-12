@@ -44,7 +44,7 @@ class ConfigurationModule:
             pre_instantiated = self._pre_instantiate(configs)
             self._build_di_container(pre_instantiated)
         except Exception as e:
-            AppLogger.error(f"Unable to finish application initialization -> {type(e).__name__}: {e}")
+            AppLogger.critical(f"Unable to finish application initialization -> {type(e).__name__}: {e}")
             self.HAS_INITIALIZED = False
             return False
 
@@ -58,7 +58,7 @@ class ConfigurationModule:
 
             if os.path.isfile(env_file):
                 load_dotenv()
-                AppLogger.info("'.env' File environment variables loaded.")
+                AppLogger.debug("'.env' File environment variables loaded.")
 
             for key in self.REQUIRED_ENV_VARS:
                 if key not in os.environ:
@@ -72,12 +72,12 @@ class ConfigurationModule:
         if "STRUCTURED_LOGS" in os.environ and os.environ["STRUCTURED_LOGS"].lower() == "false":
             AppLogger.STRUCTURED = False
 
-        AppLogger.info("Logger configured.")
+        AppLogger.debug("Logger configured.")
 
     def _load_configs(self) -> Configs:
         try:
             configs = ConfigsParser().parse()
-            AppLogger.info("Configs loaded.")
+            AppLogger.debug("Configs loaded.")
             return configs
         except Exception as e:
             AppLogger.error(f"Failed to load configs: {e}", exception=e)
@@ -107,7 +107,7 @@ class ConfigurationModule:
 
     def _pre_instantiate(self, configs: Configs) -> List[object]:
         try:
-            AppLogger.info(f"Pre instantiation complete.")
+            AppLogger.debug(f"Pre instantiation complete.")
             return [configs]
         except Exception as e:
             AppLogger.error(f"Unable to preinstantiate: {e}", exception=e)
@@ -120,7 +120,7 @@ class ConfigurationModule:
         try:
             injections = ServiceCollection.get_services()
             DiContainer.build_container(pre_instantiated, injections)
-            AppLogger.info("DI container built.")
+            AppLogger.debug("DI container built.")
         except Exception as e:
             AppLogger.error(f"Failed to build DI container: {e}", exception=e)
             raise

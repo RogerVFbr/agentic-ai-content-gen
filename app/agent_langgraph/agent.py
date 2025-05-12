@@ -13,19 +13,11 @@ class ResearchAgent:
         self.logger = logger
         self.graph = graph
 
-    async def run_task(self, graph, input):
+    async def run(self, input: dict) -> None:
         try:
+            graph = self.graph.build()
             async for step in graph.astream(input):
                 self.logger.info(f"[{list(step.keys())[0]}] Step executed.")
-            return await graph.ainvoke(input)
+            await graph.ainvoke(input)
         except asyncio.CancelledError:
-            self.logger.warn("Agent running task cancelled.")
-            return None
-
-    async def run(self, input: dict) -> None:
-        self.logger.highlight("Executing agent ...")
-
-        graph = self.graph.build()
-        await self.run_task(graph, input)
-
-        self.logger.highlight("Agent executed.")
+            self.logger.warn("Agent execution cancelled.")
