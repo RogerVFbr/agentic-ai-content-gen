@@ -1,7 +1,7 @@
 import asyncio
 
-from agent_langgraph.graph import ResearchAgentGraph
-from crosscutting.app_logger import AppLogger
+from agents.langgraph.graph import ResearchAgentGraph
+from crosscutting.logging.app_logger import AppLogger
 
 
 class ResearchAgent:

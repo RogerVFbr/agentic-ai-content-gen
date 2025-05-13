@@ -1,5 +1,5 @@
-from agent_crewai.agent import ContentGenAgent
-from crosscutting.app_logger import AppLogger
+from agents.crewai.agent import ContentGenAgent
+from crosscutting.logging.app_logger import AppLogger
 
 
 class CrewAiController:

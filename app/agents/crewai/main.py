@@ -5,7 +5,7 @@ import warnings
 from datetime import datetime
 
 
-from agent_crewai.crew import ContentGen
+from agents.crewai.crew import ContentGen
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 

@@ -1,8 +1,8 @@
 import asyncio
 
-from agent_crewai.crew import ContentGen
+from agents.crewai.crew import ContentGen
 from configurations.configs import Configs
-from crosscutting.app_logger import AppLogger
+from crosscutting.logging.app_logger import AppLogger
 
 
 class ContentGenAgent:

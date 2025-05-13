@@ -5,7 +5,7 @@ from crewai.agents.agent_builder.base_agent import BaseAgent
 from typing import List
 
 from configurations.configs import Configs
-from crosscutting.app_logger import AppLogger
+from crosscutting.logging.app_logger import AppLogger
 
 
 @CrewBase

@@ -1,9 +1,8 @@
-import asyncio
 from langchain_community.utilities import SerpAPIWrapper
 from langchain.tools import Tool
 from langchain_openai import ChatOpenAI
 
-from crosscutting.app_logger import AppLogger
+from crosscutting.logging.app_logger import AppLogger
 
 class ResearchAgentElements:
 

@@ -1,5 +1,5 @@
+import asyncio
 import boto3
-import json
 import os
 from dotenv import load_dotenv
 from typing import List
@@ -8,7 +8,7 @@ from configurations.configs import Configs
 from configurations.configs_parser import ConfigsParser
 from configurations.di_container import DiContainer
 from configurations.service_collection import ServiceCollection
-from crosscutting.app_logger import AppLogger
+from crosscutting.logging.app_logger import AppLogger
 
 
 class ConfigurationModule:
@@ -23,14 +23,23 @@ class ConfigurationModule:
     ]
 
     @classmethod
-    def get(cls):
+    def run(cls, obj, callback):
+        async def execute():
+            module = cls._get()
+            if module._initialize():
+                instance = DiContainer.get(obj)
+                await callback(instance)
+
+        asyncio.run(execute())
+
+    @classmethod
+    def _get(cls):
         if cls.INSTANCE is None:
             cls.INSTANCE = ConfigurationModule()
         return cls.INSTANCE
 
-
     @AppLogger.timeit()
-    def initialize(self) -> bool:
+    def _initialize(self) -> bool:
         if self.HAS_INITIALIZED:
             return True
 
@@ -124,10 +133,3 @@ class ConfigurationModule:
         except Exception as e:
             AppLogger.error(f"Failed to build DI container: {e}", exception=e)
             raise
-
-    def get_instance(self, obj):
-        return DiContainer.get(obj)
-
-
-
-

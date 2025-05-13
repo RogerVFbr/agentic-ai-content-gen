@@ -1,5 +1,5 @@
-from agent_langgraph.agent import ResearchAgent
-from crosscutting.app_logger import AppLogger
+from agents.langgraph.agent import ResearchAgent
+from crosscutting.logging.app_logger import AppLogger
 
 
 class LangGraphController:
@@ -15,9 +15,9 @@ class LangGraphController:
     @AppLogger.timeit()
     async def run(self, input: dict) -> None:
         try:
-            self.logger.highlight("Executing agent ...")
+            self.logger.highlight("Running agent ...")
             _ = await self.agent.run(input)
-            self.logger.highlight("Agent executed.")
+            self.logger.highlight("Agent finished.")
         except Exception as e:
             self.logger.critical(f"An error occurred while running the agent: {e}.", exception=e)
 

@@ -1,5 +1,5 @@
 from controllers.langgraph_controller import LangGraphController
-from crosscutting.app_logger import AppLogger
+from crosscutting.logging.app_logger import AppLogger
 from crosscutting.background_service import BackgroundService
 from crosscutting.cancellation_token import CancellationToken
 

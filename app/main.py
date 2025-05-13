@@ -1,5 +1,5 @@
-from crosscutting.app_logger import AppLogger
-from lambda_handlers import handler_langgraph, handler_crewai
+from crosscutting.logging.app_logger import AppLogger
+from lambda_handlers import handler_langgraph
 from tests.mock_input import MockInput
 
 if __name__ == "__main__":

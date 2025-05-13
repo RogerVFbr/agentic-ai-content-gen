@@ -1,11 +1,11 @@
-from agent_crewai.agent import ContentGenAgent
-from agent_langgraph.agent import ResearchAgent
-from agent_langgraph.graph import ResearchAgentGraph
-from agent_langgraph.elements import ResearchAgentElements
+from agents.crewai.agent import ContentGenAgent
+from agents.crewai.crew import ContentGen
+from agents.langgraph.agent import ResearchAgent
+from agents.langgraph.elements import ResearchAgentElements
+from agents.langgraph.graph import ResearchAgentGraph
 from controllers.crewai_controller import CrewAiController
 from controllers.langgraph_controller import LangGraphController
-from crosscutting.app_logger import AppLogger
-from agent_crewai.crew import ContentGen
+from crosscutting.logging.app_logger import AppLogger
 from workers.crewai_worker import CrewAiWorker
 from workers.langgraph_worker import LangGraphWorker
 
