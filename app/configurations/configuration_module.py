@@ -47,7 +47,6 @@ class ConfigurationModule:
 
         try:
             self._load_env_vars()
-            self._configure_logger()
             configs = self._load_configs()
             self._override_env_vars(configs)
             pre_instantiated = self._pre_instantiate(configs)
@@ -76,12 +75,6 @@ class ConfigurationModule:
         except Exception as e:
             AppLogger.error(f"Failed to load or verify environment variables: {e}", exception=e)
             raise
-
-    def _configure_logger(self) -> None:
-        if "STRUCTURED_LOGS" in os.environ and os.environ["STRUCTURED_LOGS"].lower() == "false":
-            AppLogger.STRUCTURED = False
-
-        AppLogger.debug("Logger configured.")
 
     def _load_configs(self) -> Configs:
         try:

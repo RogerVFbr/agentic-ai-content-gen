@@ -16,9 +16,9 @@ class LogLevel(Enum):
 
 class AppLoggerConfig(BaseModel):
     is_structured: bool = True
-    short_source: bool = True
+    short_source: bool = False
     header_size: int = 80
-    source_length: int = 47
+    source_length: int = None
     min_level: LogLevel = LogLevel.DEBUG
     min_level_by_prefix: dict[str, LogLevel] = {}
 
@@ -34,7 +34,7 @@ class AppLoggerConfigsParser:
             load_dotenv()
             env = os.getenv(cls.ENVIRONMENT_ENV_VAR)
             base_config_file = f'{os.getcwd()}/{cls.CONFIG_FILE}'
-            env_config_file = f'{os.getcwd()}/{str(env).join(cls.CONFIG_FILE.split("."))}'
+            env_config_file = f'{os.getcwd()}/{f".{env}.".join(cls.CONFIG_FILE.split("."))}'
 
             if not os.path.exists(base_config_file):
                 return AppLoggerConfig()

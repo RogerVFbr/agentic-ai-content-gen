@@ -30,8 +30,6 @@ class AppLogger:
 
     CONFIGS = AppLoggerConfigsParser.parse()
 
-    HEADER_SIZE = 80
-
     TIMEZONE = ""
 
     ANSI = {
@@ -269,7 +267,7 @@ class AppLogger:
 
         if not cls.CONFIGS.is_structured:
             color, default = cls.ANSI.get('magenta'), cls.ANSI.get('default')
-            size = cls.HEADER_SIZE
+            size = cls.CONFIGS.header['size']
             cls._log('')
             main = '{' + "".join([' ' for x in range(int(size/2)-int((len(content)/2)))]) + content
             main += "".join([' ' for x in range(size-len(main))]) + '}'
@@ -316,7 +314,7 @@ class AppLogger:
 
             source = f"{the_module}.{the_class}.{the_method}()"
 
-            return source if cls.CONFIGS.is_structured else source.ljust(cls.CONFIGS.source_length)[:cls.CONFIGS.source_length]
+            return source if cls.CONFIGS.is_structured or not cls.CONFIGS.source_length else source.ljust(cls.CONFIGS.source_length)[:cls.CONFIGS.source_length]
         except Exception:
             return "N.A."
 
@@ -357,9 +355,10 @@ class AppLogger:
         elapsed_str = f"{round(elapsed_time, 3)}s" if elapsed_time < 60 else f"{int(elapsed_time // 60)}m {round(elapsed_time % 60, 3)}s"
         method_module = inspect.getmodule(method).__name__
         method_class = method.__qualname__
-        if not cls.CONFIGS.is_structured and cls.CONFIGS.short_source:
+        if cls.CONFIGS.short_source:
             method_module = ".".join([x[:1] for x in method_module.split(".")])
-        source = f"{method_module}.{method_class}() <timeit>".ljust(cls.CONFIGS.source_length)[:cls.CONFIGS.source_length]
+        source = f"{method_module}.{method_class}() <timeit>"
+        source = source.ljust(cls.CONFIGS.source_length)[:cls.CONFIGS.source_length] if not cls.CONFIGS.is_structured and cls.CONFIGS.source_length else source
         if not cls.CONFIGS.is_structured:
             cls._log_timeit(f"Elapsed: {elapsed_str}.", source=source)
         else:
