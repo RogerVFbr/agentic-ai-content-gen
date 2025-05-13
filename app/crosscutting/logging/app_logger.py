@@ -7,6 +7,8 @@ import os, textwrap, time, platform, threading
 import uuid
 from datetime import datetime
 
+from crosscutting.logging.app_logger_config import AppLoggerConfigsParser
+
 
 class StructuredLog:
 
@@ -15,20 +17,20 @@ class StructuredLog:
                  source: str,
                  message: str,
                  data,
-                 corr_id: str,
-                 customer_name: str):
+                 corr_id: str):
         self.lvl = level
         self.msg = message
         self.src = source
         self.data = data
         self.timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
         self.corr_id = corr_id
-        self.customer_name = customer_name
 
 class AppLogger:
     """
     Test logger object class. Formats, prints, and saves messages to local logs folder.
     """
+
+    CONFIGS = AppLoggerConfigsParser.parse()
 
     LOG_SAVE_PATH = 'logs'                          # :str: Default log saving location.
     HEADER_SIZE = 80                                # :int: Length of the headers.
@@ -36,9 +38,6 @@ class AppLogger:
     MAXIMUM_LOG_FILES_STORED = 5                    # :int: Maximum amount of stored log files.
     LOG_STORAGE = []                                # :list: Logs memory storage.
     MEASUREMENT_STORAGE = []                        # :list: Measurements memory storage.
-    SOURCE_LENGTH = 47
-    STRUCTURED = True
-    SHORT_SOURCE = True
     TIMEZONE = ''
     ANSI = {                                        # :dict: ANSI decorations for terminal.
         'magenta': '\u001b[35m',
@@ -65,7 +64,6 @@ class AppLogger:
     }
 
     CORRELATION_ID = None
-    CUSTOMER_NAME = None
 
     @classmethod
     def _log_message(cls, msg: str, level: str, color: str, print_on_screen: bool, say: bool, data: dict = None,
@@ -73,7 +71,7 @@ class AppLogger:
         """
         Generic method to handle logging logic.
         """
-        if not cls.STRUCTURED:
+        if not cls.CONFIGS.is_structured:
             color_code, default, reverse = cls.ANSI.get(color), cls.ANSI.get('default'), cls.ANSI.get('reversed')
             color_code = color_code if color_code else default
             level = level[:4]
@@ -123,7 +121,7 @@ class AppLogger:
 
     @classmethod
     def empty_line(cls):
-        if not cls.STRUCTURED:
+        if not cls.CONFIGS.is_structured:
             print()
 
     @classmethod
@@ -226,7 +224,7 @@ class AppLogger:
 
     @classmethod
     def log_structured(cls, line, level, data=None, source=None):
-        if not cls.STRUCTURED:
+        if not cls.CONFIGS.is_structured:
             print(line)
             if data is None: return
             if isinstance(data, str):
@@ -236,11 +234,10 @@ class AppLogger:
         else:
             log = StructuredLog(
                 level=level,
-                source=cls.get_source(4) if source is None else source,
+                source=cls.get_source(5) if source is None else source,
                 message=line,
                 data=data,
-                corr_id=cls.CORRELATION_ID,
-                customer_name=cls.CUSTOMER_NAME
+                corr_id=cls.CORRELATION_ID
             )
             print(json.dumps(log.__dict__, default=str, ensure_ascii=False))
 
@@ -276,7 +273,7 @@ class AppLogger:
         :return: void
         """
 
-        if not cls.STRUCTURED:
+        if not cls.CONFIGS.is_structured:
             color, default = cls.ANSI.get('magenta'), cls.ANSI.get('default')
             size = cls.HEADER_SIZE
             cls.log('', ignore_wrap=True)
@@ -321,10 +318,12 @@ class AppLogger:
             the_class = obj.__class__.__name__
             the_method = frame.f_code.co_name
 
-            if cls.SHORT_SOURCE:
+            if cls.CONFIGS.short_source:
                 the_module = ".".join([x[:1] for x in the_module.split(".")])
 
-            return f"{the_module}.{the_class}.{the_method}()".ljust(cls.SOURCE_LENGTH)[:cls.SOURCE_LENGTH]
+            source = f"{the_module}.{the_class}.{the_method}()"
+
+            return source if cls.CONFIGS.is_structured else source.ljust(cls.CONFIGS.source_length)[:cls.CONFIGS.source_length]
         except Exception:
             return "N.A."
 
@@ -384,10 +383,10 @@ class AppLogger:
         elapsed_str = f"{round(elapsed_time, 3)}s" if elapsed_time < 60 else f"{int(elapsed_time // 60)}m {round(elapsed_time % 60, 3)}s"
         method_module = inspect.getmodule(method).__name__
         method_class = method.__qualname__
-        if not cls.STRUCTURED and cls.SHORT_SOURCE:
+        if not cls.CONFIGS.is_structured and cls.CONFIGS.short_source:
             method_module = ".".join([x[:1] for x in method_module.split(".")])
-        source = f"{method_module}.{method_class}() <timeit>".ljust(cls.SOURCE_LENGTH)[:cls.SOURCE_LENGTH]
-        if not cls.STRUCTURED:
+        source = f"{method_module}.{method_class}() <timeit>".ljust(cls.CONFIGS.source_length)[:cls.CONFIGS.source_length]
+        if not cls.CONFIGS.is_structured:
             cls.log_timeit(f"Elapsed: {elapsed_str}.", source=source)
         else:
             cls.log_timeit(f"Elapsed: {elapsed_str}.", source=source, data={"seconds": round(elapsed_time, 3)})
@@ -402,7 +401,3 @@ class AppLogger:
             cls.CORRELATION_ID = corr_id
         else:
             cls.CORRELATION_ID = uuid.uuid4()
-
-    @classmethod
-    def set_customer_name(cls, customer_name: str):
-        cls.CUSTOMER_NAME = customer_name
