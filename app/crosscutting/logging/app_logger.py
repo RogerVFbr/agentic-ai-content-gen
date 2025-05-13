@@ -36,8 +36,6 @@ class AppLogger:
     HEADER_SIZE = 80                                # :int: Length of the headers.
     WRAPPER = textwrap.TextWrapper(width=20000)     # :TextWrapper: Maximum amount of characters per line.
     MAXIMUM_LOG_FILES_STORED = 5                    # :int: Maximum amount of stored log files.
-    LOG_STORAGE = []                                # :list: Logs memory storage.
-    MEASUREMENT_STORAGE = []                        # :list: Measurements memory storage.
     TIMEZONE = ''
     ANSI = {                                        # :dict: ANSI decorations for terminal.
         'magenta': '\u001b[35m',
@@ -215,12 +213,10 @@ class AppLogger:
 
         if ignore_wrap:
             if print_on_screen: cls.log_structured(line, level, data, source)
-            cls.LOG_STORAGE.append(line)
         else:
             wrap_list = cls.WRAPPER.wrap(text=line)
             for wrap_line in wrap_list:
                 if print_on_screen: cls.log_structured(wrap_line, level, data, source)
-                cls.LOG_STORAGE.append(wrap_line)
 
     @classmethod
     def log_structured(cls, line, level, data=None, source=None):
@@ -241,29 +237,29 @@ class AppLogger:
             )
             print(json.dumps(log.__dict__, default=str, ensure_ascii=False))
 
-    @classmethod
-    def save_logs(cls):
-        """
-        Saves acquired log lines to .txt file at default log file location with auto generated name.
-        :return: void.
-        """
-
-        # Removes oldest log file if maximum threshold has been reached.
-        path = cls.LOG_SAVE_PATH
-        log_files = [f"{path}/{name}" for name in os.listdir(path) if os.path.isfile(os.path.join(path, name))]
-        no_of_logs = len(log_files)
-        if no_of_logs >= cls.MAXIMUM_LOG_FILES_STORED:
-            oldest_file = min(log_files, key=os.path.getctime)
-            os.remove(oldest_file)
-
-        # Saves current log lines in new log file.
-        log_path_and_name = f'{path}/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.txt'
-        strings_to_replace = [v for k, v in cls.ANSI.items()]
-        with open(log_path_and_name, "w") as txt_file:
-            for line in cls.LOG_STORAGE:
-                for reps in strings_to_replace:
-                    line = line.replace(reps, '')
-                txt_file.write(''.join(line) + '\n')
+    # @classmethod
+    # def save_logs(cls):
+    #     """
+    #     Saves acquired log lines to .txt file at default log file location with auto generated name.
+    #     :return: void.
+    #     """
+    #
+    #     # Removes oldest log file if maximum threshold has been reached.
+    #     path = cls.LOG_SAVE_PATH
+    #     log_files = [f"{path}/{name}" for name in os.listdir(path) if os.path.isfile(os.path.join(path, name))]
+    #     no_of_logs = len(log_files)
+    #     if no_of_logs >= cls.MAXIMUM_LOG_FILES_STORED:
+    #         oldest_file = min(log_files, key=os.path.getctime)
+    #         os.remove(oldest_file)
+    #
+    #     # Saves current log lines in new log file.
+    #     log_path_and_name = f'{path}/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.txt'
+    #     strings_to_replace = [v for k, v in cls.ANSI.items()]
+    #     with open(log_path_and_name, "w") as txt_file:
+    #         for line in cls.LOG_STORAGE:
+    #             for reps in strings_to_replace:
+    #                 line = line.replace(reps, '')
+    #             txt_file.write(''.join(line) + '\n')
 
     @classmethod
     def print_header(cls, content):
@@ -328,25 +324,6 @@ class AppLogger:
             return "N.A."
 
     @classmethod
-    def get_measurements(cls):
-        return cls.MEASUREMENT_STORAGE
-
-    @classmethod
-    def get_measurements_avg(cls):
-        if len(cls.MEASUREMENT_STORAGE) == 0: return 0
-        return sum([x['duration'] for x in cls.MEASUREMENT_STORAGE])/len(cls.MEASUREMENT_STORAGE)
-
-    @classmethod
-    def get_measurements_highest(cls, no_of_measurements):
-        no_of_measurements = min(no_of_measurements, len(cls.MEASUREMENT_STORAGE))
-        return sorted(cls.MEASUREMENT_STORAGE, key=lambda x: x['duration'], reverse=True)[:no_of_measurements]
-
-    @classmethod
-    def get_measurements_lowest(cls, no_of_measurements):
-        no_of_measurements = min(no_of_measurements, len(cls.MEASUREMENT_STORAGE))
-        return sorted(cls.MEASUREMENT_STORAGE, key=lambda x: x['duration'], reverse=False)[:no_of_measurements]
-
-    @classmethod
     def timeit(cls):
         """
         Decorator to log execution time for both synchronous and asynchronous functions.
@@ -390,10 +367,6 @@ class AppLogger:
             cls.log_timeit(f"Elapsed: {elapsed_str}.", source=source)
         else:
             cls.log_timeit(f"Elapsed: {elapsed_str}.", source=source, data={"seconds": round(elapsed_time, 3)})
-        cls.MEASUREMENT_STORAGE.append({
-            'time': cls.__get_now('%H:%M:%S'),
-            'duration': elapsed_time
-        })
 
     @classmethod
     def set_correlation_id(cls, corr_id: str):
