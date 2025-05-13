@@ -3,7 +3,7 @@ import asyncio
 import traceback
 
 import json, inspect
-import os, textwrap, time, platform, threading
+import os, time, platform, threading
 import uuid
 from datetime import datetime
 
@@ -34,8 +34,7 @@ class AppLogger:
 
     LOG_SAVE_PATH = 'logs'                          # :str: Default log saving location.
     HEADER_SIZE = 80                                # :int: Length of the headers.
-    WRAPPER = textwrap.TextWrapper(width=20000)     # :TextWrapper: Maximum amount of characters per line.
-    MAXIMUM_LOG_FILES_STORED = 5                    # :int: Maximum amount of stored log files.
+    # WRAPPER = textwrap.TextWrapper(width=20000)     # :TextWrapper: Maximum amount of characters per line.
     TIMEZONE = ''
     ANSI = {                                        # :dict: ANSI decorations for terminal.
         'magenta': '\u001b[35m',
@@ -210,13 +209,7 @@ class AppLogger:
         :param ignore_wrap: Flag to ignore line wrapper if needed.
         :return: void.
         """
-
-        if ignore_wrap:
-            if print_on_screen: cls.log_structured(line, level, data, source)
-        else:
-            wrap_list = cls.WRAPPER.wrap(text=line)
-            for wrap_line in wrap_list:
-                if print_on_screen: cls.log_structured(wrap_line, level, data, source)
+        cls.log_structured(line, level, data, source)
 
     @classmethod
     def log_structured(cls, line, level, data=None, source=None):
