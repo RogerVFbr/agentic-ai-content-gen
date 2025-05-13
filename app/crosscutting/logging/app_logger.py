@@ -34,7 +34,6 @@ class AppLogger:
 
     LOG_SAVE_PATH = 'logs'                          # :str: Default log saving location.
     HEADER_SIZE = 80                                # :int: Length of the headers.
-    # WRAPPER = textwrap.TextWrapper(width=20000)     # :TextWrapper: Maximum amount of characters per line.
     TIMEZONE = ''
     ANSI = {                                        # :dict: ANSI decorations for terminal.
         'magenta': '\u001b[35m',
@@ -63,7 +62,7 @@ class AppLogger:
     CORRELATION_ID = None
 
     @classmethod
-    def _log_message(cls, msg: str, level: str, color: str, print_on_screen: bool, say: bool, data: dict = None,
+    def _log_message(cls, msg: str, level: str, color: str, say: bool, data: dict = None,
                      exception: Exception = None, source_level: int = 3, source=None):
         """
         Generic method to handle logging logic.
@@ -79,42 +78,42 @@ class AppLogger:
                 msg_ansi += "\n".join(traceback.format_exception(type(exception), exception, exception.__traceback__))
                 msg_ansi += f"{default}"
 
-            cls.log(msg_ansi, print_on_screen=print_on_screen, data=data)
+            cls.log(msg_ansi, data=data)
             if say:
                 cls.__say(msg)
         else:
-            cls.log(msg, level=level, print_on_screen=print_on_screen, data=data)
+            cls.log(msg, level=level, data=data)
             if exception:
                 stack_trace = "".join(traceback.format_exception(type(exception), exception, exception.__traceback__))
-                cls.log(stack_trace, print_on_screen=print_on_screen)
+                cls.log(stack_trace)
 
     @classmethod
     def highlight(cls, msg: str, print_on_screen: bool = True, say: bool = False, data: dict = None):
-        cls._log_message(msg, level="INFO", color="magenta", print_on_screen=print_on_screen, say=say, data=data)
+        cls._log_message(msg, level="INFO", color="magenta", say=say, data=data)
 
     @classmethod
     def debug(cls, msg: str, print_on_screen: bool = True, say: bool = False, data: dict = None):
-        cls._log_message(msg, level="DEBUG", color="gray", print_on_screen=print_on_screen, say=say, data=data)
+        cls._log_message(msg, level="DEBUG", color="gray", say=say, data=data)
 
     @classmethod
     def info(cls, msg: str, print_on_screen: bool = True, say: bool = False, data: dict = None):
-        cls._log_message(msg, level="INFO", color="", print_on_screen=print_on_screen, say=say, data=data)
+        cls._log_message(msg, level="INFO", color="", say=say, data=data)
 
     @classmethod
     def warn(cls, msg: str, print_on_screen: bool = True, say: bool = False, data: dict = None):
-        cls._log_message(msg, level="WARN", color="yellow", print_on_screen=print_on_screen, say=say, data=data)
+        cls._log_message(msg, level="WARN", color="yellow", say=say, data=data)
 
     @classmethod
     def error(cls, msg: str, exception: Exception = None, print_on_screen: bool = True, say: bool = False, data: dict = None):
-        cls._log_message(msg, level="ERROR", color="red", print_on_screen=print_on_screen, say=say, data=data, exception=exception)
+        cls._log_message(msg, level="ERROR", color="red", say=say, data=data, exception=exception)
 
     @classmethod
     def critical(cls, msg: str, exception: Exception = None, print_on_screen: bool = True, say: bool = False, data: dict = None):
-        cls._log_message(msg, level="CRITICAL", color="dark_orange", print_on_screen=print_on_screen, say=say, data=data, exception=exception)
+        cls._log_message(msg, level="CRITICAL", color="dark_orange", say=say, data=data, exception=exception)
 
     @classmethod
     def log_timeit(cls, msg: str, print_on_screen: bool = True, data=None, source=None):
-        cls._log_message(msg, level="INFO", color="cyan", print_on_screen=print_on_screen, say=False, data=data, source=source)
+        cls._log_message(msg, level="INFO", color="cyan", say=False, data=data, source=source)
 
     @classmethod
     def empty_line(cls):
@@ -201,18 +200,12 @@ class AppLogger:
         else: return cls.paint_status('(-)', False)
 
     @classmethod
-    def log(cls, line, level: str=None, print_on_screen=True, ignore_wrap=False, data=None, source=None):
+    def log(cls, line, level: str=None, data=None, source=None):
         """
         Trims, prints and saves log lines to memory.
         :param line: Line to be analyzed.
-        :param print_on_screen: Flag to whether print line on screen or only on file.
-        :param ignore_wrap: Flag to ignore line wrapper if needed.
         :return: void.
         """
-        cls.log_structured(line, level, data, source)
-
-    @classmethod
-    def log_structured(cls, line, level, data=None, source=None):
         if not cls.CONFIGS.is_structured:
             print(line)
             if data is None: return
@@ -230,30 +223,6 @@ class AppLogger:
             )
             print(json.dumps(log.__dict__, default=str, ensure_ascii=False))
 
-    # @classmethod
-    # def save_logs(cls):
-    #     """
-    #     Saves acquired log lines to .txt file at default log file location with auto generated name.
-    #     :return: void.
-    #     """
-    #
-    #     # Removes oldest log file if maximum threshold has been reached.
-    #     path = cls.LOG_SAVE_PATH
-    #     log_files = [f"{path}/{name}" for name in os.listdir(path) if os.path.isfile(os.path.join(path, name))]
-    #     no_of_logs = len(log_files)
-    #     if no_of_logs >= cls.MAXIMUM_LOG_FILES_STORED:
-    #         oldest_file = min(log_files, key=os.path.getctime)
-    #         os.remove(oldest_file)
-    #
-    #     # Saves current log lines in new log file.
-    #     log_path_and_name = f'{path}/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.txt'
-    #     strings_to_replace = [v for k, v in cls.ANSI.items()]
-    #     with open(log_path_and_name, "w") as txt_file:
-    #         for line in cls.LOG_STORAGE:
-    #             for reps in strings_to_replace:
-    #                 line = line.replace(reps, '')
-    #             txt_file.write(''.join(line) + '\n')
-
     @classmethod
     def print_header(cls, content):
         """
@@ -265,13 +234,12 @@ class AppLogger:
         if not cls.CONFIGS.is_structured:
             color, default = cls.ANSI.get('magenta'), cls.ANSI.get('default')
             size = cls.HEADER_SIZE
-            cls.log('', ignore_wrap=True)
+            cls.log('')
             main = '{' + "".join([' ' for x in range(int(size/2)-int((len(content)/2)))]) + content
             main += "".join([' ' for x in range(size-len(main))]) + '}'
             upper_line = ' /' + "".join(['=' for x in range(len(main)-4)]) + '\\'
             lower_line = ' \\' + "".join(['=' for x in range(len(main)-4)]) + '/'
-            cls.log(f'{cls.ANSI.get("bold")}{color}{upper_line}\n{main}\n{lower_line}{default}', ignore_wrap=True)
-            # cls.log('', ignore_wrap=True)
+            cls.log(f'{cls.ANSI.get("bold")}{color}{upper_line}\n{main}\n{lower_line}{default}',)
 
     @classmethod
     def __get_now(cls, formatting: str = '%H:%M:%S') -> str:
