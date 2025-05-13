@@ -1,13 +1,11 @@
 import asyncio
-
 import traceback
-
 import json, inspect
 import os, time, platform, threading
 import uuid
 from datetime import datetime
 
-from crosscutting.logging.app_logger_config import AppLoggerConfigsParser
+from crosscutting.logging.app_logger_config import AppLoggerConfigsParser, LogLevel
 
 
 class StructuredLog:
@@ -32,10 +30,11 @@ class AppLogger:
 
     CONFIGS = AppLoggerConfigsParser.parse()
 
-    LOG_SAVE_PATH = 'logs'                          # :str: Default log saving location.
-    HEADER_SIZE = 80                                # :int: Length of the headers.
-    TIMEZONE = ''
-    ANSI = {                                        # :dict: ANSI decorations for terminal.
+    HEADER_SIZE = 80
+
+    TIMEZONE = ""
+
+    ANSI = {
         'magenta': '\u001b[35m',
         'yellow': '\u001b[33m',
         'red': '\u001b[31m',
@@ -59,69 +58,128 @@ class AppLogger:
         'default': '\u001b[0m'
     }
 
+    MIN_LEVEL_BY_PREFIX_ITEMS = None
+
+    LOG_LEVELS = {
+        LogLevel.DEBUG: 0,
+        LogLevel.INFO: 1,
+        LogLevel.WARN: 2,
+        LogLevel.ERROR: 3,
+        LogLevel.CRITICAL: 4
+    }
+
+    LOG_LEVELS_CACHE = {}
+
     CORRELATION_ID = None
 
     @classmethod
-    def _log_message(cls, msg: str, level: str, color: str, say: bool, data: dict = None,
+    def _log_message(cls, msg: str, level: LogLevel, color: str, say: bool, data: dict = None,
                      exception: Exception = None, source_level: int = 3, source=None):
         """
         Generic method to handle logging logic.
         """
+
+        source = cls._get_source(source_level) if not source else source
+
+        if cls._should_filter_source(source, level):
+            return
+
         if not cls.CONFIGS.is_structured:
             color_code, default, reverse = cls.ANSI.get(color), cls.ANSI.get('default'), cls.ANSI.get('reversed')
             color_code = color_code if color_code else default
-            level = level[:4]
-            msg_ansi = f"{color_code}{reverse}{cls.__get_now('%H:%M:%S.%f')[:-4]} {default} {color_code}{reverse} {level} {default} {color_code}{reverse} {cls.get_source(source_level) if not source else source} {default} {color_code}{msg}{default}"
+            level = level.value[:4]
+            msg_ansi = f"{color_code}{reverse}{cls._get_now('%H:%M:%S.%f')[:-4]} {default} {color_code}{reverse} {level} {default} {color_code}{reverse} {source} {default} {color_code}{msg}{default}"
 
             if exception:
                 msg_ansi += f"\n{color_code}"
                 msg_ansi += "\n".join(traceback.format_exception(type(exception), exception, exception.__traceback__))
                 msg_ansi += f"{default}"
 
-            cls.log(msg_ansi, data=data)
+            cls._log(msg_ansi, data=data)
             if say:
-                cls.__say(msg)
+                cls._say(msg)
         else:
-            cls.log(msg, level=level, data=data)
+            cls._log(msg, source=source, level=level, data=data)
             if exception:
                 stack_trace = "".join(traceback.format_exception(type(exception), exception, exception.__traceback__))
-                cls.log(stack_trace)
+                cls._log(stack_trace)
 
     @classmethod
-    def highlight(cls, msg: str, print_on_screen: bool = True, say: bool = False, data: dict = None):
-        cls._log_message(msg, level="INFO", color="magenta", say=say, data=data)
+    def _log(cls, msg: str, level: LogLevel=None, data=None, source=None):
+        """
+        Trims, prints and saves log lines to memory.
+        :param msg: Line to be analyzed.
+        :return: void.
+        """
+        if cls.CONFIGS.is_structured:
+            log = StructuredLog(
+                level=level.value if level else "N.A.",
+                source=source if source else "N.A.",
+                message=msg,
+                data=data,
+                corr_id=cls.CORRELATION_ID
+            )
+            print(json.dumps(log.__dict__, default=str, ensure_ascii=False))
+        else:
+            print(msg)
+            if data is None: return
+            if isinstance(data, str):
+                print(data)
+            else:
+                print(json.dumps(data, indent=4, default=str, ensure_ascii=False))
 
     @classmethod
-    def debug(cls, msg: str, print_on_screen: bool = True, say: bool = False, data: dict = None):
-        cls._log_message(msg, level="DEBUG", color="gray", say=say, data=data)
+    def _should_filter_source(cls, source: str, level: LogLevel) -> bool:
+        cached_level = cls.LOG_LEVELS_CACHE.get(source)
+        min_level = cls.CONFIGS.min_level
+
+        if cached_level is not None:
+            min_level = cached_level
+        elif any(source.startswith(prefix) for prefix in cls.CONFIGS.min_level_by_prefix.keys()):
+            if not cls.MIN_LEVEL_BY_PREFIX_ITEMS:
+                cls.MIN_LEVEL_BY_PREFIX_ITEMS = sorted(cls.CONFIGS.min_level_by_prefix.items(), key=lambda item: len(item[0]), reverse=True)
+            for prefix, config_level in cls.MIN_LEVEL_BY_PREFIX_ITEMS:
+                if source.startswith(prefix):
+                    min_level = config_level
+                    cls.LOG_LEVELS_CACHE[source] = config_level
+                    break
+        else:
+            cls.LOG_LEVELS_CACHE[source] = min_level
+
+        if cls.LOG_LEVELS[level] < cls.LOG_LEVELS[min_level]:
+            return True
+        return False
 
     @classmethod
-    def info(cls, msg: str, print_on_screen: bool = True, say: bool = False, data: dict = None):
-        cls._log_message(msg, level="INFO", color="", say=say, data=data)
+    def highlight(cls, msg: str, say: bool = False, data: dict = None):
+        cls._log_message(msg, level=LogLevel.INFO, color="magenta", say=say, data=data)
 
     @classmethod
-    def warn(cls, msg: str, print_on_screen: bool = True, say: bool = False, data: dict = None):
-        cls._log_message(msg, level="WARN", color="yellow", say=say, data=data)
+    def debug(cls, msg: str, say: bool = False, data: dict = None):
+        cls._log_message(msg, level=LogLevel.DEBUG, color="gray", say=say, data=data)
 
     @classmethod
-    def error(cls, msg: str, exception: Exception = None, print_on_screen: bool = True, say: bool = False, data: dict = None):
-        cls._log_message(msg, level="ERROR", color="red", say=say, data=data, exception=exception)
+    def info(cls, msg: str, say: bool = False, data: dict = None):
+        cls._log_message(msg, level=LogLevel.INFO, color="", say=say, data=data)
 
     @classmethod
-    def critical(cls, msg: str, exception: Exception = None, print_on_screen: bool = True, say: bool = False, data: dict = None):
-        cls._log_message(msg, level="CRITICAL", color="dark_orange", say=say, data=data, exception=exception)
+    def warn(cls, msg: str, say: bool = False, data: dict = None):
+        cls._log_message(msg, level=LogLevel.WARN, color="yellow", say=say, data=data)
 
     @classmethod
-    def log_timeit(cls, msg: str, print_on_screen: bool = True, data=None, source=None):
-        cls._log_message(msg, level="INFO", color="cyan", say=False, data=data, source=source)
+    def error(cls, msg: str, exception: Exception = None, say: bool = False, data: dict = None):
+        cls._log_message(msg, level=LogLevel.ERROR, color="red", say=say, data=data, exception=exception)
 
     @classmethod
-    def empty_line(cls):
-        if not cls.CONFIGS.is_structured:
-            print()
+    def critical(cls, msg: str, exception: Exception = None, say: bool = False, data: dict = None):
+        cls._log_message(msg, level=LogLevel.CRITICAL, color="dark_orange", say=say, data=data, exception=exception)
 
     @classmethod
-    def __say(cls, msg: str):
+    def _log_timeit(cls, msg: str, data=None, source=None):
+        cls._log_message(msg, level=LogLevel.INFO, color="cyan", say=False, data=data, source=source)
+
+    @classmethod
+    def _say(cls, msg: str):
         if platform.system() == 'Darwin':
             msg = msg\
                 .replace(':', ' ')\
@@ -199,29 +257,7 @@ class AppLogger:
         # If status is negative (false), returns standard stylized 'test failed' string.
         else: return cls.paint_status('(-)', False)
 
-    @classmethod
-    def log(cls, line, level: str=None, data=None, source=None):
-        """
-        Trims, prints and saves log lines to memory.
-        :param line: Line to be analyzed.
-        :return: void.
-        """
-        if not cls.CONFIGS.is_structured:
-            print(line)
-            if data is None: return
-            if isinstance(data, str):
-                print(data)
-            else:
-                print(json.dumps(data, indent=4, default=str, ensure_ascii=False))
-        else:
-            log = StructuredLog(
-                level=level,
-                source=cls.get_source(5) if source is None else source,
-                message=line,
-                data=data,
-                corr_id=cls.CORRELATION_ID
-            )
-            print(json.dumps(log.__dict__, default=str, ensure_ascii=False))
+
 
     @classmethod
     def print_header(cls, content):
@@ -234,15 +270,15 @@ class AppLogger:
         if not cls.CONFIGS.is_structured:
             color, default = cls.ANSI.get('magenta'), cls.ANSI.get('default')
             size = cls.HEADER_SIZE
-            cls.log('')
+            cls._log('')
             main = '{' + "".join([' ' for x in range(int(size/2)-int((len(content)/2)))]) + content
             main += "".join([' ' for x in range(size-len(main))]) + '}'
             upper_line = ' /' + "".join(['=' for x in range(len(main)-4)]) + '\\'
             lower_line = ' \\' + "".join(['=' for x in range(len(main)-4)]) + '/'
-            cls.log(f'{cls.ANSI.get("bold")}{color}{upper_line}\n{main}\n{lower_line}{default}',)
+            cls._log(f'{cls.ANSI.get("bold")}{color}{upper_line}\n{main}\n{lower_line}{default}', )
 
     @classmethod
-    def __get_now(cls, formatting: str = '%H:%M:%S') -> str:
+    def _get_now(cls, formatting: str = '%H:%M:%S') -> str:
         """
         Returns current formatted time in configured timezone.
         :param formatting: Time format.
@@ -255,7 +291,7 @@ class AppLogger:
             return f" {datetime.now().strftime(formatting)} "
 
     @classmethod
-    def get_source(cls, level=2) -> str:
+    def _get_source(cls, level=2) -> str:
         try:
             frame = inspect.currentframe()
             for _ in range(level):
@@ -325,9 +361,9 @@ class AppLogger:
             method_module = ".".join([x[:1] for x in method_module.split(".")])
         source = f"{method_module}.{method_class}() <timeit>".ljust(cls.CONFIGS.source_length)[:cls.CONFIGS.source_length]
         if not cls.CONFIGS.is_structured:
-            cls.log_timeit(f"Elapsed: {elapsed_str}.", source=source)
+            cls._log_timeit(f"Elapsed: {elapsed_str}.", source=source)
         else:
-            cls.log_timeit(f"Elapsed: {elapsed_str}.", source=source, data={"seconds": round(elapsed_time, 3)})
+            cls._log_timeit(f"Elapsed: {elapsed_str}.", source=source, data={"seconds": round(elapsed_time, 3)})
 
     @classmethod
     def set_correlation_id(cls, corr_id: str):
