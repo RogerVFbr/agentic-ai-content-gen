@@ -1,14 +1,14 @@
 class MockInput:
 
     @classmethod
-    def get_crewai(cls) -> dict:
+    def get_content_gen(cls) -> dict:
         return {
           "topic": "Cats",
           "current_year": 2025
         }
 
     @classmethod
-    def get_langgraph(cls) -> dict:
+    def get_basic_research(cls) -> dict:
         return {
             "raw_input": (
                 "Roger Freret is a Grammy-nominated audio engineer and senior software architect "

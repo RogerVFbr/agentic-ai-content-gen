@@ -4,7 +4,7 @@ from langchain_openai import ChatOpenAI
 
 from crosscutting.logging.app_logger import AppLogger
 
-class ResearchAgentElements:
+class BasicResearchCore:
 
     def __init__(self,
                  logger: AppLogger):

@@ -16,7 +16,7 @@ Next, navigate to your project directory and install the dependencies:
 
 (Optional) Lock the dependencies and install them by using the CLI command:
 ```bash
-crewai install
+content_gen install
 ```
 ### Customizing
 
@@ -32,7 +32,7 @@ crewai install
 To kickstart your crew of AI agents and begin task execution, run this from the root folder of your project:
 
 ```bash
-$ crewai run
+$ content_gen run
 ```
 
 This command initializes the agent Crew, assembling the agents and assigning them tasks as defined in your configuration.

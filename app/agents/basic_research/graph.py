@@ -2,13 +2,13 @@ import asyncio
 from langgraph.graph import StateGraph, END
 from langchain_core.runnables import RunnableLambda
 
-from agents.langgraph.elements import ResearchAgentElements
-from agents.langgraph.state import PortfolioState
+from agents.basic_research.elements import BasicResearchCore
+from agents.basic_research.state import PortfolioState
 
 
-class ResearchAgentGraph:
+class BasicResearchGraph:
 
-    def __init__(self, elements: ResearchAgentElements):
+    def __init__(self, elements: BasicResearchCore):
         self.elements = elements
 
     def build(self):

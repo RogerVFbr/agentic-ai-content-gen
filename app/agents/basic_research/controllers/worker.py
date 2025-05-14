@@ -1,14 +1,13 @@
-from controllers.crewai_controller import CrewAiController
+from agents.basic_research.controllers.controller import BasicResearchController
 from crosscutting.logging.app_logger import AppLogger
-from crosscutting.background_service import BackgroundService
-from crosscutting.cancellation_token import CancellationToken
+from crosscutting.background_service import BackgroundService, CancellationToken
 
 
-class CrewAiWorker(BackgroundService):
+class BasicResearchWorker(BackgroundService):
 
     def __init__(self,
                  logger: AppLogger,
-                 controller: CrewAiController):
+                 controller: BasicResearchController):
 
         super().__init__()
         self.controller = controller

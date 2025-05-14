@@ -1,13 +1,13 @@
-from agents.crewai.agent import ContentGenAgent
-from agents.crewai.crew import ContentGen
-from agents.langgraph.agent import ResearchAgent
-from agents.langgraph.elements import ResearchAgentElements
-from agents.langgraph.graph import ResearchAgentGraph
-from controllers.crewai_controller import CrewAiController
-from controllers.langgraph_controller import LangGraphController
+from agents.content_gen.agent import ContentGenAgent
+from agents.content_gen.crew import ContentGenCore
+from agents.basic_research.agent import BasicResearchAgent
+from agents.basic_research.elements import BasicResearchCore
+from agents.basic_research.graph import BasicResearchGraph
+from agents.content_gen.controllers.controller import ContentGenController
+from agents.basic_research.controllers.controller import BasicResearchController
 from crosscutting.logging.app_logger import AppLogger
-from workers.crewai_worker import CrewAiWorker
-from workers.langgraph_worker import LangGraphWorker
+from agents.content_gen.controllers.worker import ContentGenWorker
+from agents.basic_research.controllers.worker import BasicResearchWorker
 
 
 class ServiceCollection:
@@ -17,14 +17,14 @@ class ServiceCollection:
         return [
             AppLogger
         ] + [
-            CrewAiWorker,
-            CrewAiController,
+            ContentGenWorker,
+            ContentGenController,
             ContentGenAgent,
-            ContentGen
+            ContentGenCore
         ] + [
-            LangGraphWorker,
-            LangGraphController,
-            ResearchAgent,
-            ResearchAgentGraph,
-            ResearchAgentElements
+            BasicResearchWorker,
+            BasicResearchController,
+            BasicResearchAgent,
+            BasicResearchGraph,
+            BasicResearchCore
         ]

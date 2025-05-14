@@ -9,7 +9,7 @@ from crosscutting.logging.app_logger import AppLogger
 
 
 @CrewBase
-class ContentGen:
+class ContentGenCore:
     """Agent crew"""
 
     agents: List[BaseAgent]

@@ -1,13 +1,13 @@
-from agents.langgraph.agent import ResearchAgent
+from agents.basic_research.agent import BasicResearchAgent
 from crosscutting.logging.app_logger import AppLogger
 
 
-class LangGraphController:
+class BasicResearchController:
 
     def __init__(
             self,
             logger: AppLogger,
-            agent: ResearchAgent):
+            agent: BasicResearchAgent):
 
         self.logger = logger
         self.agent = agent

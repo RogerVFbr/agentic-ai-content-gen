@@ -1,14 +1,13 @@
-from controllers.langgraph_controller import LangGraphController
+from agents.content_gen.controllers.controller import ContentGenController
 from crosscutting.logging.app_logger import AppLogger
-from crosscutting.background_service import BackgroundService
-from crosscutting.cancellation_token import CancellationToken
+from crosscutting.background_service import BackgroundService, CancellationToken
 
 
-class LangGraphWorker(BackgroundService):
+class ContentGenWorker(BackgroundService):
 
     def __init__(self,
                  logger: AppLogger,
-                 controller: LangGraphController):
+                 controller: ContentGenController):
 
         super().__init__()
         self.controller = controller

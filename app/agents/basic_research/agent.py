@@ -1,14 +1,14 @@
 import asyncio
 
-from agents.langgraph.graph import ResearchAgentGraph
+from agents.basic_research.graph import BasicResearchGraph
 from crosscutting.logging.app_logger import AppLogger
 
 
-class ResearchAgent:
+class BasicResearchAgent:
 
     def __init__(self,
                  logger: AppLogger,
-                 graph: ResearchAgentGraph):
+                 graph: BasicResearchGraph):
 
         self.logger = logger
         self.graph = graph
@@ -17,7 +17,7 @@ class ResearchAgent:
         try:
             graph = self.graph.build()
             async for step in graph.astream(input):
-                self.logger.info(f"[{list(step.keys())[0]}] Step executed.")
+                self.logger.info(f"[{list(step.keys())[0]}] Step executed.", data=step)
             await graph.ainvoke(input)
         except asyncio.CancelledError:
             self.logger.warn("Agent execution cancelled.")
