@@ -35,13 +35,17 @@ class OperationCancelledException(Exception):
 
 class BackgroundService(ABC):
     def __init__(self):
-        self._shutdown_event = asyncio.Event()
-        self._loop = asyncio.get_running_loop()
-        self._register_signal_handlers()
-        self._cancellation_token_source = CancellationTokenSource()
+        self._shutdown_event = None
+        self._loop = None
+        self._cancellation_token_source = None
 
     async def run(self, input=None):
         """Entrypoint to start and manage the full lifecycle."""
+
+        self._shutdown_event = asyncio.Event()
+        self._loop = asyncio.get_running_loop()
+        self._cancellation_token_source = CancellationTokenSource()
+        self._register_signal_handlers()
 
         lifecycle_task = asyncio.create_task(self._lifecycle(input))
         shutdown_task = asyncio.create_task(self._shutdown_event.wait())

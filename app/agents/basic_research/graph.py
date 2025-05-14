@@ -2,7 +2,7 @@ import asyncio
 from langgraph.graph import StateGraph, END
 from langchain_core.runnables import RunnableLambda
 
-from agents.basic_research.elements import BasicResearchCore
+from agents.basic_research.core import BasicResearchCore
 from agents.basic_research.state import PortfolioState
 
 
