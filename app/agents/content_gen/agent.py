@@ -1,6 +1,6 @@
 import asyncio
 
-from agents.content_gen.crew import ContentGenCore
+from agents.content_gen.core import ContentGenCore
 from configurations.configs import Configs
 from crosscutting.logging.app_logger import AppLogger
 

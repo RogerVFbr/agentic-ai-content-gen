@@ -9,13 +9,10 @@ from configurations.configs_parser import ConfigsParser
 from configurations.di_container import DiContainer
 from configurations.service_collection import ServiceCollection
 from crosscutting.logging.app_logger import AppLogger
+from crosscutting.memoize_method import memoize_method
 
 
 class ConfigurationModule:
-
-    INSTANCE = None
-
-    HAS_INITIALIZED = False
 
     REQUIRED_ENV_VARS = [
         "APP_ENV",
@@ -33,16 +30,13 @@ class ConfigurationModule:
         asyncio.run(execute())
 
     @classmethod
+    @memoize_method()
     def _get(cls):
-        if cls.INSTANCE is None:
-            cls.INSTANCE = ConfigurationModule()
-        return cls.INSTANCE
+        return ConfigurationModule()
 
+    @memoize_method()
     @AppLogger.timeit()
     def _initialize(self) -> bool:
-        if self.HAS_INITIALIZED:
-            return True
-
         AppLogger.highlight(f"Initializing configuration ...")
 
         try:
@@ -53,10 +47,8 @@ class ConfigurationModule:
             self._build_di_container(pre_instantiated)
         except Exception as e:
             AppLogger.critical(f"Unable to finish application initialization -> {type(e).__name__}: {e}")
-            self.HAS_INITIALIZED = False
             return False
 
-        self.HAS_INITIALIZED = True
         AppLogger.highlight(f"Configuration completed.")
         return True
 

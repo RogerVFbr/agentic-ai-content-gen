@@ -5,7 +5,7 @@ import warnings
 from datetime import datetime
 
 
-from agents.content_gen.crew import ContentGenCore
+from agents.content_gen.core import ContentGenCore
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 

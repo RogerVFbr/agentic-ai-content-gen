@@ -90,7 +90,7 @@ class AppLogger:
 
             if exception:
                 msg_ansi += f"\n{color_code}"
-                msg_ansi += "\n".join(traceback.format_exception(type(exception), exception, exception.__traceback__))
+                msg_ansi += "".join(traceback.format_exception(type(exception), exception, exception.__traceback__))
                 msg_ansi += f"{default}"
 
             cls._log(msg_ansi, data=data)
