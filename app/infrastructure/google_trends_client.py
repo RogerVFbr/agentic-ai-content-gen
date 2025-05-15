@@ -8,13 +8,16 @@ class GoogleTrendsClient:
 
     def __init__(self, logger: AppLogger):
         self.logger = logger
-        self.logger.debug("Initializing GoogleTrendsClient ...")
-        self.trendspy = Trends()
+        self.trendspy = None
 
     # https://pypi.org/project/trendspy/
 
     async def get_trending_now(self, country: str):
         """Retrieve googles trending topics"""
+
+        if not self.trendspy:
+            self.logger.debug("Initializing GoogleTrendsClient ...")
+            self.trendspy = Trends()
 
         self.logger.debug("Calling client ...")
 

@@ -1,11 +1,21 @@
+import yaml
+
 from crosscutting.logging.app_logger import AppLogger
 from crosscutting.logging.app_logger_config import LogLevel
 
 
 class MemeGenBase:
 
+    PROMPT_CACHE = {}
+
     def __init__(self, logger: AppLogger):
         self.logger = logger
+
+    def load_prompts(self, file_path: str) -> dict:
+        if file_path not in self.PROMPT_CACHE:
+            with open(file_path, 'r') as file:
+                self.PROMPT_CACHE[file_path] = yaml.safe_load(file)
+        return self.PROMPT_CACHE[file_path]
 
     async def thoughts(self, level: LogLevel, msg: str):
         """

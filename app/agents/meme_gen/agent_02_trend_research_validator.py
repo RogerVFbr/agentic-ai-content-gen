@@ -1,11 +1,11 @@
 import json
-
+import os
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 
 from agents.meme_gen.agent_00_base import MemeGenBase
-from agents.meme_gen.state import MemeGenState, TrendResearch, TrendResearchValidationStatus
+from agents.meme_gen.state import MemeGenState, TrendResearchValidationStatus
 from crosscutting.logging.app_logger import AppLogger
 from crosscutting.memoize_method import memoize_method
 from infrastructure.google_trends_client import GoogleTrendsClient
@@ -13,6 +13,8 @@ from infrastructure.serper_dev_client import SerperDevClient
 
 
 class MemeGenTrendValidator(MemeGenBase):
+
+    PROMPTS_FILE = "prompts.yml"
 
     def __init__(self,
                  logger: AppLogger,
@@ -28,42 +30,21 @@ class MemeGenTrendValidator(MemeGenBase):
         self.user_prompt = None
         self.agent = None
 
+        self.prompts_file = os.path.join(os.path.dirname(__file__), self.PROMPTS_FILE)
+
     @memoize_method()
     def initialize(self):
-        self.system_prompt = """
-            You are an expert lawyer and ethics advisor who has extensively worked in compliance sectors of marketing 
-            companies. You are now working for an agency specialized in producing humor and memes. 
-            """
+        prompts = self.load_prompts(self.prompts_file)["trend_research_validator"]
+
+        self.system_prompt = prompts["system"]
 
         self.user_prompt = PromptTemplate(
             input_variables=["research"],
-            template="""
-            Your task is to analyze topics chosen by the research team which are displayed in the CHOSEN TOPICS DATA 
-            section to be used on the company's next meme. The final output of your analysis will be to determine 
-            whether the chosen topics are legally, ethical and morally acceptable. You will execute your work by 
-            strictly following the steps below:
-
-                0. Use the logging tool to publish your thoughts and actions using short sentences.
-                1. If you experience failure in any of the tools, abort immediately returning the final structured 
-                   output with empty or default values.
-                2. You must carefully analyze the given topics, the reason they were chosen, and if necessary, look for
-                   clarifications on the internet. Make sure to consider recent facts on your analysis.
-                3. You must identify if any of the found topics is related to the following sensitive subjects:
-                   3.1. Politics
-                   3.2. War
-                   3.3. Racism
-                   3.4. Religion
-                   3.5. Ethnicity
-                   3.6. Physical disabilities
-                   3.7. Natural disasters
-                   3.8. Any other subject that may cause harm or offend other people.
-                4. Return the final structured output with your final decision and reasoning.
-                
-            # CHOSEN TOPICS DATA
-            
-            {research}
-            """
+            template=prompts["user"]
         )
+
+        self.logger.debug("System prompt.", data=self.system_prompt)
+        self.logger.debug("User prompt.", data=self.user_prompt.template)
 
         self.agent = create_react_agent(
             model=ChatOpenAI(

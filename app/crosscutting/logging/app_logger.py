@@ -71,7 +71,7 @@ class AppLogger:
     CORRELATION_ID = None
 
     @classmethod
-    def _log_message(cls, msg: str, level: LogLevel, color: str, say: bool, data: dict = None,
+    def _log_message(cls, msg: str, level: LogLevel, color: str, say: bool, data = None,
                      exception: Exception = None, source_level: int = 3, source=None):
         """
         Generic method to handle logging logic.
@@ -149,27 +149,27 @@ class AppLogger:
         return False
 
     @classmethod
-    def highlight(cls, msg: str, say: bool = False, data: dict = None):
+    def highlight(cls, msg: str, say: bool = False, data = None):
         cls._log_message(msg, level=LogLevel.INFO, color="magenta", say=say, data=data)
 
     @classmethod
-    def debug(cls, msg: str, say: bool = False, data: dict = None):
+    def debug(cls, msg: str, say: bool = False, data = None):
         cls._log_message(msg, level=LogLevel.DEBUG, color="gray", say=say, data=data)
 
     @classmethod
-    def info(cls, msg: str, say: bool = False, data: dict = None):
+    def info(cls, msg: str, say: bool = False, data = None):
         cls._log_message(msg, level=LogLevel.INFO, color="", say=say, data=data)
 
     @classmethod
-    def warn(cls, msg: str, say: bool = False, data: dict = None):
+    def warn(cls, msg: str, say: bool = False, data = None):
         cls._log_message(msg, level=LogLevel.WARN, color="yellow", say=say, data=data)
 
     @classmethod
-    def error(cls, msg: str, exception: Exception = None, say: bool = False, data: dict = None):
+    def error(cls, msg: str, exception: Exception = None, say: bool = False, data = None):
         cls._log_message(msg, level=LogLevel.ERROR, color="red", say=say, data=data, exception=exception)
 
     @classmethod
-    def critical(cls, msg: str, exception: Exception = None, say: bool = False, data: dict = None):
+    def critical(cls, msg: str, exception: Exception = None, say: bool = False, data = None):
         cls._log_message(msg, level=LogLevel.CRITICAL, color="dark_orange", say=say, data=data, exception=exception)
 
     @classmethod

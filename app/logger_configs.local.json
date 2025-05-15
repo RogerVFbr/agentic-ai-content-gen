@@ -3,5 +3,8 @@
     "short_source": true,
     "source_length": 47,
     "min_level": "DEBUG",
-    "min_level_by_prefix": {}
+    "min_level_by_prefix": {
+        "a.m.a.MemeGenTrendResearcher.initialize()": "INFO",
+        "a.m.a.MemeGenTrendValidator.initialize()": "INFO"
+    }
 }
