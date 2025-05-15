@@ -13,7 +13,7 @@ class GoogleTrendsClient:
 
     # https://pypi.org/project/trendspy/
 
-    def get_trending_now(self, country: str):
+    async def get_trending_now(self, country: str):
         """Retrieve googles trending topics"""
 
         self.logger.debug("Calling client ...")

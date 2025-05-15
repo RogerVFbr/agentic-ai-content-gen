@@ -13,7 +13,7 @@ class SerperDevClient:
         self.logger = logger
 
 
-    def search(self, query):
+    async def search(self, query):
         """Searches the web using the Serper.dev API."""
 
         self.logger.debug(f"Calling client (Query: '{query}') ...")

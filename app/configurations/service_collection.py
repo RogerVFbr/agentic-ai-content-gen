@@ -6,7 +6,8 @@ from agents.basic_research.graph import BasicResearchGraph
 from agents.content_gen.controllers.controller import ContentGenController
 from agents.basic_research.controllers.controller import BasicResearchController
 from agents.meme_gen.agent import MemeGenAgent
-from agents.meme_gen.agent_trend_researcher import MemeGenTrendResearcher
+from agents.meme_gen.agent_01_trend_researcher import MemeGenTrendResearcher
+from agents.meme_gen.agent_02_trend_research_validator import MemeGenTrendValidator
 from agents.meme_gen.controllers.controller import MemeGenController
 from agents.meme_gen.controllers.worker import MemeGenWorker
 from agents.meme_gen.graph import MemeGenGraph
@@ -41,5 +42,6 @@ class ServiceCollection:
             MemeGenController,
             MemeGenAgent,
             MemeGenGraph,
-            MemeGenTrendResearcher
+            MemeGenTrendResearcher,
+            MemeGenTrendValidator
         ]
