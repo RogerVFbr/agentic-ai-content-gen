@@ -14,6 +14,8 @@ from infrastructure.serper_dev_client import SerperDevClient
 
 class MemeGenTrendValidator(MemeGenBase):
 
+    NODE_NAME = "TrendResearchValidator"
+
     PROMPTS_FILE = "prompts.yml"
 
     def __init__(self,
@@ -39,7 +41,7 @@ class MemeGenTrendValidator(MemeGenBase):
         self.system_prompt = prompts["system"]
 
         self.user_prompt = PromptTemplate(
-            input_variables=["research"],
+            input_variables=["time_now", "research"],
             template=prompts["user"]
         )
 
@@ -61,6 +63,7 @@ class MemeGenTrendValidator(MemeGenBase):
         )
 
     async def run(self, state: MemeGenState):
+        iteration = state.trend_research_validation.iterations if state.trend_research_validation else 0
 
         research = state.trend_research.__dict__
         del research['trends_tool_call_status']
@@ -70,8 +73,12 @@ class MemeGenTrendValidator(MemeGenBase):
         del research['full_topics_list']
         research = json.dumps(research)
 
-        response = await self.agent.ainvoke(self.get_user_message(self.user_prompt.template.format(research=research)))
+        response = await self.agent.ainvoke(
+            self.get_user_message(
+                self.user_prompt.template.format(time_now=self.time_now(),research=research))
+        )
 
+        state.trend_research_validation = response["structured_response"]
+        state.trend_research_validation.iterations = iteration + 1
         self.logger.info("Completed.", data=response["structured_response"].__dict__)
-        state.trend_research_validation_history.history.append(response["structured_response"])
         return state

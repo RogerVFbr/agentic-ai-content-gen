@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Set
 
 from pydantic import BaseModel, Field
 
@@ -20,16 +20,17 @@ class TrendResearch(BaseModel):
 
 class TrendResearchValidationStatus(BaseModel):
     """Final result of the trend research validation"""
+    iterations: int
+    primary_topic: str = Field(description = "The primary topic exactly how you received it.")
     primary_topic_validation_status: bool = Field(description = "State whether the trend research for the primary topic is valid or not")
     primary_topic_validation_reason: str = Field(description = "Justify your validation conclusion for the primary topic. Give all possible details. Include any error logs.")
+    secondary_topic: str = Field(description = "The secondary topic exactly how you received it.")
     secondary_topic_validation_status: bool = Field(description = "State whether the trend research for the secondary topic is valid or not")
     secondary_topic_validation_reason: str = Field(description = "Justify your validation conclusion for the secondary topic. Give all possible details. Include any error logs.")
     topics: str = Field(description="The topics you analyzed.")
 
 
-class TrendResearchValidation(BaseModel):
-    history: List[TrendResearchValidationStatus] = []
-
 class MemeGenState(BaseModel):
+    prior_topics: Set[str] = set()
     trend_research: TrendResearch = None
-    trend_research_validation_history: TrendResearchValidation = TrendResearchValidation()
+    trend_research_validation: TrendResearchValidationStatus = None

@@ -1,4 +1,11 @@
 #https://pypi.org/project/pytrends/
+from rapidfuzz.distance import Levenshtein
+from typing import List
+
+import asyncio
+
+import json
+
 from trendspy import Trends
 
 from crosscutting.logging.app_logger import AppLogger
@@ -12,8 +19,27 @@ class GoogleTrendsClient:
 
     # https://pypi.org/project/trendspy/
 
-    async def get_trending_now(self, country: str):
-        """Retrieve googles trending topics"""
+    async def get_trending_now(self, country: str, exclusion_list: List[str]):
+        """
+        Retrieve the most recent trending topics from Google Trends for a specified country,
+        excluding topics based on an exclusion list.
+
+        Args:
+            country (str): The country code (e.g., "US") for which to retrieve trending topics.
+            exclusion_list (List[str]): A list of keywords to exclude from the results.
+
+        Returns:
+            List[dict]: A list of dictionaries, each representing a trending topic. Each dictionary
+            contains the following keys:
+                - "trend_name" (str): The name of the trending topic.
+                - "trending_associated_keywords" (List[str]): A list of associated keywords for the trend.
+                - "number_of_searches" (int): The search volume for the trend.
+                - "volume_growth_pct" (float): The percentage growth in search volume.
+                - "categories" (List[str]): A list of categories associated with the trend.
+
+        Raises:
+            Exception: If the `trendspy` client fails to initialize or retrieve data.
+        """
 
         if not self.trendspy:
             self.logger.debug("Initializing GoogleTrendsClient ...")
@@ -21,18 +47,33 @@ class GoogleTrendsClient:
 
         self.logger.debug("Calling client ...")
 
-        trends_with_news = self.trendspy.trending_now_by_rss(geo=country)
+        result = self.trendspy.trending_now(geo=country)
+        result = sorted(result, key=lambda x: x.volume, reverse=True)
 
-        result = []
+        final_result = []
 
-        for x in trends_with_news:
-            data = x.__dict__
-            news = []
-            for y in x.news:
-                news.append(y.__dict__)
-            data['news'] = news
-            result.append(data)
+        for x in result:
+            entry = {
+                "trend_name": x.keyword,
+                "trending_associated_keywords": x.trend_keywords[:5],
+                "number_of_searches": x.volume,
+                "volume_growth_pct": x.volume_growth_pct,
+                "categories": [x for x in x.topic_names],
+            }
 
-        # print(json.dumps(result, indent=4, sort_keys=True, default=str))
+            if "Sports" in entry["categories"]:
+                continue
 
-        return result
+            if any(Levenshtein.distance(x.keyword.lower(), y.lower()) < 3 for y in exclusion_list):
+                continue
+
+            final_result.append(entry)
+
+        return final_result[:25]
+
+
+if __name__ == "__main__":
+    AppLogger.CONFIGS.is_structured = False
+    client = GoogleTrendsClient(AppLogger())
+    result = asyncio.run(client.get_trending_now(country="US", exclusion_list=["tornado watch", "seviille"]))
+    client.logger.debug(f"Result.", data=result)

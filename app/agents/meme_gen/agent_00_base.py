@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import yaml
 
 from crosscutting.logging.app_logger import AppLogger
@@ -16,6 +18,9 @@ class MemeGenBase:
             with open(file_path, 'r') as file:
                 self.PROMPT_CACHE[file_path] = yaml.safe_load(file)
         return self.PROMPT_CACHE[file_path]
+
+    def time_now(self):
+        datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     async def thoughts(self, level: LogLevel, msg: str):
         """
@@ -40,15 +45,15 @@ class MemeGenBase:
         This method formats and logs the message using the provided logger instance.
         """
         if level == LogLevel.DEBUG:
-            self.logger.debug(f"[LLM] {msg}")
+            self.logger.info(f"[LLM] {msg}")
         elif level == LogLevel.INFO:
             self.logger.info(f"[LLM] {msg}")
         elif level == LogLevel.WARN:
             self.logger.warn(f"[LLM] {msg}")
         elif level == LogLevel.ERROR:
-            self.logger.error(f"[LLM] {msg}")
+            self.logger.warn(f"[LLM] {msg}")
         else:
-            self.logger.critical(f"[LLM] {msg}")
+            self.logger.warn(f"[LLM] {msg}")
 
     def get_user_message(self, input: str):
         return {

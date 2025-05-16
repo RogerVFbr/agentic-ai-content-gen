@@ -24,4 +24,5 @@ class MemeGenController:
     @AppLogger.timeit()
     async def terminate(self) -> None:
         self.logger.highlight("Shutting down ...")
+        await self.agent.terminate()
         self.logger.highlight("Shutdown completed.")
