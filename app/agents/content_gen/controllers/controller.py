@@ -20,5 +20,5 @@ class ContentGenController:
 
     @AppLogger.timeit()
     async def terminate(self) -> None:
-        self.logger.highlight("Shutting down ...")
-        self.logger.highlight("Shutdown completed.")
+        self.logger.highlight_1("Shutting down ...")
+        self.logger.highlight_1("Shutdown completed.")

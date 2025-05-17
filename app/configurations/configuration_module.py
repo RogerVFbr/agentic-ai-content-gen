@@ -37,7 +37,7 @@ class ConfigurationModule:
     @memoize_method()
     @AppLogger.timeit()
     def _initialize(self) -> bool:
-        AppLogger.highlight(f"Initializing configuration ...")
+        AppLogger.highlight_1(f"Initializing configuration ...")
 
         try:
             self._load_env_vars()
@@ -49,7 +49,7 @@ class ConfigurationModule:
             AppLogger.critical(f"Unable to finish application initialization -> {type(e).__name__}: {e}")
             return False
 
-        AppLogger.highlight(f"Configuration completed.")
+        AppLogger.highlight_1(f"Configuration completed.")
         return True
 
     def _load_env_vars(self) -> None:

@@ -4,7 +4,7 @@ from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 
-from agents.meme_gen.agent_00_base import MemeGenBase
+from agents.meme_gen.node_00_base import MemeGenBase
 from agents.meme_gen.state import MemeGenState, TrendResearchValidationStatus
 from crosscutting.logging.app_logger import AppLogger
 from crosscutting.memoize_method import memoize_method
@@ -51,7 +51,7 @@ class MemeGenTrendValidator(MemeGenBase):
         self.agent = create_react_agent(
             model=ChatOpenAI(
                 model="gpt-4o-mini",
-                temperature=0.7
+                temperature=0
             ),
             prompt=self.system_prompt,
             response_format=TrendResearchValidationStatus,
@@ -63,11 +63,11 @@ class MemeGenTrendValidator(MemeGenBase):
         )
 
     async def run(self, state: MemeGenState):
+        self.logger.highlight_2(f"Starting {self.NODE_NAME} ...")
+
         iteration = state.trend_research_validation.iterations if state.trend_research_validation else 0
 
-        research = state.trend_research.__dict__
-        del research['trends_tool_call_status']
-        del research['trends_tool_call_reason']
+        research = state.trend_research.__dict__.copy()
         del research['search_tool_call_status']
         del research['search_tool_call_reason']
         del research['full_topics_list']

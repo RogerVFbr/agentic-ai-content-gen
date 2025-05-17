@@ -23,8 +23,8 @@ class ContentGenAgent:
             self.logger.warn("Agent running task cancelled.")
 
     async def run(self, input: dict) -> None:
-        self.logger.highlight("Executing agent ...")
+        self.logger.highlight_1("Executing agent ...")
 
         await self.run_task(input)
 
-        self.logger.highlight("Agent executed.")
+        self.logger.highlight_1("Agent executed.")

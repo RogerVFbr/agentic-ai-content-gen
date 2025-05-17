@@ -4,7 +4,7 @@ from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 
-from agents.meme_gen.agent_00_base import MemeGenBase
+from agents.meme_gen.node_00_base import MemeGenBase
 from agents.meme_gen.state import MemeGenState, TrendResearch
 from crosscutting.logging.app_logger import AppLogger
 from crosscutting.memoize_method import memoize_method
@@ -43,26 +43,23 @@ class MemeGenTrendResearcher(MemeGenBase):
         self.system_prompt = prompts["system"]
 
         self.user_main_prompt = PromptTemplate(
-            input_variables=["time_now", "remake", "prior_topics", "previous_assignment"],
-            template=prompts["user"]["main"])
+            input_variables=["time_now", "remake", "current_trends", "previous_assignment"],
+            template=prompts["user"]["main"]
+        )
 
         self.user_remake_prompt = PromptTemplate(
             input_variables=["to_replace", "to_keep"],
-            template=prompts["user"]["remake"])
-
-        self.logger.debug("System prompt.", data=self.system_prompt)
-        self.logger.debug("User main prompt.", data=self.user_main_prompt.template)
-        self.logger.debug("User remake prompt.", data=self.user_remake_prompt.template)
+            template=prompts["user"]["remake"]
+        )
 
         self.agent = create_react_agent(
             model=ChatOpenAI(
                 model="gpt-4o-mini",
-                temperature=0.7
+                temperature=0
             ),
             prompt=self.system_prompt,
             response_format=TrendResearch,
             tools=[
-                self.google_trends_client.get_trending_now,
                 self.serper_dev_client.search,
                 self.thoughts
             ],
@@ -70,7 +67,8 @@ class MemeGenTrendResearcher(MemeGenBase):
         )
 
     async def run(self, state: MemeGenState):
-        prompt = self.build_prompt(state)
+        self.logger.highlight_2(f"Starting {self.NODE_NAME} ...")
+        prompt = await self.build_prompt(state)
         response = await self.agent.ainvoke(self.get_user_message(prompt))
         self.logger.info("Completed.", data=response["structured_response"].__dict__)
         state.trend_research = response["structured_response"]
@@ -78,27 +76,24 @@ class MemeGenTrendResearcher(MemeGenBase):
         state.prior_topics.add(state.trend_research.secondary_topic)
         return state
 
-    def build_prompt(self, state: MemeGenState):
-        prior_topics_str = "No prior topics found."
+    async def build_prompt(self, state: MemeGenState):
         previous_assignment_str = "No previous assignments found."
         remake = "-"
 
-        if len(state.prior_topics) > 0:
-            prior_topics_str = ", ".join(state.prior_topics)
+        # self.logger.debug("Prior topics.", data=", ".join(sorted(list(state.prior_topics))) if len(state.prior_topics) > 0 else "No prior topics found.")
 
-        self.logger.debug("Prior topics.", data=prior_topics_str)
+        current_trends = await self.google_trends_client.get_trending_now("US", sorted(list(state.prior_topics)))
 
         validation = state.trend_research_validation
 
         if validation:
-            if not validation.primary_topic_validation_status and validation.secondary_topic_validation_status:
-                previous_assignment_str = json.dumps(state.trend_research.__dict__)
+            previous_assignment_str = json.dumps(state.trend_research.__dict__)
+            if not validation.primary_topic_status and validation.secondary_topic_status:
                 remake = self.user_remake_prompt.format(
                     to_replace="primary",
                     to_keep="secondary",
                 )
-            if validation.primary_topic_validation_status and not validation.secondary_topic_validation_status:
-                previous_assignment_str = json.dumps(state.trend_research.__dict__)
+            if validation.primary_topic_status and not validation.secondary_topic_status:
                 remake = self.user_remake_prompt.format(
                     to_replace="secondary",
                     to_keep="primary",
@@ -107,7 +102,7 @@ class MemeGenTrendResearcher(MemeGenBase):
         prompt = self.user_main_prompt.format(
             time_now=self.time_now(),
             remake=remake,
-            prior_topics=prior_topics_str,
+            current_trends=current_trends,
             previous_assignment=previous_assignment_str
         )
 

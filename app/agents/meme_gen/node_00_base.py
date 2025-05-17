@@ -20,11 +20,11 @@ class MemeGenBase:
         return self.PROMPT_CACHE[file_path]
 
     def time_now(self):
-        datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     async def thoughts(self, level: LogLevel, msg: str):
         """
-        Logs messages generated during the agent's execution.
+        Logging tool for super short sentences..
 
         Args:
             level (LogLevel): The logging level, which determines the severity of the log. Possible values include:
@@ -45,15 +45,15 @@ class MemeGenBase:
         This method formats and logs the message using the provided logger instance.
         """
         if level == LogLevel.DEBUG:
-            self.logger.info(f"[LLM] {msg}")
+            self.logger.highlight_3(f"{msg}")
         elif level == LogLevel.INFO:
-            self.logger.info(f"[LLM] {msg}")
+            self.logger.highlight_3(f"{msg}")
         elif level == LogLevel.WARN:
-            self.logger.warn(f"[LLM] {msg}")
+            self.logger.warn(f"{msg}")
         elif level == LogLevel.ERROR:
-            self.logger.warn(f"[LLM] {msg}")
+            self.logger.warn(f"{msg}")
         else:
-            self.logger.warn(f"[LLM] {msg}")
+            self.logger.warn(f"{msg}")
 
     def get_user_message(self, input: str):
         return {

@@ -61,19 +61,19 @@ class GoogleTrendsClient:
                 "categories": [x for x in x.topic_names],
             }
 
-            if "Sports" in entry["categories"]:
+            if any(category in ["Sports", "Climate", "Politics"] for category in entry["categories"]):
                 continue
 
-            if any(Levenshtein.distance(x.keyword.lower(), y.lower()) < 3 for y in exclusion_list):
+            if any(Levenshtein.distance(x.keyword.lower(), y.lower()) < 7 for y in exclusion_list):
                 continue
 
             final_result.append(entry)
 
-        return final_result[:25]
+        return final_result[:6]
 
 
 if __name__ == "__main__":
     AppLogger.CONFIGS.is_structured = False
     client = GoogleTrendsClient(AppLogger())
-    result = asyncio.run(client.get_trending_now(country="US", exclusion_list=["tornado watch", "seviille"]))
-    client.logger.debug(f"Result.", data=result)
+    a = asyncio.run(client.get_trending_now(country="US", exclusion_list=["tornado watch", "seviille"]))
+    client.logger.debug(f"Result.", data=a)

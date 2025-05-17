@@ -42,6 +42,9 @@ class AppLogger:
         'blue': '\u001b[34m',
         'orange': '\u001b[38;2;255;165;0m',
         'dark_orange': '\u001b[38;2;204;102;0m',
+        'soft_pink': '\u001b[38;2;255;228;225m',
+        'lightest_green': '\u001b[38;2;240;255;240m',
+        'gray_with_pink': '\u001b[38;2;150;128;140m',
         'bg_black': '\u001b[40m',
         'bg_red': '\u001b[41m',
         'bg_green': '\u001b[42m',
@@ -149,8 +152,16 @@ class AppLogger:
         return False
 
     @classmethod
-    def highlight(cls, msg: str, say: bool = False, data = None):
+    def highlight_1(cls, msg: str, say: bool = False, data = None):
         cls._log_message(msg, level=LogLevel.INFO, color="magenta", say=say, data=data)
+
+    @classmethod
+    def highlight_2(cls, msg: str, say: bool = False, data = None):
+        cls._log_message(msg, level=LogLevel.INFO, color="soft_pink", say=say, data=data)
+
+    @classmethod
+    def highlight_3(cls, msg: str, say: bool = False, data = None):
+        cls._log_message(msg, level=LogLevel.INFO, color="gray_with_pink", say=say, data=data)
 
     @classmethod
     def debug(cls, msg: str, say: bool = False, data = None):
