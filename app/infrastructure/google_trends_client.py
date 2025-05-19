@@ -18,7 +18,6 @@ class GoogleTrendsClient:
         self.trendspy = None
 
     # https://pypi.org/project/trendspy/
-
     async def get_trending_now(self, country: str, exclusion_list: List[str]):
         """
         Retrieve the most recent trending topics from Google Trends for a specified country,

@@ -4,7 +4,7 @@ from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 
-from agents.meme_gen.node_00_base import MemeGenBase
+from agents.meme_gen.nodes.node_00_base import MemeGenBase
 from agents.meme_gen.state import MemeGenState, TrendResearchValidationStatus
 from crosscutting.logging.app_logger import AppLogger
 from crosscutting.memoize_method import memoize_method
@@ -16,7 +16,7 @@ class MemeGenTrendValidator(MemeGenBase):
 
     NODE_NAME = "TrendResearchValidator"
 
-    PROMPTS_FILE = "prompts.yml"
+    PROMPTS_FILE = "../prompts.yml"
 
     def __init__(self,
                  logger: AppLogger,
@@ -44,9 +44,6 @@ class MemeGenTrendValidator(MemeGenBase):
             input_variables=["time_now", "research"],
             template=prompts["user"]
         )
-
-        self.logger.debug("System prompt.", data=self.system_prompt)
-        self.logger.debug("User prompt.", data=self.user_prompt.template)
 
         self.agent = create_react_agent(
             model=ChatOpenAI(
@@ -82,3 +79,18 @@ class MemeGenTrendValidator(MemeGenBase):
         state.trend_research_validation.iterations = iteration + 1
         self.logger.info("Completed.", data=response["structured_response"].__dict__)
         return state
+
+    def flow_condition(self, state: MemeGenState) -> str:
+        primary_status = state.trend_research_validation.primary_topic_status
+        secondary_status = state.trend_research_validation.secondary_topic_status
+
+        if primary_status and secondary_status:
+            state.trend_research_validation.iterations = 0
+            return "end"
+
+        if state.trend_research_validation.iterations >= 2:
+            state.trend_research_validation.iterations = 0
+            self.logger.warn("Research and compliance teams could not get to an agreement.")
+            return "end"
+
+        return "researcher"

@@ -9,10 +9,15 @@ from crosscutting.logging.app_logger import AppLogger
 
 class SerperDevClient:
 
+    CACHE_PATH = "serper_dev_cache.json"
+
+    CACHE = None
+
     def __init__(self,
                  logger: AppLogger):
 
         self.logger = logger
+        self.cache_path = os.path.join(os.path.dirname(__file__), self.CACHE_PATH)
 
 
     async def search(self, query: str):
@@ -99,6 +104,7 @@ class SerperDevClient:
             "credits": 1
         }
         """
+
         self.logger.debug(f"Calling client (Query: '{query}') ...")
 
         conn = http.client.HTTPSConnection("google.serper.dev")
@@ -113,8 +119,8 @@ class SerperDevClient:
         res = conn.getresponse()
         data = res.read()
         data = data.decode("utf-8")
-        # self.logger.debug(f"Result.", data=data)
-        return json.loads(data)
+        result = json.loads(data)
+        return result
 
 
 if __name__ == "__main__":

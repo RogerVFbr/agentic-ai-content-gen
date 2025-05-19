@@ -3,8 +3,8 @@ import os
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.graph import StateGraph, END
 
-from agents.meme_gen.node_01_trend_researcher import MemeGenTrendResearcher
-from agents.meme_gen.node_02_trend_research_validator import MemeGenTrendValidator
+from agents.meme_gen.nodes.node_01_trend_researcher import MemeGenTrendResearcher
+from agents.meme_gen.nodes.node_02_trend_research_validator import MemeGenTrendValidator
 from agents.meme_gen.state import MemeGenState
 from crosscutting.logging.app_logger import AppLogger
 
@@ -27,28 +27,6 @@ class MemeGenGraph:
 
         self.memory_file = os.path.join(os.path.dirname(__file__), "persistence", self.MEMORY_FILE)
 
-    def _research_condition(self, state: MemeGenState) -> str:
-        if state.trend_research.search_tool_call_status:
-            return MemeGenTrendValidator.NODE_NAME
-
-        state.trend_research_validation.iterations = 0
-        return END
-
-    def _validator_condition(self, state: MemeGenState) -> str:
-        primary_status = state.trend_research_validation.primary_topic_status
-        secondary_status = state.trend_research_validation.secondary_topic_status
-
-        if primary_status and secondary_status:
-            state.trend_research_validation.iterations = 0
-            return END
-
-        if state.trend_research_validation.iterations >= 2:
-            state.trend_research_validation.iterations = 0
-            self.logger.warn("Research and compliance teams could not get to an agreement.")
-            return END
-
-        return MemeGenTrendResearcher.NODE_NAME
-
     async def build(self):
         await self._initialize_checkpointer()
         self.trend_researcher.initialize()
@@ -60,8 +38,24 @@ class MemeGenGraph:
         builder.add_node(MemeGenTrendValidator.NODE_NAME, self.trend_research_validator.run)
 
         builder.set_entry_point(MemeGenTrendResearcher.NODE_NAME)
-        builder.add_conditional_edges(MemeGenTrendResearcher.NODE_NAME, self._research_condition)
-        builder.add_conditional_edges(MemeGenTrendValidator.NODE_NAME, self._validator_condition)
+
+        builder.add_conditional_edges(
+            MemeGenTrendResearcher.NODE_NAME,
+            self.trend_researcher.flow_condition,
+            {
+                "validator": MemeGenTrendValidator.NODE_NAME,
+                "end": END
+            }
+        )
+
+        builder.add_conditional_edges(
+            MemeGenTrendValidator.NODE_NAME,
+            self.trend_research_validator.flow_condition,
+            {
+                "researcher": MemeGenTrendResearcher.NODE_NAME,
+                "end": END
+            }
+        )
 
         graph = builder.compile(checkpointer=self.sql_memory)
 
@@ -80,19 +74,6 @@ class MemeGenGraph:
 
     async def terminate(self):
         if self.conn:
-            # async with self.conn.execute("SELECT name FROM sqlite_master WHERE type='table';") as cursor:
-            #     # Fetch all table names
-            #     tables = await cursor.fetchall()
-            #
-            #     # Print the table names
-            #     for table in tables:
-            #         print(table[0])
-            #
-            # # Print the table names
-            # for table in tables:
-            #     print(table[0])
-
-
             await self.conn.commit()
             await self.conn.close()
             self.conn = None

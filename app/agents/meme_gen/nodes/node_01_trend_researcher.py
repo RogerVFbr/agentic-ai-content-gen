@@ -4,7 +4,7 @@ from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 
-from agents.meme_gen.node_00_base import MemeGenBase
+from agents.meme_gen.nodes.node_00_base import MemeGenBase
 from agents.meme_gen.state import MemeGenState, TrendResearch
 from crosscutting.logging.app_logger import AppLogger
 from crosscutting.memoize_method import memoize_method
@@ -16,7 +16,7 @@ class MemeGenTrendResearcher(MemeGenBase):
 
     NODE_NAME = "TrendResearcher"
 
-    PROMPTS_FILE = "prompts.yml"
+    PROMPTS_FILE = "../prompts.yml"
 
     def __init__(self,
                  logger: AppLogger,
@@ -107,3 +107,11 @@ class MemeGenTrendResearcher(MemeGenBase):
         )
 
         return prompt
+
+    def flow_condition(self, state: MemeGenState) -> str:
+        if state.trend_research.search_tool_call_status:
+            return "validator"
+
+        state.trend_research_validation.iterations = 0
+        self.logger.warn("Research aborted due to tool call failure.")
+        return "end"
