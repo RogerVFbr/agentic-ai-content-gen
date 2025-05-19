@@ -2,12 +2,10 @@ import asyncio
 import boto3
 import os
 from dotenv import load_dotenv
-from typing import List
 
 from configurations.configs import Configs
 from configurations.configs_parser import ConfigsParser
 from configurations.di_container import DiContainer
-from configurations.service_collection import ServiceCollection
 from crosscutting.logging.app_logger import AppLogger
 from crosscutting.memoize_method import memoize_method
 
@@ -20,10 +18,10 @@ class ConfigurationModule:
     ]
 
     @classmethod
-    def run(cls, obj, callback):
+    def run(cls, pre_instantiated, service_collection, obj, callback):
         async def execute():
             module = cls._get()
-            if module._initialize():
+            if module._initialize(pre_instantiated, service_collection):
                 instance = DiContainer.get(obj)
                 await callback(instance)
 
@@ -36,15 +34,14 @@ class ConfigurationModule:
 
     @memoize_method()
     @AppLogger.timeit()
-    def _initialize(self) -> bool:
+    def _initialize(self, pre_instantiated, service_collection) -> bool:
         AppLogger.highlight_1(f"Initializing configuration ...")
 
         try:
             self._load_env_vars()
             configs = self._load_configs()
             self._override_env_vars(configs)
-            pre_instantiated = self._pre_instantiate(configs)
-            self._build_di_container(pre_instantiated)
+            self._build_di_container(pre_instantiated + [configs], service_collection)
         except Exception as e:
             AppLogger.critical(f"Unable to finish application initialization -> {type(e).__name__}: {e}")
             return False
@@ -82,7 +79,7 @@ class ConfigurationModule:
         Override environment variables with remote credentials if applicable.
         """
         client = None
-        overriden_values = []
+        overridden_values = []
         try:
             for env_var, param_name in configs.remote_credentials.items():
                 if env_var in os.environ and os.environ[env_var]:
@@ -91,29 +88,20 @@ class ConfigurationModule:
                     client = boto3.client('ssm')
                 value = client.get_parameter(Name=param_name, WithDecryption=True)['Parameter']['Value']
                 os.environ[env_var] = value
-                overriden_values.append(env_var)
+                overridden_values.append(env_var)
 
-            if overriden_values:
-                AppLogger.info(f"Overridden environment variables: {', '.join(overriden_values)}")
+            if overridden_values:
+                AppLogger.info(f"Overridden environment variables: {', '.join(overridden_values)}")
         except Exception as e:
             AppLogger.error(f"Failed to override environment variables: {e}", exception=e)
             raise
 
-    def _pre_instantiate(self, configs: Configs) -> List[object]:
-        try:
-            AppLogger.debug(f"Pre instantiation complete.")
-            return [configs]
-        except Exception as e:
-            AppLogger.error(f"Unable to preinstantiate: {e}", exception=e)
-            raise
-
-    def _build_di_container(self, pre_instantiated) -> None:
+    def _build_di_container(self, pre_instantiated, service_collection) -> None:
         """
         Build the Dependency Injection container.
         """
         try:
-            injections = ServiceCollection.get_services()
-            DiContainer.build_container(pre_instantiated, injections)
+            DiContainer.build_container(pre_instantiated, service_collection)
             AppLogger.debug("DI container built.")
         except Exception as e:
             AppLogger.error(f"Failed to build DI container: {e}", exception=e)
