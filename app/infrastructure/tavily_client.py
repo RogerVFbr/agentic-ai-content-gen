@@ -12,11 +12,12 @@ from crosscutting.semantic_cache import SemanticCache
 
 class TavilyClient:
     def __init__(self,
+                 cache_path: str,
                  logger: AppLogger):
         self.logger = logger
         self.client = None
         self.cache = None
-        self.cache_path = os.path.join(os.getcwd(), "tavily_cache.pkl")
+        self.cache_path = cache_path
 
     async def search(self, query: str):
 
@@ -32,7 +33,8 @@ class TavilyClient:
             result = hit["result"]
             original_query = hit["match_query"]
             score = hit["score"]
-            self.logger.debug(f"Cache hit. Matched: '{query}' -> '{original_query}' (Score: {score:.3f}, Age: {(datetime.now(timezone.utc) - datetime.fromisoformat(hit['timestamp'])).total_seconds() / 60:.2f} minutes).")
+            age = (datetime.now(timezone.utc) - datetime.fromisoformat(hit['timestamp'])).total_seconds() / 60
+            self.logger.debug(f"Cache hit. Matched: '{query}' -> '{original_query}' (Score: {score:.3f}, Age: {age:.2f} minutes).")
             return result
         else:
             self.logger.debug(f"Calling client (Query: '{query}') ...")

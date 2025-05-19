@@ -1,3 +1,5 @@
+import os
+
 from agents.meme_gen.agent import MemeGenAgent
 from agents.meme_gen.controllers.controller import MemeGenController
 from agents.meme_gen.controllers.worker import MemeGenWorker
@@ -11,6 +13,8 @@ from infrastructure.tavily_client import TavilyClient
 
 
 class MemeGenDi:
+
+    TAVILY_CACHE_PATH = os.path.join(os.path.dirname(__file__), "persistence", "tavily_cache.pkl")
 
     @classmethod
     def get_service_collection(cls):
@@ -29,5 +33,5 @@ class MemeGenDi:
     @classmethod
     def get_pre_instantiated(cls):
         logger = AppLogger()
-        tavily_client = TavilyClient(logger)
+        tavily_client = TavilyClient(cls.TAVILY_CACHE_PATH, logger)
         return [logger, tavily_client]
