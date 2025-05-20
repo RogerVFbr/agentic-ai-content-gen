@@ -78,3 +78,4 @@ class MemeGenGraph:
             await self.conn.close()
             self.conn = None
             self.logger.info("Checkpointer database connection terminated.")
+        self.trend_researcher.terminate()

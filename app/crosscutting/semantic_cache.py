@@ -41,10 +41,7 @@ class SemanticCache:
     def _prune(self):
         """Remove expired entries."""
         now = datetime.now(timezone.utc)
-        new_entries = [e for e in self.entries if now - e.timestamp <= self.ttl]
-        if len(new_entries) < len(self.entries):
-            print(f"Pruned {len(self.entries) - len(new_entries)} expired entries.")
-        self.entries = new_entries
+        self.entries = [e for e in self.entries if now - e.timestamp <= self.ttl]
         self._rebuild_index()
 
     def _rebuild_index(self):

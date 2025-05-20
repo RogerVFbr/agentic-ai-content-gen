@@ -10,6 +10,7 @@ from crosscutting.logging.app_logger import AppLogger
 from crosscutting.memoize_method import memoize_method
 from infrastructure.google_trends_client import GoogleTrendsClient
 from infrastructure.serper_dev_client import SerperDevClient
+from infrastructure.tavily_client import TavilyClient
 
 
 class MemeGenTrendResearcher(MemeGenBase):
@@ -20,14 +21,15 @@ class MemeGenTrendResearcher(MemeGenBase):
 
     def __init__(self,
                  logger: AppLogger,
-                 serper_dev_client:
-                 SerperDevClient,
+                 serper_dev_client: SerperDevClient,
+                 tavily_client: TavilyClient,
                  google_trends_client: GoogleTrendsClient):
 
         super().__init__(logger)
         self.logger = logger
         self.google_trends_client = google_trends_client
         self.serper_dev_client = serper_dev_client
+        self.tavily_client = tavily_client
 
         self.system_prompt = None
         self.user_main_prompt = None
@@ -60,7 +62,8 @@ class MemeGenTrendResearcher(MemeGenBase):
             prompt=self.system_prompt,
             response_format=TrendResearch,
             tools=[
-                self.serper_dev_client.search,
+                self.tavily_client.search,
+                # self.serper_dev_client.search,
                 self.thoughts
             ],
             debug=False,
@@ -115,3 +118,7 @@ class MemeGenTrendResearcher(MemeGenBase):
         state.trend_research_validation.iterations = 0
         self.logger.warn("Research aborted due to tool call failure.")
         return "end"
+
+    def terminate(self):
+        self.tavily_client.save()
+        self.logger.info("Tavily cache flushed.")

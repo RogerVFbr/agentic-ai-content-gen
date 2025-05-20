@@ -20,6 +20,7 @@ class TavilyClient:
         self.cache_path = cache_path
 
     async def search(self, query: str):
+        """Executes searches on the web"""
 
         if not self.client:
             self.logger.debug("Initializing Tavily client ...")
@@ -41,6 +42,9 @@ class TavilyClient:
             response = self.client.search(query=query)
             self.cache.store(query, response)
             return response
+
+    def save(self):
+        self.cache.save()
 
 
 if __name__ == "__main__":

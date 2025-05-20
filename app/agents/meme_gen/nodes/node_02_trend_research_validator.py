@@ -10,6 +10,7 @@ from crosscutting.logging.app_logger import AppLogger
 from crosscutting.memoize_method import memoize_method
 from infrastructure.google_trends_client import GoogleTrendsClient
 from infrastructure.serper_dev_client import SerperDevClient
+from infrastructure.tavily_client import TavilyClient
 
 
 class MemeGenTrendValidator(MemeGenBase):
@@ -21,12 +22,12 @@ class MemeGenTrendValidator(MemeGenBase):
     def __init__(self,
                  logger: AppLogger,
                  serper_dev_client: SerperDevClient,
-                 google_trends_client: GoogleTrendsClient):
+                 tavily_client: TavilyClient):
 
         super().__init__(logger)
         self.logger = logger
-        self.google_trends_client = google_trends_client
         self.serper_dev_client = serper_dev_client
+        self.tavily_client = tavily_client
 
         self.system_prompt = None
         self.user_prompt = None
@@ -53,7 +54,8 @@ class MemeGenTrendValidator(MemeGenBase):
             prompt=self.system_prompt,
             response_format=TrendResearchValidationStatus,
             tools=[
-                self.serper_dev_client.search,
+                self.tavily_client.search,
+                # self.serper_dev_client.search,
                 self.thoughts
             ],
             debug=False,
