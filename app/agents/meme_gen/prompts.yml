@@ -3,41 +3,35 @@ trend_researcher:
     You are an expert digital marketing assistant specialized in the fields of humor and comedy.
   user:
     main: |
-      Time now: {time_now}. Your task is to research trending topics by using the current trends data and select amongst 
-      the most recent, one that has the most potential for creating a meme with. 
+      Time now: {time_now}. Your task is to research trending topics using the provided current trends data and 
+      select two topics with the highest potential for meme creation.
       
       {remake}
       
-      You will execute your work by strictly following the steps below:
+      Follow these steps strictly:
       
-        0. Use the logging tool to log high level thoughts of your progress sparingly with short sentences.
-        3. You will receive a data - in the CURRENT TRENDS section - about trending topics, and you will select two and 
-           only two by performing the following steps:
-           3.1. Prioritize the ones with higher volume.
-           3.1. Topics should be replaced by others in the acquired list if:
-              3.1.1. They are related to politics, crimes, wars, racism, religion, ethnicity, physical disabilities and 
-                     natural disasters. You will respect ethics and avoid dark humor.
-              3.1.2. If after filtering none is left, choose the least offensive ones.
-           3.3. Choose up to 4 candidate topics to refine by using the web search tool.
-           3.4. Amongst the remaining topics, you will analyze the trends tool's response in detail and select
-                the topics that you think has the most potential for creating a meme.
-           3.5. Make sure the topics you choose can somehow be bound together in a single joke.   
-           3.6. Make sure you add exactly 5 facts to each topic.
-           3.7. Return the selected topics as the given structured output. Make sure you pass the topic names exactly 
-                as you got them.
-      
-        ## CURRENT TRENDS
-      
-        {current_trends}
-      
-        ## PREVIOUS ASSIGNMENT
-      
-        {previous_assignment}
+      1. Analyze the data in the **CURRENT TRENDS** section and select exactly two topics:
+         1.1. Prioritize topics with higher volume.
+         1.2. Exclude topics related to:
+             - Politics, crimes, wars, racism, religion, ethnicity, physical disabilities, and natural disasters.
+             - If no suitable topics remain, select the least offensive ones.
+         1.3. Refine the selected topics using the web search tool.
+      2. Ensure the selected topics can be combined into a single joke.
+      3. Add funny facts to each topic to enhance their humor potential.
+      4. Return the selected topics as the given structured output. Make sure you pass the topic names exactly as 
+         you got them.
+    
+      ## CURRENT TRENDS
+    
+      {current_trends}
+    
+      ## PREVIOUS ASSIGNMENT
+    
+      {previous_assignment}
     remake: |
-        The compliance team of our company has analyzed your last assignment and rejected your {to_replace} topic 
-        suggestion. For this iteration, you will perform you research again for the {to_replace} topic leaving the 
-        {to_keep} topic untouched. For the {to_keep} topic you will return exactly what you had previously. You can 
-        find this value on the PREVIOUS ASSIGNMENT section.
+      The compliance team has reviewed your previous assignment and rejected the {to_replace} topic. For this iteration, 
+      you must research a new topic to replace the {to_replace} topic, while keeping the {to_keep} topic unchanged. For 
+      the {to_keep} topic, return the exact values provided in the PREVIOUS ASSIGNMENT section.
 
 trend_research_validator:
   system: |
@@ -49,13 +43,12 @@ trend_research_validator:
     determine whether the chosen topics are legally, ethically and morally acceptable. You will execute your work by 
     strictly following the steps below:
 
-        0. Use the logging tool a little to log high level thoughts of your progress with short sentences.
         1. If you experience failure in any of the tools, abort immediately returning the final structured 
            output with empty or default values.
         2. You must carefully analyze the given topics, the reason they were chosen, and if necessary, look for
            clarifications on the internet, specifically for information that can frame any of the topics within one 
-           of the rejection criteria stated in step 3. Make sure to consider recent facts on your analysis. Make 3 
-           searches for each topic at most.
+           of the rejection criteria stated in step 3. Make sure to consider recent facts on your analysis. Do a maximum
+           of one search per topic.
         3. You must identify if any of the found topics is related to the following sensitive subjects:
            3.1. Politics, including international, elections, political parties, politicians and their relatives.
            3.2. War, including violence of any kind.
