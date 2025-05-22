@@ -1,6 +1,8 @@
 from datetime import datetime
 
 import yaml
+from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
 
 from crosscutting.logging.app_logger import AppLogger
 from crosscutting.logging.app_logger_config import LogLevel
@@ -19,8 +21,20 @@ class MemeGenBase:
                 self.PROMPT_CACHE[file_path] = yaml.safe_load(file)
         return self.PROMPT_CACHE[file_path]
 
-    def time_now(self):
+    @staticmethod
+    def time_now():
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    @staticmethod
+    def get_llm(temperature: float = 0.0):
+        return ChatOpenAI(
+            model="gpt-4o-mini",
+            temperature=temperature
+        )
+
+    # @staticmethod
+    # def get_llm(temperature: float = 0.0):
+    #     return ChatOllama(model="llama3.2")
 
     async def thoughts(self, level: LogLevel, msg: str):
         """

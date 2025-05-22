@@ -1,7 +1,7 @@
+import copy
 import json
 import os
 from langchain_core.prompts import PromptTemplate
-from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 
 from agents.meme_gen.nodes.node_00_base import MemeGenBase
@@ -55,16 +55,13 @@ class MemeGenTrendResearcher(MemeGenBase):
         )
 
         self.agent = create_react_agent(
-            model=ChatOpenAI(
-                model="gpt-4o-mini",
-                temperature=0
-            ),
+            model=self.get_llm(),
             prompt=self.system_prompt,
             response_format=TrendResearch,
             tools=[
                 self.tavily_client.search,
                 # self.serper_dev_client.search,
-                self.thoughts
+                # self.thoughts
             ],
             debug=False,
         )
@@ -73,10 +70,8 @@ class MemeGenTrendResearcher(MemeGenBase):
         self.logger.highlight_2(f"Starting {self.NODE_NAME} ...")
         prompt = await self.build_prompt(state)
         response = await self.agent.ainvoke(self.get_user_message(prompt))
-        self.logger.info("Completed.", data=response["structured_response"].__dict__)
-        state.trend_research = response["structured_response"]
-        state.prior_topics.add(state.trend_research.primary_topic)
-        state.prior_topics.add(state.trend_research.secondary_topic)
+        state = self._update_state(state, response)
+        self.logger.info("Completed.", data=state.trend_research.__dict__)
         return state
 
     async def build_prompt(self, state: MemeGenState):
@@ -111,14 +106,32 @@ class MemeGenTrendResearcher(MemeGenBase):
 
         return prompt
 
+    @staticmethod
+    def _update_state(state: MemeGenState, response):
+        orig_research = copy.deepcopy(state.trend_research) if state.trend_research else None
+        state.trend_research = response["structured_response"]
+
+        if state.trend_research_validation:
+            if state.trend_research_validation.primary_topic_status and not state.trend_research_validation.secondary_topic_status:
+                state.trend_research.primary_topic = orig_research.primary_topic
+                state.trend_research.primary_topic_reason = orig_research.primary_topic_reason
+                state.trend_research.primary_topic_facts = orig_research.primary_topic_facts
+            elif state.trend_research_validation.secondary_topic_status and not state.trend_research_validation.primary_topic_status:
+                state.trend_research.secondary_topic = orig_research.secondary_topic
+                state.trend_research.secondary_topic_reason = orig_research.secondary_topic_reason
+                state.trend_research.secondary_topic_facts = orig_research.secondary_topic_facts
+
+        state.prior_topics.add(state.trend_research.primary_topic)
+        state.prior_topics.add(state.trend_research.secondary_topic)
+
+        return state
+
     def flow_condition(self, state: MemeGenState) -> str:
         if state.trend_research.search_tool_call_status:
             return "validator"
 
-        state.trend_research_validation.iterations = 0
         self.logger.warn("Research aborted due to tool call failure.")
         return "end"
 
     def terminate(self):
         self.tavily_client.save()
-        self.logger.info("Tavily cache flushed.")

@@ -18,6 +18,8 @@ class TavilyClient:
         self.client = None
         self.cache = None
         self.cache_path = cache_path
+        self.usage = 0
+        self.cache_hits = 0
 
     async def search(self, query: str):
         """Executes searches on the web"""
@@ -25,26 +27,28 @@ class TavilyClient:
         if not self.client:
             self.logger.debug("Initializing Tavily client ...")
             self.client = TC(os.environ.get("TAVILY_API_KEY"))
-            self.logger.debug("Initializing cache ...")
             self.cache = SemanticCache(self.cache_path, ttl_minutes=180)
 
         hit = self.cache.search(query)
 
         if hit:
-            result = hit["result"]
-            original_query = hit["match_query"]
-            score = hit["score"]
+            result, original_query, score = hit["result"], hit["match_query"], hit["score"]
             age = (datetime.now(timezone.utc) - datetime.fromisoformat(hit['timestamp'])).total_seconds() / 60
             self.logger.debug(f"Cache hit. Matched: '{query}' -> '{original_query}' (Score: {score:.3f}, Age: {age:.2f} minutes).")
+            self.cache_hits += 1
             return result
         else:
             self.logger.debug(f"Calling client (Query: '{query}') ...")
             response = self.client.search(query=query)
             self.cache.store(query, response)
+            self.usage += 1
             return response
 
     def save(self):
-        self.cache.save()
+        self.logger.info(f"Tavily session usage: {self.usage} (+{self.cache_hits} cache hits).")
+        if self.cache:
+            self.cache.save()
+            self.logger.info("Tavily cache flushed.")
 
 
 if __name__ == "__main__":

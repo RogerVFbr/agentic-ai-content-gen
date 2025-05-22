@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import List, Set, Optional
 
 from pydantic import BaseModel, Field
 
@@ -29,5 +29,5 @@ class TrendResearchValidationStatus(BaseModel):
 
 class MemeGenState(BaseModel):
     prior_topics: Set[str] = set()
-    trend_research: TrendResearch = None
-    trend_research_validation: TrendResearchValidationStatus = None
+    trend_research: Optional[TrendResearch] = None
+    trend_research_validation: Optional[TrendResearchValidationStatus] = None

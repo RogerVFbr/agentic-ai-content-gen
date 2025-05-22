@@ -212,6 +212,7 @@ dependencies = [
     { name = "langchain-anthropic" },
     { name = "langchain-community" },
     { name = "langchain-experimental" },
+    { name = "langchain-ollama" },
     { name = "langchain-openai" },
     { name = "langgraph" },
     { name = "langgraph-checkpoint-sqlite" },
@@ -257,6 +258,7 @@ requires-dist = [
     { name = "langchain-anthropic", specifier = ">=0.3.10" },
     { name = "langchain-community", specifier = ">=0.3.20" },
     { name = "langchain-experimental", specifier = ">=0.3.4" },
+    { name = "langchain-ollama", specifier = ">=0.3.3" },
     { name = "langchain-openai", specifier = ">=0.3.9" },
     { name = "langgraph", specifier = ">=0.3.18" },
     { name = "langgraph-checkpoint-sqlite", specifier = ">=2.0.6" },
@@ -1900,7 +1902,7 @@ wheels = [
 
 [[package]]
 name = "langchain-core"
-version = "0.3.59"
+version = "0.3.60"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jsonpatch" },
@@ -1911,9 +1913,9 @@ dependencies = [
     { name = "tenacity" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/51/78/d17dae349301712e5b1bb4c0c98ecf84c566a71666fbcb1d4006c67b043a/langchain_core-0.3.59.tar.gz", hash = "sha256:052a37cf298c505144f007e5aeede6ecff2dc92c827525d1ef59101eb3a4551c", size = 557225, upload-time = "2025-05-07T17:58:24.267Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5b/75/95129aaada92980a002a31e002610a80af3c8967ae7884710372e89cdde0/langchain_core-0.3.60.tar.gz", hash = "sha256:63dd1bdf7939816115399522661ca85a2f3686a61440f2f46ebd86d1b028595b", size = 557456, upload-time = "2025-05-15T15:23:23.642Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/30/40/aa440a7cd05f1dab5d7c91a1284eb776c3cf3eb59fa18ed39927650cfa38/langchain_core-0.3.59-py3-none-any.whl", hash = "sha256:9686baaff43f2c8175535da13faf40e6866769015e93130c3c1e4243e7244d70", size = 437656, upload-time = "2025-05-07T17:58:22.251Z" },
+    { url = "https://files.pythonhosted.org/packages/2d/bc/344f5b11fdfe0e27f7064d2e829921a791461dc32e5ed285fe6325518c26/langchain_core-0.3.60-py3-none-any.whl", hash = "sha256:2ccdf06b12e699b1b0962bc02837056c075b4981c3d13f82a4d4c30bb22ea3dc", size = 437890, upload-time = "2025-05-15T15:23:22.278Z" },
 ]
 
 [[package]]
@@ -1927,6 +1929,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/27/56/a8acbb08a03383c28875b3b151e4cefea5612266917fbd6fc3c14c21e172/langchain_experimental-0.3.4.tar.gz", hash = "sha256:937c4259ee4a639c618d19acf0e2c5c2898ef127050346edc5655259aa281a21", size = 140532, upload-time = "2024-12-20T15:16:09.42Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b2/27/fe8caa4884611286b1f7d6c5cfd76e1fef188faaa946db4fde6daa1cd2cd/langchain_experimental-0.3.4-py3-none-any.whl", hash = "sha256:2e587306aea36b60fa5e5fc05dc7281bee9f60a806f0bf9d30916e0ee096af80", size = 209154, upload-time = "2024-12-20T15:16:07.006Z" },
+]
+
+[[package]]
+name = "langchain-ollama"
+version = "0.3.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "langchain-core" },
+    { name = "ollama" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/59/9f/6683f69f14b0cde3556c6b7752fb290bfce743981dc1312efa924619365f/langchain_ollama-0.3.3.tar.gz", hash = "sha256:7d6ed75bfb706751b83173fe886b72ae25bb0b1bd7f3eb2622821c4149f7807b", size = 21913, upload-time = "2025-05-15T20:27:06.027Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/84/6f/ab7a470522e27b95ed008eb9ef81b1ab55321f3f3aff21ca0109aae53cdf/langchain_ollama-0.3.3-py3-none-any.whl", hash = "sha256:f1c745a4b59d36bb51995c23c6b0fbc20f71956715659425ab88639a14b213cd", size = 21156, upload-time = "2025-05-15T20:27:05.159Z" },
 ]
 
 [[package]]

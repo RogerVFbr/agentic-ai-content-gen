@@ -1,14 +1,13 @@
+import copy
 import json
 import os
 from langchain_core.prompts import PromptTemplate
-from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 
 from agents.meme_gen.nodes.node_00_base import MemeGenBase
 from agents.meme_gen.state import MemeGenState, TrendResearchValidationStatus
 from crosscutting.logging.app_logger import AppLogger
 from crosscutting.memoize_method import memoize_method
-from infrastructure.google_trends_client import GoogleTrendsClient
 from infrastructure.serper_dev_client import SerperDevClient
 from infrastructure.tavily_client import TavilyClient
 
@@ -47,24 +46,19 @@ class MemeGenTrendValidator(MemeGenBase):
         )
 
         self.agent = create_react_agent(
-            model=ChatOpenAI(
-                model="gpt-4o-mini",
-                temperature=0
-            ),
+            model=self.get_llm(),
             prompt=self.system_prompt,
             response_format=TrendResearchValidationStatus,
             tools=[
                 self.tavily_client.search,
                 # self.serper_dev_client.search,
-                self.thoughts
+                # self.thoughts
             ],
             debug=False,
         )
 
     async def run(self, state: MemeGenState):
         self.logger.highlight_2(f"Starting {self.NODE_NAME} ...")
-
-        iteration = state.trend_research_validation.iterations if state.trend_research_validation else 0
 
         research = state.trend_research.__dict__.copy()
         del research['search_tool_call_status']
@@ -74,12 +68,30 @@ class MemeGenTrendValidator(MemeGenBase):
 
         response = await self.agent.ainvoke(
             self.get_user_message(
-                self.user_prompt.template.format(time_now=self.time_now(),research=research))
+                self.user_prompt.template.format(time_now=self.time_now(), research=research))
         )
 
+        state = self._update_state(state, response)
+        self.logger.info("Completed.", data=state.trend_research_validation.__dict__)
+        return state
+
+    @staticmethod
+    def _update_state(state: MemeGenState, response):
+        orig_validation = copy.deepcopy(state.trend_research_validation) if state.trend_research_validation else None
         state.trend_research_validation = response["structured_response"]
-        state.trend_research_validation.iterations = iteration + 1
-        self.logger.info("Completed.", data=response["structured_response"].__dict__)
+
+        if orig_validation:
+            if orig_validation.primary_topic_status:
+                state.trend_research_validation.primary_topic = orig_validation.primary_topic
+                state.trend_research_validation.primary_topic_status = orig_validation.primary_topic_status
+                state.trend_research_validation.primary_topic_reason = orig_validation.primary_topic_reason
+            if orig_validation.secondary_topic_status:
+                state.trend_research_validation.secondary_topic = orig_validation.secondary_topic
+                state.trend_research_validation.secondary_topic_status = orig_validation.secondary_topic_status
+                state.trend_research_validation.secondary_topic_reason = orig_validation.secondary_topic_reason
+
+        state.trend_research_validation.iterations = orig_validation.iterations + 1 if orig_validation else 1
+
         return state
 
     def flow_condition(self, state: MemeGenState) -> str:
@@ -87,11 +99,9 @@ class MemeGenTrendValidator(MemeGenBase):
         secondary_status = state.trend_research_validation.secondary_topic_status
 
         if primary_status and secondary_status:
-            state.trend_research_validation.iterations = 0
             return "end"
 
-        if state.trend_research_validation.iterations >= 2:
-            state.trend_research_validation.iterations = 0
+        if state.trend_research_validation.iterations >= 4:
             self.logger.warn("Research and compliance teams could not get to an agreement.")
             return "end"
 

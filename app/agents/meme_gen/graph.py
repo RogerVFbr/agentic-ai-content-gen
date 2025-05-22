@@ -34,10 +34,13 @@ class MemeGenGraph:
 
         builder = StateGraph(MemeGenState)
 
+        builder.add_node("initializer", self._initialize_state)
         builder.add_node(MemeGenTrendResearcher.NODE_NAME, self.trend_researcher.run)
         builder.add_node(MemeGenTrendValidator.NODE_NAME, self.trend_research_validator.run)
 
-        builder.set_entry_point(MemeGenTrendResearcher.NODE_NAME)
+        builder.set_entry_point("initializer")
+
+        builder.add_edge("initializer", MemeGenTrendResearcher.NODE_NAME)
 
         builder.add_conditional_edges(
             MemeGenTrendResearcher.NODE_NAME,
@@ -71,6 +74,12 @@ class MemeGenGraph:
 
         self.conn = await aiosqlite.connect(self.memory_file)
         self.sql_memory = AsyncSqliteSaver(self.conn)
+
+    async def _initialize_state(self, state: MemeGenState):
+        self.logger.highlight_2(f"Initializing state.")
+        state.trend_research = None
+        state.trend_research_validation = None
+        return state
 
     async def terminate(self):
         if self.conn:

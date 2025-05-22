@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 import asyncio
 
 import http.client
@@ -5,6 +7,7 @@ import json
 import os
 
 from crosscutting.logging.app_logger import AppLogger
+from crosscutting.semantic_cache import SemanticCache
 
 
 class SerperDevClient:
@@ -14,11 +17,14 @@ class SerperDevClient:
     CACHE = None
 
     def __init__(self,
+                 cache_path: str,
                  logger: AppLogger):
 
         self.logger = logger
-        self.cache_path = os.path.join(os.path.dirname(__file__), self.CACHE_PATH)
-
+        self.cache = None
+        self.cache_path = cache_path
+        self.usage = 0
+        self.cache_hits = 0
 
     async def search(self, query: str):
         """
@@ -105,22 +111,42 @@ class SerperDevClient:
         }
         """
 
-        self.logger.debug(f"Calling client (Query: '{query}') ...")
+        if not self.cache:
+            self.logger.debug("Initializing SerperDevClient client ...")
+            self.cache = SemanticCache(self.cache_path, ttl_minutes=180)
 
-        conn = http.client.HTTPSConnection("google.serper.dev")
-        payload = json.dumps({
-            "q": query
-        })
-        headers = {
-            'X-API-KEY': os.environ.get("SERPERDEV_API_KEY"),
-            'Content-Type': 'application/json'
-        }
-        conn.request("POST", "/search", payload, headers)
-        res = conn.getresponse()
-        data = res.read()
-        data = data.decode("utf-8")
-        result = json.loads(data)
-        return result
+        hit = self.cache.search(query)
+
+        if hit:
+            result, original_query, score = hit["result"], hit["match_query"], hit["score"]
+            age = (datetime.now(timezone.utc) - datetime.fromisoformat(hit['timestamp'])).total_seconds() / 60
+            self.logger.debug(f"Cache hit. Matched: '{query}' -> '{original_query}' (Score: {score:.3f}, Age: {age:.2f} minutes).")
+            self.cache_hits += 1
+            return result
+        else:
+            self.logger.debug(f"Calling client (Query: '{query}') ...")
+            conn = http.client.HTTPSConnection("google.serper.dev")
+            payload = json.dumps({
+                "q": query
+            })
+            headers = {
+                'X-API-KEY': os.environ.get("SERPERDEV_API_KEY"),
+                'Content-Type': 'application/json'
+            }
+            conn.request("POST", "/search", payload, headers)
+            res = conn.getresponse()
+            data = res.read()
+            data = data.decode("utf-8")
+            result = json.loads(data)
+            self.cache.store(query, result)
+            self.usage += 1
+            return result
+
+    def save(self):
+        self.logger.info(f"SerperDevClient session usage: {self.usage} (+{self.cache_hits} cache hits).")
+        if self.cache:
+            self.cache.save()
+            self.logger.info("SerperDevClient cache flushed.")
 
 
 if __name__ == "__main__":

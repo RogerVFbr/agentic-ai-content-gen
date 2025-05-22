@@ -24,7 +24,6 @@ class SemanticCache:
         self.cache_file = cache_file
         self.threshold = threshold
         self.ttl = timedelta(minutes=ttl_minutes)
-
         self.index = faiss.IndexFlatIP(384)
         self.entries: List[CacheEntry] = []
 
