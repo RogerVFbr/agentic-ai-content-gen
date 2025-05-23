@@ -1,7 +1,7 @@
-from datetime import datetime
-
+import re
 import yaml
-from langchain_ollama import ChatOllama
+from datetime import datetime
+from langchain_core.messages import AIMessage, ToolMessage
 from langchain_openai import ChatOpenAI
 
 from crosscutting.logging.app_logger import AppLogger
@@ -32,9 +32,31 @@ class MemeGenBase:
             temperature=temperature
         )
 
-    # @staticmethod
-    # def get_llm(temperature: float = 0.0):
-    #     return ChatOllama(model="llama3.2")
+    async def log_progress(self, step):
+        index = -1
+        latest_message = step['messages'][index]
+        if isinstance(latest_message, AIMessage):
+            if latest_message.tool_calls:
+                for tool_call in latest_message.tool_calls:
+                    tool_name = tool_call.get("name", "Unknown Tool")
+                    tool_status = tool_call.get("args", {})
+                    await self.thoughts(LogLevel.DEBUG, f"[{tool_name}] Tool call requested. Args: {tool_status}")
+            else:
+                content = re.sub(r'\s+', ' ', latest_message.content)
+                content = content.replace("\n", " ")
+                content = content.replace("```json", " ")
+                content = content.replace("#", "")
+                content = content.replace("*", "")
+                content = content[:150]
+                await self.thoughts(LogLevel.DEBUG, f"[AI] {content}" + (" (...)" if len(content) > 150 else ""))
+        if isinstance(latest_message, ToolMessage):
+            tool_message = step['messages'][index]
+            while isinstance(tool_message, ToolMessage):
+                tool_name = tool_message.name
+                tool_status = tool_message.status
+                await self.thoughts(LogLevel.DEBUG, f"[{tool_name}] Tool call status: {tool_status.upper()}")
+                index -= 1
+                tool_message = step['messages'][index]
 
     async def thoughts(self, level: LogLevel, msg: str):
         """

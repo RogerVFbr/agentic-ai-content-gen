@@ -24,6 +24,7 @@ class MemeGenTrendValidator(MemeGenBase):
                  tavily_client: TavilyClient):
 
         super().__init__(logger)
+
         self.logger = logger
         self.serper_dev_client = serper_dev_client
         self.tavily_client = tavily_client
@@ -66,12 +67,16 @@ class MemeGenTrendValidator(MemeGenBase):
         del research['full_topics_list']
         research = json.dumps(research)
 
-        response = await self.agent.ainvoke(
-            self.get_user_message(
-                self.user_prompt.template.format(time_now=self.time_now(), research=research))
-        )
+        user_message = self.get_user_message(self.user_prompt.template.format(
+            time_now=self.time_now(),
+            research=research))
 
-        state = self._update_state(state, response)
+        final_response = None
+        async for response in self.agent.astream(user_message):
+            await self.log_progress(response)
+            final_response = response
+
+        state = self._update_state(state, final_response)
         self.logger.info("Completed.", data=state.trend_research_validation.__dict__)
         return state
 
@@ -80,15 +85,10 @@ class MemeGenTrendValidator(MemeGenBase):
         orig_validation = copy.deepcopy(state.trend_research_validation) if state.trend_research_validation else None
         state.trend_research_validation = response["structured_response"]
 
-        if orig_validation:
-            if orig_validation.primary_topic_status:
-                state.trend_research_validation.primary_topic = orig_validation.primary_topic
-                state.trend_research_validation.primary_topic_status = orig_validation.primary_topic_status
-                state.trend_research_validation.primary_topic_reason = orig_validation.primary_topic_reason
-            if orig_validation.secondary_topic_status:
-                state.trend_research_validation.secondary_topic = orig_validation.secondary_topic
-                state.trend_research_validation.secondary_topic_status = orig_validation.secondary_topic_status
-                state.trend_research_validation.secondary_topic_reason = orig_validation.secondary_topic_reason
+        if state.trend_research_validation.primary_topic_status and not state.trend_research_validation.secondary_topic_status:
+            state.prior_topics.remove(state.trend_research.primary_topic)
+        elif not state.trend_research_validation.primary_topic_status and state.trend_research_validation.secondary_topic_status:
+            state.prior_topics.remove(state.trend_research.secondary_topic)
 
         state.trend_research_validation.iterations = orig_validation.iterations + 1 if orig_validation else 1
 

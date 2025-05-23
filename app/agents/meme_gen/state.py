@@ -7,6 +7,7 @@ class TrendResearch(BaseModel):
     """Final result of the trend research"""
     search_tool_call_status: bool = Field(description = "Whether the search tool was called successfully or not")
     search_tool_call_reason: str = Field(description = "Reason why or why not you called the search tool. Give all possible details. Include eny error logs.")
+    combined_joke: str = Field(description = "The joke you created by combining the topics.")
     primary_topic: str = Field(description = "The primary topic you would recommend from your search")
     primary_topic_reason: str = Field(description = "The reason why you would recommend the primary topic")
     primary_topic_facts: List[str] = Field(description ="A list of short facts related to the primary topic which you retrieved from your search")

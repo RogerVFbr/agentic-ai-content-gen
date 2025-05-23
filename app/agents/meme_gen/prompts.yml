@@ -6,8 +6,6 @@ trend_researcher:
       Time now: {time_now}. Your task is to research trending topics using the provided current trends data and 
       select two topics with the highest potential for meme creation.
       
-      {remake}
-      
       Follow these steps strictly:
       
       1. Analyze the data in the **CURRENT TRENDS** section and select exactly two topics:
@@ -24,14 +22,6 @@ trend_researcher:
       ## CURRENT TRENDS
     
       {current_trends}
-    
-      ## PREVIOUS ASSIGNMENT
-    
-      {previous_assignment}
-    remake: |
-      The compliance team has reviewed your previous assignment and rejected the {to_replace} topic. For this iteration, 
-      you must research a new topic to replace the {to_replace} topic, while keeping the {to_keep} topic unchanged. For 
-      the {to_keep} topic, return the exact values provided in the PREVIOUS ASSIGNMENT section.
 
 trend_research_validator:
   system: |

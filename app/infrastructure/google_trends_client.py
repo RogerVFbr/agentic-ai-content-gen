@@ -67,7 +67,7 @@ class GoogleTrendsClient:
 
             final_result.append(entry)
 
-        return final_result[:6]
+        return final_result[:10]
 
 
 if __name__ == "__main__":
