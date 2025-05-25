@@ -53,13 +53,16 @@ class MemeGenTrendValidator(MemeGenBase):
             tools=[
                 self.tavily_client.search,
                 # self.serper_dev_client.search,
-                # self.thoughts
             ],
             debug=False,
         )
 
+    @AppLogger.timeit()
     async def run(self, state: MemeGenState):
         self.logger.highlight_2(f"Starting {self.NODE_NAME} ...")
+
+        self.tavily_client.reset_quota()
+        self.serper_dev_client.reset_quota()
 
         research = state.trend_research.__dict__.copy()
         del research['search_tool_call_status']

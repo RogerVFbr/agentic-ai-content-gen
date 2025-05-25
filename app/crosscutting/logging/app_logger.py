@@ -160,8 +160,8 @@ class AppLogger:
         cls._log_message(msg, level=LogLevel.INFO, color="soft_pink", say=say, data=data)
 
     @classmethod
-    def highlight_3(cls, msg: str, say: bool = False, data = None):
-        cls._log_message(msg, level=LogLevel.INFO, color="gray_with_pink", say=say, data=data)
+    def highlight_3(cls, level: LogLevel, msg: str, say: bool = False, data = None):
+        cls._log_message(msg, level=level, color="gray_with_pink", say=say, data=data)
 
     @classmethod
     def debug(cls, msg: str, say: bool = False, data = None):

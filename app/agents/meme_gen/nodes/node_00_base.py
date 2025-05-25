@@ -33,6 +33,9 @@ class MemeGenBase:
         )
 
     async def log_progress(self, step):
+        if 'structured_response' in step:
+            self.logger.highlight_3(LogLevel.DEBUG, f"Structured response generated ({type(step['structured_response'])}).")
+            return
         index = -1
         latest_message = step['messages'][index]
         if isinstance(latest_message, AIMessage):
@@ -40,56 +43,23 @@ class MemeGenBase:
                 for tool_call in latest_message.tool_calls:
                     tool_name = tool_call.get("name", "Unknown Tool")
                     tool_status = tool_call.get("args", {})
-                    await self.thoughts(LogLevel.DEBUG, f"[{tool_name}] Tool call requested. Args: {tool_status}")
+                    self.logger.highlight_3(LogLevel.DEBUG, f"[{tool_name}] Tool call requested. Args: {tool_status}")
             else:
-                content = re.sub(r'\s+', ' ', latest_message.content)
-                content = content.replace("\n", " ")
+                content = latest_message.content.replace("\n", " ")
                 content = content.replace("```json", " ")
                 content = content.replace("#", "")
                 content = content.replace("*", "")
+                content = re.sub(r'\s+', ' ', content)
                 content = content[:150]
-                await self.thoughts(LogLevel.DEBUG, f"[AI] {content}" + (" (...)" if len(content) > 150 else ""))
+                self.logger.highlight_3(LogLevel.DEBUG, f"[AI] {content}" + (" (...)" if len(latest_message.content) > 150 else ""))
         if isinstance(latest_message, ToolMessage):
             tool_message = step['messages'][index]
             while isinstance(tool_message, ToolMessage):
                 tool_name = tool_message.name
                 tool_status = tool_message.status
-                await self.thoughts(LogLevel.DEBUG, f"[{tool_name}] Tool call status: {tool_status.upper()}")
+                self.logger.highlight_3(LogLevel.DEBUG, f"[{tool_name}] Tool call status: {tool_status.upper()}")
                 index -= 1
                 tool_message = step['messages'][index]
-
-    async def thoughts(self, level: LogLevel, msg: str):
-        """
-        Logging tool for super short sentences..
-
-        Args:
-            level (LogLevel): The logging level, which determines the severity of the log. Possible values include:
-                - LogLevel.DEBUG: For detailed diagnostic information, useful during development or debugging.
-                - LogLevel.INFO: For general informational messages that highlight the progress of the application.
-                - LogLevel.WARN: For potentially harmful situations that do not interrupt the application flow.
-                - LogLevel.ERROR: For error events that might still allow the application to continue running.
-                - LogLevel.CRITICAL: For severe error events that will likely lead to application termination.
-            msg (str): The message to be logged, typically representing the agent's thought, action, or status.
-
-        Best Practices:
-            - Use DEBUG for verbose output during development or troubleshooting.
-            - Use INFO for high-level application flow or significant events.
-            - Use WARN for unexpected situations that are not errors but may require attention.
-            - Use ERROR for issues that affect functionality but do not stop the application.
-            - Use CRITICAL for unrecoverable errors or situations requiring immediate attention.
-
-        This method formats and logs the message using the provided logger instance.
-        """
-        if level == LogLevel.DEBUG:
-            self.logger.highlight_3(f"{msg}")
-        elif level == LogLevel.INFO:
-            self.logger.highlight_3(f"{msg}")
-        elif level == LogLevel.WARN:
-            self.logger.warn(f"{msg}")
-        elif level == LogLevel.ERROR:
-            self.logger.warn(f"{msg}")
-        else:
-            self.logger.warn(f"{msg}")
 
     def get_user_message(self, input: str):
         return {

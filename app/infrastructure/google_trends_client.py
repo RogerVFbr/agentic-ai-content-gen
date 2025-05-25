@@ -34,7 +34,8 @@ class GoogleTrendsClient:
             self.trendspy = Trends()
             self.model = SentenceTransformer('all-MiniLM-L6-v2')
 
-        self.logger.debug("Calling client ...", data=', '.join(exclusion_list))
+        # self.logger.debug("Calling client ...", data=', '.join(exclusion_list))
+        self.logger.debug("Calling client ...")
         result = self.trendspy.trending_now(geo=country)
         result = sorted(result, key=lambda x: x.volume, reverse=True)
 

@@ -54,13 +54,17 @@ class MemeGenTrendResearcher(MemeGenBase):
             tools=[
                 self.tavily_client.search,
                 # self.serper_dev_client.search,
-                # self.thoughts
             ],
             debug=False,
         )
 
+    @AppLogger.timeit()
     async def run(self, state: MemeGenState):
         self.logger.highlight_2(f"Starting {self.NODE_NAME} ...")
+
+        self.tavily_client.reset_quota()
+        self.serper_dev_client.reset_quota()
+
         prompt = await self.build_prompt(state)
 
         final_response = None
@@ -69,7 +73,7 @@ class MemeGenTrendResearcher(MemeGenBase):
             final_response = response
 
         state = self._update_state(state, final_response)
-        self.logger.info("Completed.", data=state.trend_research.__dict__)
+        self.logger.info(f"Completed. Topics: '{state.trend_research.primary_topic}' and '{state.trend_research.secondary_topic}'.", data=state.trend_research.__dict__)
         return state
 
     async def build_prompt(self, state: MemeGenState):

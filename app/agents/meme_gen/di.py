@@ -16,6 +16,7 @@ class MemeGenDi:
 
     TAVILY_CACHE_PATH = os.path.join(os.path.dirname(__file__), "persistence", "tavily_cache.pkl")
     SERPER_DEV_CACHE_PATH = os.path.join(os.path.dirname(__file__), "persistence", "serper_dev_cache.pkl")
+    WEB_SEARCH_QUOTA = 2
 
     @classmethod
     def get_service_collection(cls):
@@ -33,6 +34,6 @@ class MemeGenDi:
     @classmethod
     def get_pre_instantiated(cls):
         logger = AppLogger()
-        tavily_client = TavilyClient(cls.TAVILY_CACHE_PATH, logger)
-        serper_dev_client = SerperDevClient(cls.SERPER_DEV_CACHE_PATH, logger)
+        tavily_client = TavilyClient(cls.TAVILY_CACHE_PATH, cls.WEB_SEARCH_QUOTA, logger)
+        serper_dev_client = SerperDevClient(cls.SERPER_DEV_CACHE_PATH, cls.WEB_SEARCH_QUOTA, logger)
         return [logger, tavily_client, serper_dev_client]
