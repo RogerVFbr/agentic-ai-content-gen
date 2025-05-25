@@ -8,8 +8,7 @@ from agents.meme_gen.nodes.node_00_base import MemeGenBase
 from agents.meme_gen.state import MemeGenState, TrendResearchValidationStatus
 from crosscutting.logging.app_logger import AppLogger
 from crosscutting.memoize_method import memoize_method
-from infrastructure.serper_dev_client import SerperDevClient
-from infrastructure.tavily_client import TavilyClient
+from repositories.web_search_repository import WebSearchRepository
 
 
 class MemeGenTrendValidator(MemeGenBase):
@@ -20,14 +19,12 @@ class MemeGenTrendValidator(MemeGenBase):
 
     def __init__(self,
                  logger: AppLogger,
-                 serper_dev_client: SerperDevClient,
-                 tavily_client: TavilyClient):
+                 web_search_repository: WebSearchRepository):
 
         super().__init__(logger)
 
         self.logger = logger
-        self.serper_dev_client = serper_dev_client
-        self.tavily_client = tavily_client
+        self.web_search_repository = web_search_repository
 
         self.system_prompt = None
         self.user_prompt = None
@@ -51,8 +48,7 @@ class MemeGenTrendValidator(MemeGenBase):
             prompt=self.system_prompt,
             response_format=TrendResearchValidationStatus,
             tools=[
-                self.tavily_client.search,
-                # self.serper_dev_client.search,
+                self._search_web
             ],
             debug=False,
         )
@@ -61,8 +57,7 @@ class MemeGenTrendValidator(MemeGenBase):
     async def run(self, state: MemeGenState):
         self.logger.highlight_2(f"Starting {self.NODE_NAME} ...")
 
-        self.tavily_client.reset_quota()
-        self.serper_dev_client.reset_quota()
+        self.web_search_repository.reset_quota(self.NODE_NAME)
 
         research = state.trend_research.__dict__.copy()
         del research['search_tool_call_status']
@@ -82,6 +77,10 @@ class MemeGenTrendValidator(MemeGenBase):
         state = self._update_state(state, final_response)
         self.logger.info("Completed.", data=state.trend_research_validation.__dict__)
         return state
+
+    async def _search_web(self, query: str):
+        """Executes searches on the web"""
+        return await self.web_search_repository.search(self.NODE_NAME, query)
 
     @staticmethod
     def _update_state(state: MemeGenState, response):

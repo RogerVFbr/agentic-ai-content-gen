@@ -7,8 +7,7 @@ from agents.meme_gen.state import MemeGenState, TrendResearch
 from crosscutting.logging.app_logger import AppLogger
 from crosscutting.memoize_method import memoize_method
 from infrastructure.google_trends_client import GoogleTrendsClient
-from infrastructure.serper_dev_client import SerperDevClient
-from infrastructure.tavily_client import TavilyClient
+from repositories.web_search_repository import WebSearchRepository
 
 
 class MemeGenTrendResearcher(MemeGenBase):
@@ -19,16 +18,14 @@ class MemeGenTrendResearcher(MemeGenBase):
 
     def __init__(self,
                  logger: AppLogger,
-                 serper_dev_client: SerperDevClient,
-                 tavily_client: TavilyClient,
+                 web_search_repository: WebSearchRepository,
                  google_trends_client: GoogleTrendsClient):
 
         super().__init__(logger)
 
         self.logger = logger
         self.google_trends_client = google_trends_client
-        self.serper_dev_client = serper_dev_client
-        self.tavily_client = tavily_client
+        self.web_search_repository = web_search_repository
 
         self.system_prompt = None
         self.user_prompt = None
@@ -52,8 +49,7 @@ class MemeGenTrendResearcher(MemeGenBase):
             prompt=self.system_prompt,
             response_format=TrendResearch,
             tools=[
-                self.tavily_client.search,
-                # self.serper_dev_client.search,
+                self._search_web
             ],
             debug=False,
         )
@@ -62,8 +58,7 @@ class MemeGenTrendResearcher(MemeGenBase):
     async def run(self, state: MemeGenState):
         self.logger.highlight_2(f"Starting {self.NODE_NAME} ...")
 
-        self.tavily_client.reset_quota()
-        self.serper_dev_client.reset_quota()
+        self.web_search_repository.reset_quota(self.NODE_NAME)
 
         prompt = await self.build_prompt(state)
 
@@ -86,6 +81,10 @@ class MemeGenTrendResearcher(MemeGenBase):
 
         return prompt
 
+    async def _search_web(self, query: str):
+        """Executes searches on the web"""
+        return await self.web_search_repository.search(self.NODE_NAME, query)
+
     @staticmethod
     def _update_state(state: MemeGenState, response):
         state.trend_research = response["structured_response"]
@@ -101,4 +100,4 @@ class MemeGenTrendResearcher(MemeGenBase):
         return "end"
 
     def terminate(self):
-        self.tavily_client.save()
+        self.web_search_repository.save()

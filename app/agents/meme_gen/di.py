@@ -1,5 +1,3 @@
-import os
-
 from agents.meme_gen.agent import MemeGenAgent
 from agents.meme_gen.controllers.controller import MemeGenController
 from agents.meme_gen.controllers.worker import MemeGenWorker
@@ -10,18 +8,19 @@ from crosscutting.logging.app_logger import AppLogger
 from infrastructure.google_trends_client import GoogleTrendsClient
 from infrastructure.serper_dev_client import SerperDevClient
 from infrastructure.tavily_client import TavilyClient
+from repositories.web_search_repository import WebSearchRepository
 
 
 class MemeGenDi:
 
-    TAVILY_CACHE_PATH = os.path.join(os.path.dirname(__file__), "persistence", "tavily_cache.pkl")
-    SERPER_DEV_CACHE_PATH = os.path.join(os.path.dirname(__file__), "persistence", "serper_dev_cache.pkl")
-    WEB_SEARCH_QUOTA = 2
-
     @classmethod
     def get_service_collection(cls):
         return [
-            GoogleTrendsClient
+            AppLogger,
+            GoogleTrendsClient,
+            WebSearchRepository,
+            TavilyClient,
+            SerperDevClient
         ] + [
             MemeGenWorker,
             MemeGenController,
@@ -33,7 +32,4 @@ class MemeGenDi:
 
     @classmethod
     def get_pre_instantiated(cls):
-        logger = AppLogger()
-        tavily_client = TavilyClient(cls.TAVILY_CACHE_PATH, cls.WEB_SEARCH_QUOTA, logger)
-        serper_dev_client = SerperDevClient(cls.SERPER_DEV_CACHE_PATH, cls.WEB_SEARCH_QUOTA, logger)
-        return [logger, tavily_client, serper_dev_client]
+        return []

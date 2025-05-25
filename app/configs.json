@@ -1,4 +1,10 @@
 {
+  "web_search": {
+    "client": "Tavily",
+    "cache_path": "/agents/meme_gen/persistence/web_search_cache.pkl",
+    "cache_ttl_minutes": 180,
+    "quota_per_node": 2
+  },
   "remote_credentials": {
     "OPENAI_API_KEY": "/ContentGenerator/Credentials/OpenAi/Password"
   },

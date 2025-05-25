@@ -87,6 +87,10 @@ class SemanticCache:
             pickle.dump(self.entries, f)
 
     def _load(self):
+        if os.path.getsize(self.cache_file) == 0:
+            self.entries = []
+            return
+
         with open(self.cache_file, "rb") as f:
             self.entries = pickle.load(f)
             # Compatibility: convert old dicts to CacheEntry if needed
