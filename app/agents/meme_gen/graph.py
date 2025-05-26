@@ -3,8 +3,13 @@ import os
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.graph import StateGraph, END
 
-from agents.meme_gen.nodes.node_01_trend_researcher import MemeGenTrendResearcher
-from agents.meme_gen.nodes.node_02_trend_research_validator import MemeGenTrendValidator
+from agents.meme_gen.nodes.node_00_initializer import MemeGenInitializer
+from agents.meme_gen.nodes.node_01_researcher import MemeGenTrendResearcher
+from agents.meme_gen.nodes.node_02_validator import MemeGenTrendValidator
+from agents.meme_gen.nodes.node_03_editor import MemeGenEditor
+from agents.meme_gen.nodes.node_04_publisher import MemeGenPublisher
+from agents.meme_gen.nodes.node_05_failure import MemeGenFailure
+from agents.meme_gen.nodes.node_06_success import MemeGenSuccess
 from agents.meme_gen.state import MemeGenState
 from crosscutting.logging.app_logger import AppLogger
 
@@ -15,12 +20,23 @@ class MemeGenGraph:
 
     def __init__(self,
                  logger: AppLogger,
-                 trend_researcher: MemeGenTrendResearcher,
-                 trend_research_validator: MemeGenTrendValidator):
+                 initializer: MemeGenInitializer,
+                 researcher: MemeGenTrendResearcher,
+                 validator: MemeGenTrendValidator,
+                 editor: MemeGenEditor,
+                 publisher: MemeGenPublisher,
+                 failure: MemeGenFailure,
+                 success: MemeGenSuccess):
 
         self.logger = logger
-        self.trend_researcher = trend_researcher
-        self.trend_research_validator = trend_research_validator
+
+        self.initializer = initializer
+        self.researcher = researcher
+        self.validator = validator
+        self.editor = editor
+        self.publisher = publisher
+        self.failure = failure
+        self.success = success
 
         self.conn = None
         self.sql_memory = None
@@ -29,38 +45,64 @@ class MemeGenGraph:
 
     async def build(self):
         await self._initialize_checkpointer()
-        self.trend_researcher.initialize()
-        self.trend_research_validator.initialize()
+        self.researcher.initialize()
+        self.validator.initialize()
 
         builder = StateGraph(MemeGenState)
 
-        builder.add_node("initializer", self._initialize_state)
-        builder.add_node(MemeGenTrendResearcher.NODE_NAME, self.trend_researcher.run)
-        builder.add_node(MemeGenTrendValidator.NODE_NAME, self.trend_research_validator.run)
+        builder.add_node(MemeGenInitializer.NODE_NAME, self.initializer.run)
+        builder.add_node(MemeGenTrendResearcher.NODE_NAME, self.researcher.run)
+        builder.add_node(MemeGenTrendValidator.NODE_NAME, self.validator.run)
+        builder.add_node(MemeGenEditor.NODE_NAME, self.editor.run)
+        builder.add_node(MemeGenPublisher.NODE_NAME, self.publisher.run)
+        builder.add_node(MemeGenFailure.NODE_NAME, self.failure.run)
+        builder.add_node(MemeGenSuccess.NODE_NAME, self.success.run)
 
-        builder.set_entry_point("initializer")
+        builder.set_entry_point(MemeGenInitializer.NODE_NAME)
 
-        builder.add_edge("initializer", MemeGenTrendResearcher.NODE_NAME)
+        builder.add_edge(MemeGenInitializer.NODE_NAME, MemeGenTrendResearcher.NODE_NAME)
+        builder.add_edge(MemeGenFailure.NODE_NAME, END)
+        builder.add_edge(MemeGenSuccess.NODE_NAME, END)
 
         builder.add_conditional_edges(
             MemeGenTrendResearcher.NODE_NAME,
-            self.trend_researcher.flow_condition,
+            self.researcher.flow_condition,
             {
                 "validator": MemeGenTrendValidator.NODE_NAME,
-                "end": END
+                "end": MemeGenFailure.NODE_NAME
             }
         )
 
         builder.add_conditional_edges(
             MemeGenTrendValidator.NODE_NAME,
-            self.trend_research_validator.flow_condition,
+            self.validator.flow_condition,
             {
                 "researcher": MemeGenTrendResearcher.NODE_NAME,
-                "end": END
+                "editor": MemeGenEditor.NODE_NAME,
+                "end": MemeGenFailure.NODE_NAME
+            }
+        )
+
+        builder.add_conditional_edges(
+            MemeGenEditor.NODE_NAME,
+            self.editor.flow_condition,
+            {
+                "publisher": MemeGenPublisher.NODE_NAME,
+                "end": MemeGenFailure.NODE_NAME
+            }
+        )
+
+        builder.add_conditional_edges(
+            MemeGenPublisher.NODE_NAME,
+            self.publisher.flow_condition,
+            {
+                "end": MemeGenSuccess.NODE_NAME
             }
         )
 
         graph = builder.compile(checkpointer=self.sql_memory)
+
+        self._save_graph_image(graph)
 
         return graph
 
@@ -75,11 +117,16 @@ class MemeGenGraph:
         self.conn = await aiosqlite.connect(self.memory_file)
         self.sql_memory = AsyncSqliteSaver(self.conn)
 
-    async def _initialize_state(self, state: MemeGenState):
-        self.logger.highlight_2(f"Initializing state.")
-        state.trend_research = None
-        state.trend_research_validation = None
-        return state
+    def _save_graph_image(self, graph):
+        output_dir = os.path.join(os.path.dirname(__file__), "persistence")
+        output_file = os.path.join(output_dir, "memegen_graph.png")
+
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        png_graph = graph.get_graph().draw_mermaid_png()
+        with open(output_file, "wb") as f:
+            f.write(png_graph)
 
     async def terminate(self):
         if self.conn:
@@ -87,4 +134,4 @@ class MemeGenGraph:
             await self.conn.close()
             self.conn = None
             self.logger.info("Checkpointer database connection terminated.")
-        self.trend_researcher.terminate()
+        self.researcher.terminate()

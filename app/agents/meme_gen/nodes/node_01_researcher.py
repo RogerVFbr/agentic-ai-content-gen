@@ -2,7 +2,7 @@ import os
 from langchain_core.prompts import PromptTemplate
 from langgraph.prebuilt import create_react_agent
 
-from agents.meme_gen.nodes.node_00_base import MemeGenBase
+from agents.meme_gen.nodes.node_base import MemeGenBase
 from agents.meme_gen.state import MemeGenState, TrendResearch
 from crosscutting.logging.app_logger import AppLogger
 from crosscutting.memoize_method import memoize_method
@@ -12,7 +12,7 @@ from repositories.web_search_repository import WebSearchRepository
 
 class MemeGenTrendResearcher(MemeGenBase):
 
-    NODE_NAME = "TrendResearcher"
+    NODE_NAME = "Researcher"
 
     PROMPTS_FILE = "../prompts.yml"
 

@@ -2,8 +2,13 @@ from agents.meme_gen.agent import MemeGenAgent
 from agents.meme_gen.controllers.controller import MemeGenController
 from agents.meme_gen.controllers.worker import MemeGenWorker
 from agents.meme_gen.graph import MemeGenGraph
-from agents.meme_gen.nodes.node_01_trend_researcher import MemeGenTrendResearcher
-from agents.meme_gen.nodes.node_02_trend_research_validator import MemeGenTrendValidator
+from agents.meme_gen.nodes.node_00_initializer import MemeGenInitializer
+from agents.meme_gen.nodes.node_01_researcher import MemeGenTrendResearcher
+from agents.meme_gen.nodes.node_02_validator import MemeGenTrendValidator
+from agents.meme_gen.nodes.node_03_editor import MemeGenEditor
+from agents.meme_gen.nodes.node_04_publisher import MemeGenPublisher
+from agents.meme_gen.nodes.node_05_failure import MemeGenFailure
+from agents.meme_gen.nodes.node_06_success import MemeGenSuccess
 from crosscutting.logging.app_logger import AppLogger
 from infrastructure.google_trends_client import GoogleTrendsClient
 from infrastructure.serper_dev_client import SerperDevClient
@@ -26,8 +31,13 @@ class MemeGenDi:
             MemeGenController,
             MemeGenAgent,
             MemeGenGraph,
+            MemeGenInitializer,
             MemeGenTrendResearcher,
-            MemeGenTrendValidator
+            MemeGenTrendValidator,
+            MemeGenEditor,
+            MemeGenPublisher,
+            MemeGenFailure,
+            MemeGenSuccess
         ]
 
     @classmethod

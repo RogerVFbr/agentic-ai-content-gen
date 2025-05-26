@@ -5,6 +5,7 @@
     "min_level": "DEBUG",
     "min_level_by_prefix": {
         "a.m.n.MemeGenTrendResearcher.initialize()": "INFO",
-        "a.m.n.MemeGenTrendValidator.initialize()": "INFO"
+        "a.m.n.MemeGenTrendValidator.initialize()": "INFO",
+        "a.m.a.MemeGenAgent.run()": "WARN"
     }
 }

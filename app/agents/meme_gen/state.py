@@ -28,7 +28,13 @@ class TrendResearchValidationStatus(BaseModel):
     secondary_topic_reason: str = Field(description ="Justify your validation conclusion for the secondary topic. Give all possible details. Include any error logs.")
 
 
+class TrendResearchEdition(BaseModel):
+    """Final result of the meme creation"""
+    description: str = Field(description = "Full description of the meme you created, including image description, text on the image, and any other relevant details.")
+
+
 class MemeGenState(BaseModel):
     prior_topics: Set[str] = set()
     trend_research: Optional[TrendResearch] = None
     trend_research_validation: Optional[TrendResearchValidationStatus] = None
+    edition: Optional[TrendResearchEdition] = None

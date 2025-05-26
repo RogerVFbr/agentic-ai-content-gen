@@ -18,7 +18,7 @@ class MemeGenAgent:
             graph = await self.graph.build()
             config = {"configurable": {"thread_id": "3"}}
             async for step in graph.astream({}, config=config):
-                self.logger.info(f"[{list(step.keys())[0]}] node executed.")
+                self.logger.info(f"Graph: '{list(step.keys())[0]}' node executed.")
         except asyncio.CancelledError:
             self.logger.warn("Agent execution cancelled.")
 
