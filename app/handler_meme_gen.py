@@ -1,5 +1,5 @@
-from agents.meme_gen.controllers.worker import MemeGenWorker
-from agents.meme_gen.di import MemeGenDi
+from controllers.worker import MemeGenWorker
+from configurations.di_services import MemeGenDi
 from configurations.configuration_module import ConfigurationModule
 from tests.mock_input import MockInput
 

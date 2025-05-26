@@ -1,4 +1,4 @@
-from agents.meme_gen.controllers.controller import MemeGenController
+from controllers.controller import MemeGenController
 from crosscutting.background_service import BackgroundService, CancellationToken
 from crosscutting.logging.app_logger import AppLogger
 
