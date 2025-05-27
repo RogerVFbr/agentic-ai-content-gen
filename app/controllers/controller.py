@@ -4,10 +4,9 @@ from crosscutting.logging.app_logger import AppLogger
 
 class MemeGenController:
 
-    def __init__(
-            self,
-            logger: AppLogger,
-            agent: MemeGenAgent):
+    def __init__(self,
+                 logger: AppLogger,
+                 agent: MemeGenAgent):
 
         self.logger = logger
         self.agent = agent
@@ -23,6 +22,9 @@ class MemeGenController:
 
     @AppLogger.timeit()
     async def terminate(self) -> None:
-        self.logger.highlight_1("Shutting down ...")
-        await self.agent.terminate()
-        self.logger.highlight_1("Shutdown completed.")
+        try:
+            self.logger.highlight_1("Shutting down ...")
+            await self.agent.terminate()
+            self.logger.highlight_1("Shutdown completed.")
+        except Exception as e:
+            self.logger.critical(f"Unable to gracefully shutdown the application: {e}.", exception=e)
