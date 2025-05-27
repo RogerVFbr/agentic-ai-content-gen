@@ -19,44 +19,52 @@ This project is a proof of concept for a multi-agent application that demonstrat
 
 ## Project Structure
 ```
-app/
-├── agents/
-│   └── multi_agent/
-│       ├── graph.py                # Defines the workflow using LangGraph
-│       ├── nodes/                  # Contains individual node implementations
-│       │   ├── node_00_initializer.py
-│       │   ├── node_01_researcher.py
-│       │   ├── node_02_validator.py
-│       │   ├── node_03_editor.py
-│       │   ├── node_04_publisher.py
-│       │   ├── node_05_failure.py
-│       │   └── node_06_success.py
-│       ├── state.py                # Defines the application state class
-│       └── persistence/            # Stores SQLite database and workflow images
-├── controllers/
-│   └── controller.py               # Orchestration layer for managing workflows
-├── crosscutting/
-│   ├── logging/
-│   │   └── app_logger.py           # Custom logger implementation
-│   └── semantic_cache.py           # Semantic caching implementation
-├── services/
-│   └── background_service.py       # BackgroundService implementation
-├── config/
-│   ├── settings.py                 # Application configuration settings
-│   └── logging_config.py           # Logging configuration settings
-├── tests/
-│   ├── unit/
-│   │   ├── agents/
-│   │   │   └── multi_agent/
-│   │   │       └── test_graph.py   # Unit tests for the workflow
-│   │   ├── controllers/
-│   │   │   └── test_controller.py  # Unit tests for the orchestration layer
-│   │   └── crosscutting/
-│   │       ├── test_logging.py     # Unit tests for logging
-│   │       └── test_caching.py     # Unit tests for caching
-│   └── integration/
-│       └── test_end_to_end.py      # End-to-end integration tests
-└── main.py                         # Entry point for the application
+├── README.md                              # Project documentation and usage instructions
+└── app                                    # Main application directory
+    ├── agents                             # Contains agent-related logic and workflows
+    │   └── meme_gen                       # Specific implementation for the MemeGen agent
+    │       ├── agent.py                   # Main agent logic for MemeGen
+    │       ├── graph.py                   # Workflow graph definition for MemeGen
+    │       ├── nodes                      # Individual nodes in the workflow
+    │       │   ├── node_00_initializer.py # Node for initializing the workflow
+    │       │   ├── node_01_researcher.py  # Node for conducting research tasks
+    │       │   ├── node_02_validator.py   # Node for validating research results
+    │       │   ├── node_03_editor.py      # Node for editing and processing data
+    │       │   ├── node_04_publisher.py   # Node for publishing the final output
+    │       │   ├── node_05_failure.py     # Node for handling failure states
+    │       │   ├── node_06_success.py     # Node for handling success states
+    │       │   └── node_base.py           # Base class for all nodes
+    │       ├── persistence                # Persistence-related files
+    │       │   └── memegen_graph.png      # Visualization of the workflow graph
+    │       ├── prompts.yml                # YAML file containing prompts for the agent
+    │       └── state.py                   # State management for the MemeGen workflow
+    ├── configs.json                       # Default configuration file
+    ├── configs.local.json                 # Local configuration overrides
+    ├── configurations                     # Configuration management module
+    │   ├── configs.py                     # Configuration definitions
+    │   ├── configs_parser.py              # Parser for configuration files
+    │   ├── configuration_module.py        # Configuration module logic
+    │   ├── di_container.py                # Dependency injection container
+    │   └── di_services.py                 # Dependency injection services
+    ├── controllers                        # Controllers for managing workflows
+    │   ├── controller.py                  # Main controller logic
+    │   └── worker.py                      # Worker logic for background tasks
+    ├── crosscutting                       # Cross-cutting concerns (e.g., logging, caching)
+    │   ├── background_service.py          # Background service implementation
+    │   ├── logging                        # Logging-related files
+    │   │   ├── app_logger.py              # Custom logger implementation
+    │   │   └── app_logger_config.py       # Logger configuration
+    │   ├── memoize_method.py              # Memoization utility for methods
+    │   └── semantic_cache.py              # Semantic caching implementation
+    ├── handler_meme_gen.py                # Entry point for handling MemeGen agent tasks
+    ├── infrastructure                     # Infrastructure-related clients and services
+    │   ├── google_trends_client.py        # Client for Google Trends API
+    │   ├── serper_dev_client.py           # Client for Serper.dev API
+    │   └── tavily_client.py               # Client for Tavily API
+    ├── logger_configs.json                # Default logger configuration
+    ├── logger_configs.local.json          # Local logger configuration overrides
+    └── repositories                       # Data access layer
+        └── web_search_repository.py       # Repository for web search operations
 ```
 
 ---

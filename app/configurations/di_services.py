@@ -14,6 +14,7 @@ from infrastructure.google_trends_client import GoogleTrendsClient
 from infrastructure.serper_dev_client import SerperDevClient
 from infrastructure.tavily_client import TavilyClient
 from repositories.web_search_repository import WebSearchRepository
+from repositories.web_trends_repository import WebTrendsRepository
 
 
 class MemeGenDi:
@@ -22,8 +23,9 @@ class MemeGenDi:
     def get_service_collection(cls):
         return [
             AppLogger,
-            GoogleTrendsClient,
             WebSearchRepository,
+            WebTrendsRepository,
+            GoogleTrendsClient,
             TavilyClient,
             SerperDevClient
         ] + [

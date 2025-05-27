@@ -6,8 +6,8 @@ from agents.meme_gen.nodes.node_base import MemeGenBase
 from agents.meme_gen.state import MemeGenState, TrendResearch
 from crosscutting.logging.app_logger import AppLogger
 from crosscutting.memoize_method import memoize_method
-from infrastructure.google_trends_client import GoogleTrendsClient
 from repositories.web_search_repository import WebSearchRepository
+from repositories.web_trends_repository import WebTrendsRepository
 
 
 class MemeGenTrendResearcher(MemeGenBase):
@@ -19,12 +19,12 @@ class MemeGenTrendResearcher(MemeGenBase):
     def __init__(self,
                  logger: AppLogger,
                  web_search_repository: WebSearchRepository,
-                 google_trends_client: GoogleTrendsClient):
+                 web_trends_repository: WebTrendsRepository):
 
         super().__init__(logger)
 
         self.logger = logger
-        self.google_trends_client = google_trends_client
+        self.web_trends_repository = web_trends_repository
         self.web_search_repository = web_search_repository
 
         self.system_prompt = None
@@ -72,7 +72,7 @@ class MemeGenTrendResearcher(MemeGenBase):
         return state
 
     async def build_prompt(self, state: MemeGenState):
-        current_trends = await self.google_trends_client.get_trending_now("US", sorted(list(state.prior_topics)))
+        current_trends = await self.web_trends_repository.get_trending_now("US", sorted(list(state.prior_topics)), 10)
 
         prompt = self.user_prompt.format(
             time_now=self.time_now(),
