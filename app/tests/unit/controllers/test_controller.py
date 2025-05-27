@@ -1,28 +1,26 @@
+import asyncio
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from app.controllers.controller import MemeGenController
+
+from controllers.controller import MemeGenController
 
 
 class TestMemeGenController:
 
     @pytest.fixture
-    def mock_dependencies(self):
+    def mock_dependencies(self, request):
+        log_execution_time_patcher = patch('crosscutting.logging.app_logger.AppLogger._log_execution_time', MagicMock())
+        log_execution_time_patcher.start()
+        request.addfinalizer(log_execution_time_patcher.stop)
+
         return {
             "agent": AsyncMock(),
+            "logger": MagicMock(),
         }
 
     @pytest.fixture
     def controller(self, mock_dependencies):
-        with patch("app.controllers.controller.AppLogger.highlight_1", autospec=True) as mock_highlight_1, \
-             patch("app.controllers.controller.AppLogger.critical", autospec=True) as mock_critical, \
-             patch("app.controllers.controller.AppLogger.timeit", autospec=True) as mock_timeit, \
-             patch("app.controllers.controller.AppLogger._log_execution_time", autospec=True) as mock_log_execution_time:
-            mock_timeit.return_value = lambda func: func  # Disable the decorator
-            mock_log_execution_time.return_value = None  # Disable logging of execution time
-            mock_dependencies["logger"] = MagicMock()
-            mock_dependencies["logger"].highlight_1 = mock_highlight_1
-            mock_dependencies["logger"].critical = mock_critical
-            return MemeGenController(**mock_dependencies)
+        return MemeGenController(**mock_dependencies)
 
     @pytest.mark.asyncio
     async def test_run_success(self, controller, mock_dependencies):

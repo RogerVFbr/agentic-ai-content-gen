@@ -5,38 +5,50 @@ from unittest.mock import AsyncMock, MagicMock
 from agents.meme_gen.agent import MemeGenAgent
 
 
+class AsyncIterator:
+    def __init__(self, seq):
+        self.iter = iter(seq)
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        try:
+            return next(self.iter)
+        except StopIteration:
+            raise StopAsyncIteration
+
+
 class TestMemeGenAgent:
 
     @pytest.fixture
     def mock_dependencies(self):
-        logger = MagicMock()
-        graph = AsyncMock()
         return {
-            "logger": logger,
-            "graph": graph,
+            "logger": MagicMock(),
+            "graph": AsyncMock(),
         }
 
     @pytest.fixture
     def agent(self, mock_dependencies):
         return MemeGenAgent(**mock_dependencies)
 
-    # @pytest.mark.asyncio
-    # async def test_run_success(self, agent, mock_dependencies):
-    #     # Arrange: Mock the graph's build and astream methods
-    #     mock_dependencies["graph"].build.return_value = AsyncMock()
-    #     mock_dependencies["graph"].build.return_value.astream.return_value = AsyncMock()
-    #     mock_dependencies["graph"].build.return_value.astream.return_value.__aiter__ = lambda: iter([
-    #         {"step_1": "executed"},
-    #         {"step_2": "executed"},
-    #     ])
-    #
-    #     # Act: Run the agent
-    #     await agent.run({"input_key": "input_value"})
-    #
-    #     # Assert: Verify the graph and logger calls
-    #     mock_dependencies["graph"].build.assert_awaited_once()
-    #     mock_dependencies["logger"].info.assert_any_call("Graph: 'step_1' node executed.")
-    #     mock_dependencies["logger"].info.assert_any_call("Graph: 'step_2' node executed.")
+    @pytest.mark.asyncio
+    async def test_run_success(self, agent, mock_dependencies):
+        # Arrange: Mock the graph's build and astream methods
+        mock_graph_instance = MagicMock()
+        mock_graph_instance.astream.return_value = AsyncIterator([
+            {"step_1": "executed"},
+            {"step_2": "executed"},
+        ])
+        mock_dependencies["graph"].build.return_value = mock_graph_instance
+
+        # Act: Run the agent
+        await agent.run({"input_key": "input_value"})
+
+        # Assert: Verify the graph and logger calls
+        mock_dependencies["graph"].build.assert_awaited_once()
+        mock_dependencies["logger"].info.assert_any_call("Graph: 'step_1' node executed.")
+        mock_dependencies["logger"].info.assert_any_call("Graph: 'step_2' node executed.")
 
     @pytest.mark.asyncio
     async def test_run_cancelled(self, agent, mock_dependencies):
