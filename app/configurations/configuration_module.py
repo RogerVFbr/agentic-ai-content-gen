@@ -21,7 +21,7 @@ class ConfigurationModule:
     def run(cls, pre_instantiated, service_collection, obj, callback):
         async def execute():
             module = cls._get()
-            if module._initialize(pre_instantiated, service_collection):
+            if module.initialize(pre_instantiated, service_collection):
                 instance = DiContainer.get(obj)
                 await callback(instance)
 
@@ -34,7 +34,7 @@ class ConfigurationModule:
 
     @memoize_method()
     @AppLogger.timeit()
-    def _initialize(self, pre_instantiated, service_collection) -> bool:
+    def initialize(self, pre_instantiated, service_collection) -> bool:
         AppLogger.highlight_1(f"Initializing configuration ...")
 
         try:

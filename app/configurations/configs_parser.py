@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import json
 import os
 
@@ -9,8 +11,9 @@ class ConfigsParser:
     def parse(self) -> Configs:
         env = os.getenv('APP_ENV')
 
-        base_config_file = f'{os.getcwd()}/configs.json'
-        env_config_file = f'{os.getcwd()}/configs.{env}.json'
+        project_root = Path(__file__).parent.parent  # Adjust based on your file structure
+        base_config_file = project_root / 'configs.json'
+        env_config_file = project_root / f'configs.{env}.json'
 
         if not os.path.exists(base_config_file):
             raise FileNotFoundError(f"Configuration file '{base_config_file}'")

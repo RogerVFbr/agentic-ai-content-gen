@@ -105,7 +105,7 @@ class TestWebSearchRepository:
         mock_dependencies["configs"].web_search.client = "UnknownClient"
 
         # Act & Assert: Verify that an exception is raised for the unknown client
-        with pytest.raises(Exception, match="Unknown client 'query'."):
+        with pytest.raises(Exception, match="Unknown client 'UnknownClient'."):
             await repository.search("node_01", "query")
 
     def test_reset_quota(self, repository):

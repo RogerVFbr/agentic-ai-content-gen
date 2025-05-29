@@ -23,7 +23,7 @@ This project is a proof of concept for a multi-agent application that demonstrat
 └── app                                    # Main application directory
     ├── agents                             # Contains agent-related logic and workflows
     │   └── meme_gen                       # Specific implementation for the MemeGen agent
-    │       ├── agent.py                   # Main agent logic for MemeGen
+    │       ├── agent.py                   # MemeGen Agent entrypoint
     │       ├── graph.py                   # Workflow graph definition for MemeGen
     │       ├── nodes                      # Individual nodes in the workflow
     │       │   ├── node_00_initializer.py # Node for initializing the workflow
@@ -48,7 +48,7 @@ This project is a proof of concept for a multi-agent application that demonstrat
     │   └── di_services.py                 # Dependency injection services
     ├── controllers                        # Controllers for managing workflows
     │   ├── controller.py                  # Main controller logic
-    │   └── worker.py                      # Worker logic for background tasks
+    │   └── worker.py                      # Handles application lifecycle and graceful shutdown
     ├── crosscutting                       # Cross-cutting concerns (e.g., logging, caching)
     │   ├── background_service.py          # Background service implementation
     │   ├── logging                        # Logging-related files

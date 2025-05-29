@@ -69,7 +69,7 @@ class WebSearchRepository:
             self.usage += 1
             return response
         else:
-            raise Exception(f"Unknown client '{query}'.")
+            raise Exception(f"Unknown client '{self.configs.web_search.client}'.")
 
     def reset_quota(self, node_name: str):
         """Resets the usage quota."""
