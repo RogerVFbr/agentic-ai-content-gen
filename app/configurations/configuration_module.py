@@ -1,3 +1,5 @@
+from typing import List, Type, Any, Dict
+
 import asyncio
 import boto3
 import os
@@ -34,16 +36,17 @@ class ConfigurationModule:
 
     @memoize_method()
     @AppLogger.timeit()
-    def initialize(self, pre_instantiated, service_collection) -> bool:
+    def initialize(self, pre_instantiated: Dict[Type[Any], Any], service_collection: List[Type[Any]]) -> bool:
         AppLogger.highlight_1(f"Initializing configuration ...")
 
         try:
             self._load_env_vars()
             configs = self._load_configs()
+            pre_instantiated[Configs] = configs
             self._override_env_vars(configs)
-            self._build_di_container(pre_instantiated + [configs], service_collection)
+            self._build_di_container(pre_instantiated, service_collection)
         except Exception as e:
-            AppLogger.critical(f"Unable to finish application initialization -> {type(e).__name__}: {e}")
+            AppLogger.critical(f"Unable to finish application initialization -> {type(e).__name__}: {e}", exception=e)
             return False
 
         AppLogger.highlight_1(f"Configuration completed.")
@@ -96,7 +99,7 @@ class ConfigurationModule:
             AppLogger.error(f"Failed to override environment variables: {e}", exception=e)
             raise
 
-    def _build_di_container(self, pre_instantiated, service_collection) -> None:
+    def _build_di_container(self, pre_instantiated: Dict[Type[Any], Any], service_collection: List[Type[Any]]) -> None:
         """
         Build the Dependency Injection container.
         """

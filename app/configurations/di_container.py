@@ -1,3 +1,5 @@
+from typing import List, Type, Any, Dict
+
 import inspect
 
 class DiContainer:
@@ -12,8 +14,9 @@ class DiContainer:
         return cls.CONTAINER[obj_key]
 
     @classmethod
-    def build_container(cls, pre_instantiated, injections) -> None:
+    def build_container(cls, pre_instantiated: Dict[Type[Any], Any], injections: List[Type[Any]]) -> None:
         try:
+            injections = [injection for injection in injections if injection not in pre_instantiated]
             dependencies = cls._inspect_dependencies(injections)
             container = cls._initialize_container(pre_instantiated)
             cls.CONTAINER = cls._resolve_dependencies(container, dependencies, pre_instantiated)
@@ -21,16 +24,11 @@ class DiContainer:
             raise Exception(f"Unable to build DI container -> {type(e).__name__}: {e}")
 
     @classmethod
-    def _inspect_dependencies(cls, injections):
+    def _inspect_dependencies(cls, injections: List[Type[Any]]):
         """Inspect and extract dependencies for each injectable class."""
         dependencies = {}
         for dep in injections:
             original_class = dep
-
-            # Handle CrewAI class decorator
-            if getattr(original_class, "is_crew_class", False):
-                original_class = original_class.__bases__[0]
-
             constructor = original_class.__init__
             signature = inspect.signature(constructor)
             dependencies[f"{dep.__module__}.{dep.__name__}"] = {
@@ -44,11 +42,11 @@ class DiContainer:
         return dependencies
 
     @classmethod
-    def _initialize_container(cls, pre_instantiated):
+    def _initialize_container(cls, pre_instantiated: Dict[Type[Any], Any]):
         """Add pre-instantiated objects to the container."""
         container = {}
-        for obj in pre_instantiated:
-            container[f"{type(obj).__module__}.{type(obj).__name__}"] = obj
+        for key, value in pre_instantiated.items():
+            container[f"{key.__module__}.{key.__name__}"] = value
         return container
 
     @classmethod

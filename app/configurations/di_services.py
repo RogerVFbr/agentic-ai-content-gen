@@ -1,3 +1,5 @@
+from typing import List, Type, Any, Dict
+
 from agents.meme_gen.agent import MemeGenAgent
 from controllers.controller import MemeGenController
 from controllers.worker import MemeGenWorker
@@ -20,7 +22,7 @@ from repositories.web_trends_repository import WebTrendsRepository
 class MemeGenDi:
 
     @classmethod
-    def get_service_collection(cls):
+    def get_service_collection(cls) -> List[Type[Any]]:
         return [
             AppLogger,
             WebSearchRepository,
@@ -43,5 +45,5 @@ class MemeGenDi:
         ]
 
     @classmethod
-    def get_pre_instantiated(cls):
-        return []
+    def get_pre_instantiated(cls) -> Dict[Type[Any], Any]:
+        return {}
