@@ -1,13 +1,13 @@
 from controllers.worker import MemeGenWorker
-from configurations.di_services import MemeGenDi
+from configurations.di_services import AppDi
 from configurations.configuration_module import ConfigurationModule
 from tests.mock_input import MockInput
 
 
 def handler(event, context):
-    ConfigurationModule.run(
-        MemeGenDi.get_pre_instantiated(),
-        MemeGenDi.get_service_collection(),
+    ConfigurationModule().run(
+        AppDi.get_pre_instantiated(),
+        AppDi.get_service_collection(),
         MemeGenWorker,
         lambda x: x.run(event)
     )

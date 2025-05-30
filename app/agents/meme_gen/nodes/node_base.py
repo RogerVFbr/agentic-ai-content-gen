@@ -36,8 +36,16 @@ class MemeGenBase:
         if 'structured_response' in step:
             self.logger.highlight_3(LogLevel.DEBUG, f"Structured response generated ({type(step['structured_response'])}).")
             return
+        if 'generate_structured_response' in step:
+            self.logger.highlight_3(LogLevel.DEBUG, f"Structured response generated ({type(step['generate_structured_response']['structured_response'])}).")
+            return
         index = -1
-        latest_message = step['messages'][index]
+        if 'agent' in step:
+            latest_message = step['agent']['messages'][index]
+        elif 'tools' in step:
+            latest_message = step['tools']['messages'][index]
+        else:
+            latest_message = step['messages'][index]
         if isinstance(latest_message, AIMessage):
             if latest_message.tool_calls:
                 for tool_call in latest_message.tool_calls:
@@ -53,13 +61,24 @@ class MemeGenBase:
                 content = content[:150]
                 self.logger.highlight_3(LogLevel.DEBUG, f"[AI] {content}" + (" (...)" if len(latest_message.content) > 150 else ""))
         if isinstance(latest_message, ToolMessage):
-            tool_message = step['messages'][index]
+            tool_message = latest_message
             while isinstance(tool_message, ToolMessage):
                 tool_name = tool_message.name
                 tool_status = tool_message.status
                 self.logger.highlight_3(LogLevel.DEBUG, f"[{tool_name}] Tool call status: {tool_status.upper()}")
                 index -= 1
-                tool_message = step['messages'][index]
+                if 'agent' in step:
+                    if len(step['agent']['messages']) < abs(index):
+                        break
+                    tool_message = step['agent']['messages'][index]
+                elif 'tools' in step:
+                    if len(step['tools']['messages']) < abs(index):
+                        break
+                    tool_message = step['tools']['messages'][index]
+                else:
+                    if len(step['messages']) < abs(index):
+                        break
+                    tool_message = step['messages'][index]
 
     def get_user_message(self, input: str):
         return {

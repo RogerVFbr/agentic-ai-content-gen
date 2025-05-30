@@ -19,12 +19,14 @@ class ConfigurationModule:
         "MODEL"
     ]
 
-    @classmethod
-    def run(cls, pre_instantiated, service_collection, obj, callback):
+    def __init__(self):
+        self.di_container = None
+
+    def run(self, pre_instantiated, service_collection, obj, callback):
         async def execute():
-            module = cls._get()
+            module = self._get()
             if module.initialize(pre_instantiated, service_collection):
-                instance = DiContainer.get(obj)
+                instance = module.di_container.get(obj)
                 await callback(instance)
 
         asyncio.run(execute())
@@ -34,7 +36,7 @@ class ConfigurationModule:
     def _get(cls):
         return ConfigurationModule()
 
-    @memoize_method()
+    # @memoize_method()
     @AppLogger.timeit()
     def initialize(self, pre_instantiated: Dict[Type[Any], Any], service_collection: List[Type[Any]]) -> bool:
         AppLogger.highlight_1(f"Initializing configuration ...")
@@ -104,7 +106,7 @@ class ConfigurationModule:
         Build the Dependency Injection container.
         """
         try:
-            DiContainer.build_container(pre_instantiated, service_collection)
+            self.di_container = DiContainer().build_container(pre_instantiated, service_collection)
             AppLogger.debug("DI container built.")
         except Exception as e:
             AppLogger.error(f"Failed to build DI container: {e}", exception=e)

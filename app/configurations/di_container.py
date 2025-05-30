@@ -4,22 +4,22 @@ import inspect
 
 class DiContainer:
 
-    CONTAINER = {}
+    def __init__(self):
+        self.container = {}
 
-    @classmethod
-    def get(cls, obj):
+    def get(self, obj):
         obj_key = f"{obj.__module__}.{obj.__name__}"
-        if obj_key not in cls.CONTAINER:
+        if obj_key not in self.container:
             raise Exception("Requested class does not exist in DI container.")
-        return cls.CONTAINER[obj_key]
+        return self.container[obj_key]
 
-    @classmethod
-    def build_container(cls, pre_instantiated: Dict[Type[Any], Any], injections: List[Type[Any]]) -> None:
+    def build_container(self, pre_instantiated: Dict[Type[Any], Any], injections: List[Type[Any]]) -> "DiContainer":
         try:
             injections = [injection for injection in injections if injection not in pre_instantiated]
-            dependencies = cls._inspect_dependencies(injections)
-            container = cls._initialize_container(pre_instantiated)
-            cls.CONTAINER = cls._resolve_dependencies(container, dependencies, pre_instantiated)
+            dependencies = self._inspect_dependencies(injections)
+            container = self._initialize_container(pre_instantiated)
+            self.container = self._resolve_dependencies(container, dependencies, pre_instantiated)
+            return self
         except Exception as e:
             raise Exception(f"Unable to build DI container -> {type(e).__name__}: {e}")
 

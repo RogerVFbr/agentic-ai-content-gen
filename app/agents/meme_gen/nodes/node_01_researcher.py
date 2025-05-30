@@ -87,7 +87,7 @@ class MemeGenTrendResearcher(MemeGenBase):
 
     @staticmethod
     def _update_state(state: MemeGenState, response):
-        state.trend_research = response["structured_response"]
+        state.trend_research = response["structured_response"] if "structured_response" in response else response["generate_structured_response"]["structured_response"]
         state.prior_topics.add(state.trend_research.primary_topic)
         state.prior_topics.add(state.trend_research.secondary_topic)
         return state

@@ -19,7 +19,7 @@ from repositories.web_search_repository import WebSearchRepository
 from repositories.web_trends_repository import WebTrendsRepository
 
 
-class MemeGenDi:
+class AppDi:
 
     @classmethod
     def get_service_collection(cls) -> List[Type[Any]]:
