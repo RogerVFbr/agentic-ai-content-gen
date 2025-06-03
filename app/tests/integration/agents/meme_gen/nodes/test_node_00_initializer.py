@@ -9,14 +9,18 @@ from integration.configuration_module_factory import ConfigurationModuleFactory
 class TestMemeGenInitializer:
 
     @pytest.fixture
-    def node(self) -> Union[MemeGenInitializer, None]:
+    def node(self) -> MemeGenInitializer:
         return ConfigurationModuleFactory.build(MemeGenInitializer)
 
     @pytest.mark.asyncio
     async def test_run(self, node: MemeGenInitializer):
-        try:
-            await node.run(MemeGenState())
-        except Exception as e:
-            pytest.fail(f"Unexpected exception raised: {e}")
-        assert True
+        # Arrange
+        state = MemeGenState()
+
+        # Act
+        final_state = await node.run(state)
+
+        # Assert
+        assert final_state.trend_research is None
+        assert final_state.trend_research_validation is None
 
