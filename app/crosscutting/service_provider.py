@@ -1,11 +1,12 @@
-# python
+from typing import Any, Type, Union, Callable
+
 import inspect
 
 class ServiceCollection:
     def __init__(self):
         self._services = {}
 
-    def add_transient(self, service_type, implementation = None) -> "ServiceCollection":
+    def add_transient(self, service_type: Type[Any], implementation: Union[Type[Any], Callable[..., Any]] = None) -> "ServiceCollection":
         implementation = implementation if implementation is not None else service_type
 
         self._services[service_type] = {
@@ -16,7 +17,7 @@ class ServiceCollection:
 
         return self
 
-    def add_singleton(self, service_type, implementation = None) -> "ServiceCollection":
+    def add_singleton(self, service_type: Type[Any], implementation: Union[Type[Any], Callable[..., Any]] = None) -> "ServiceCollection":
         implementation = implementation if implementation is not None else service_type
 
         self._services[service_type] = {
