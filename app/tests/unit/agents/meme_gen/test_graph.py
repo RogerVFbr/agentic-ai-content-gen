@@ -38,8 +38,10 @@ class TestMemeGenGraph:
     async def test_build(self, mock_dependencies):
         # Arrange: Create a MemeGenGraph instance and mock required methods
         graph = MemeGenGraph(**mock_dependencies)
+
         with patch("app.agents.meme_gen.graph.StateGraph") as MockStateGraph, \
                 patch.object(graph, "_save_graph_image", new_callable=AsyncMock) as mock_save_image:
+
             mock_builder = MockStateGraph.return_value
             try:
 
