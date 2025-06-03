@@ -12,6 +12,7 @@ from agents.meme_gen.nodes.node_04_publisher import MemeGenPublisher
 from agents.meme_gen.nodes.node_05_failure import MemeGenFailure
 from agents.meme_gen.nodes.node_06_success import MemeGenSuccess
 from crosscutting.logging.app_logger import AppLogger
+from crosscutting.service_provider import ServiceCollection
 from infrastructure.google_trends_client import GoogleTrendsClient
 from infrastructure.serper_dev_client import SerperDevClient
 from infrastructure.tavily_client import TavilyClient
@@ -22,28 +23,26 @@ from repositories.web_trends_repository import WebTrendsRepository
 class AppDi:
 
     @classmethod
-    def get_service_collection(cls) -> List[Type[Any]]:
-        return [
-            AppLogger,
-            WebSearchRepository,
-            WebTrendsRepository,
-            GoogleTrendsClient,
-            TavilyClient,
-            SerperDevClient
-        ] + [
-            MemeGenWorker,
-            MemeGenController,
-            MemeGenAgent,
-            MemeGenGraph,
-            MemeGenInitializer,
-            MemeGenTrendResearcher,
-            MemeGenTrendValidator,
-            MemeGenEditor,
-            MemeGenPublisher,
-            MemeGenFailure,
-            MemeGenSuccess
-        ]
+    def get_service_collection(cls) -> ServiceCollection:
+        services = ServiceCollection()
 
-    @classmethod
-    def get_pre_instantiated(cls) -> Dict[Type[Any], Any]:
-        return {}
+        services.add_singleton(AppLogger)
+        services.add_singleton(WebSearchRepository)
+        services.add_singleton(WebTrendsRepository)
+        services.add_singleton(GoogleTrendsClient)
+        services.add_singleton(TavilyClient)
+        services.add_singleton(SerperDevClient)
+
+        services.add_singleton(MemeGenWorker)
+        services.add_singleton(MemeGenController)
+        services.add_singleton(MemeGenAgent)
+        services.add_singleton(MemeGenGraph)
+        services.add_singleton(MemeGenInitializer)
+        services.add_singleton(MemeGenTrendResearcher)
+        services.add_singleton(MemeGenTrendValidator)
+        services.add_singleton(MemeGenEditor)
+        services.add_singleton(MemeGenPublisher)
+        services.add_singleton(MemeGenFailure)
+        services.add_singleton(MemeGenSuccess)
+
+        return services

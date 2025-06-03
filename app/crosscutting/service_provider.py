@@ -5,7 +5,7 @@ class ServiceCollection:
     def __init__(self):
         self._services = {}
 
-    def add_transient(self, service_type, implementation = None):
+    def add_transient(self, service_type, implementation = None) -> "ServiceCollection":
         implementation = implementation if implementation is not None else service_type
 
         self._services[service_type] = {
@@ -14,7 +14,9 @@ class ServiceCollection:
             "is_factory": callable(implementation) and not inspect.isclass(implementation),
         }
 
-    def add_singleton(self, service_type, implementation = None):
+        return self
+
+    def add_singleton(self, service_type, implementation = None) -> "ServiceCollection":
         implementation = implementation if implementation is not None else service_type
 
         self._services[service_type] = {
@@ -22,6 +24,14 @@ class ServiceCollection:
             "lifetime": "singleton",
             "is_factory": callable(implementation) and not inspect.isclass(implementation),
         }
+
+        return self
+
+    def merge(self, other_service_collection: "ServiceCollection") -> "ServiceCollection":
+        for service_type, service_details in other_service_collection._services.items():
+            self._services[service_type] = service_details
+
+        return self
 
     def build_service_provider(self):
         return ServiceProvider(self._services)
@@ -53,7 +63,7 @@ class ServiceProvider:
         return self._create_instance(service["implementation"])
 
     def _create_instance(self, implementation):
-        if inspect.isclass(implementation):  # If it's a class, resolve its dependencies
+        if inspect.isclass(implementation):
             constructor = inspect.signature(implementation)
             dependencies = {
                 param.name: self.get_service(param.annotation)
@@ -61,7 +71,7 @@ class ServiceProvider:
                 if param.annotation != inspect.Parameter.empty
             }
             return implementation(**dependencies)
-        return implementation  # If it's an instance or callable, return it directly
+        return implementation
 
 
 # Example usage

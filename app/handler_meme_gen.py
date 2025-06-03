@@ -6,7 +6,6 @@ from tests.mock_input import MockInput
 
 def handler(event, context):
     ConfigurationModule().run(
-        AppDi.get_pre_instantiated(),
         AppDi.get_service_collection(),
         MemeGenWorker,
         lambda x: x.run(event)
