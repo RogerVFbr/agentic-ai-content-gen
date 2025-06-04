@@ -33,17 +33,24 @@ class AppLoggerConfigsParser:
     @classmethod
     def parse(cls) -> AppLoggerConfig:
         try:
-            load_dotenv()
-            env = os.getenv(cls.ENVIRONMENT_ENV_VAR)
+            current_dir = os.path.abspath(os.path.dirname(__file__))
 
-            # Default path
+            for _ in range(10):
+                env_path = os.path.join(current_dir, ".env")
+                if os.path.exists(env_path):
+                    load_dotenv(env_path)
+                    break
+                current_dir = os.path.dirname(current_dir)
+
+            current_dir = os.path.abspath(os.path.dirname(__file__))
             base_config_file = f'{os.getcwd()}/{cls.CONFIG_FILE}'
-            env_config_file = f'{os.getcwd()}/{f".{env}.".join(cls.CONFIG_FILE.split("."))}'
 
-            # Alternative locations
-            alternative_paths = cls._get_alternative_paths(cls.CONFIG_FILE)
-            base_config_file = cls._find_file(base_config_file, alternative_paths)
-            env_config_file = cls._find_file(env_config_file, alternative_paths)
+            for _ in range(10):
+                env_path = os.path.join(current_dir, cls.CONFIG_FILE)
+                if os.path.exists(env_path):
+                    base_config_file = env_path
+                    break
+                current_dir = os.path.dirname(current_dir)
 
             if not os.path.exists(base_config_file):
                 return AppLoggerConfig()
@@ -51,34 +58,17 @@ class AppLoggerConfigsParser:
             with open(base_config_file, 'r') as file:
                 config = json.load(file)
 
+            env = os.getenv(cls.ENVIRONMENT_ENV_VAR)
+            env_config_file = base_config_file.split(".json")[0] + f".{env}.json"
+
             if os.path.exists(env_config_file):
                 with open(env_config_file, 'r') as file:
                     env_config = json.load(file)
                 config = cls._merge_configs(config, env_config)
 
             return AppLoggerConfig(**config)
-        except Exception as e:
+        except Exception as _:
             return AppLoggerConfig()
-
-    @classmethod
-    def _get_alternative_paths(cls, filename: str) -> list[str]:
-        # Get the directory of the current file
-        current_dir = os.path.dirname(inspect.getfile(cls))
-        paths = [current_dir]
-        for i in range(1, 4):  # 1 level up to 3 levels up
-            paths.append(os.path.abspath(os.path.join(current_dir, *['..'] * i)))
-        return [os.path.join(path, filename) for path in paths]
-
-    @classmethod
-    def _find_file(cls, default_path: str, alternative_paths: list[str]) -> str:
-        # Check default path first
-        if os.path.exists(default_path):
-            return default_path
-        # Check alternative paths
-        for path in alternative_paths:
-            if os.path.exists(path):
-                return path
-        return None
 
     @classmethod
     def _merge_configs(cls, base: dict, override: dict) -> dict:
