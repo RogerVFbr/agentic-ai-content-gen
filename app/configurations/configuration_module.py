@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 from configurations.configs import Configs
 from configurations.configs_parser import ConfigsParser
 from crosscutting.logging.app_logger import AppLogger
-from crosscutting.memoize_method import memoize_method
 from crosscutting.service_provider import ServiceCollection
 
 
@@ -14,7 +13,15 @@ class ConfigurationModule:
 
     REQUIRED_ENV_VARS = [
         "APP_ENV",
-        "MODEL"
+        "LOGGER_ENV",
+        "MODEL",
+        "OPENAI_API_KEY",
+        "SERPERDEV_API_KEY",
+        "TAVILY_API_KEY",
+        "LANGSMITH_TRACING",
+        "LANGSMITH_ENDPOINT",
+        "LANGSMITH_API_KEY",
+        "LANGSMITH_PROJECT"
     ]
 
     def __init__(self):
@@ -22,19 +29,13 @@ class ConfigurationModule:
 
     def run(self, service_collection, obj, callback):
         async def execute():
-            module = self._get()
+            module = ConfigurationModule()
             if module.initialize(service_collection):
                 instance = module.service_provider.get_service(obj)
                 await callback(instance)
 
         asyncio.run(execute())
 
-    @classmethod
-    @memoize_method()
-    def _get(cls):
-        return ConfigurationModule()
-
-    # @memoize_method()
     @AppLogger.timeit()
     def initialize(self, service_collection: ServiceCollection) -> bool:
         AppLogger.highlight_1(f"Initializing configuration ...")
@@ -44,6 +45,7 @@ class ConfigurationModule:
             configs = self._load_configs()
             service_collection.add_singleton(Configs, lambda sp: configs)
             self._override_env_vars(configs)
+            self._validate_env_vars()
             self._build_di_container(service_collection)
         except Exception as e:
             AppLogger.critical(f"Unable to finish application initialization -> {type(e).__name__}: {e}", exception=e)
@@ -54,15 +56,18 @@ class ConfigurationModule:
 
     def _load_env_vars(self) -> None:
         try:
-            env_file = os.path.join(os.getcwd(), '.env')
+            current_dir = os.path.abspath(os.path.dirname(__file__))
 
-            if os.path.isfile(env_file):
-                load_dotenv()
-                AppLogger.debug("'.env' File environment variables loaded.")
+            for _ in range(5):
+                env_path = os.path.join(current_dir, ".env")
+                if os.path.exists(env_path):
+                    load_dotenv(env_path)
+                    AppLogger.debug(f"'.env' File environment variables loaded. Path: '{env_path}'.")
+                    break
+                current_dir = os.path.dirname(current_dir)
 
-            for key in self.REQUIRED_ENV_VARS:
-                if key not in os.environ:
-                    raise ValueError(f"Missing required environment variable: {key}")
+            if "APP_ENV" not in os.environ or len(os.environ["APP_ENV"]) == 0:
+                raise ValueError(f"Missing required environment variable: 'APP_ENV'.")
 
         except Exception as e:
             AppLogger.error(f"Failed to load or verify environment variables: {e}", exception=e)
@@ -98,6 +103,14 @@ class ConfigurationModule:
         except Exception as e:
             AppLogger.error(f"Failed to override environment variables: {e}", exception=e)
             raise
+
+    def _validate_env_vars(self) -> None:
+        for key in self.REQUIRED_ENV_VARS:
+            if key not in os.environ or len(os.environ[key]) == 0:
+                AppLogger.error(f"Failed to load or verify environment variable: '{key}'.")
+                raise ValueError(f"Missing required environment variable: {key}")
+
+        AppLogger.debug(f"Environment variables validated.")
 
     def _build_di_container(self, service_collection: ServiceCollection) -> None:
         """
