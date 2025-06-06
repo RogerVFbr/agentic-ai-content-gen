@@ -31,15 +31,7 @@ class WebTrendsRepository:
         final_result = []
 
         for x in result:
-            entry = {
-                "trend_name": x.keyword,
-                "trending_associated_keywords": x.trend_keywords[:5],
-                "number_of_searches": x.volume,
-                "volume_growth_pct": x.volume_growth_pct,
-                "categories": [x for x in x.topic_names],
-            }
-
-            if any(category in self.category_exclusion_filter for category in entry["categories"]):
+            if any(category in self.category_exclusion_filter for category in x.topic_names):
                 continue
 
             if any(Levenshtein.distance(x.keyword.lower(), y.lower()) < 7 for y in exclusion_list):
@@ -53,7 +45,13 @@ class WebTrendsRepository:
                 if max_similarity >= self.similarity_threshold:
                     continue
 
-            final_result.append(entry)
+            final_result.append({
+                "trend_name": x.keyword,
+                "trending_associated_keywords": x.trend_keywords[:5],
+                "number_of_searches": x.volume,
+                "volume_growth_pct": x.volume_growth_pct,
+                "categories": [x for x in x.topic_names],
+            })
 
             if len(final_result) >= limit:
                 break
