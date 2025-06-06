@@ -10,19 +10,16 @@ class TestWebSearchRepository:
 
     @pytest.fixture
     def mock_dependencies(self):
-        logger = MagicMock()
         configs = MagicMock()
         configs.web_search.cache_path = "/mock/cache/path"
         configs.web_search.cache_ttl_minutes = 60
         configs.web_search.quota_per_node = 5
         configs.web_search.client = WebSearchClient.Tavily
-        tavily_client = AsyncMock()
-        serper_dev_client = AsyncMock()
         return {
-            "logger": logger,
+            "logger": MagicMock(),
             "configs": configs,
-            "tavily_client": tavily_client,
-            "serper_dev_client": serper_dev_client,
+            "tavily_client": AsyncMock(),
+            "serper_dev_client": AsyncMock(),
         }
 
     @pytest.fixture

@@ -26,7 +26,7 @@ class TestMemeGenTrendResearcher:
     async def test_run(self, node: MemeGenTrendResearcher, mocks: Dict[Type[Any], Any]):
         # Arrange
         state = MemeGenState()
-        api_results = self.get_repo_mock_results()
+        api_results = self._get_repo_mock_results()
         mocks[WebTrendsRepository].get_trending_now.return_value = api_results
 
         # Act
@@ -46,7 +46,8 @@ class TestMemeGenTrendResearcher:
         assert len(final_state.trend_research.secondary_topic_facts) > 0
         assert len(final_state.trend_research.full_topics_list) == len(api_results)
 
-    def get_repo_mock_results(self):
+    @staticmethod
+    def _get_repo_mock_results():
         return [
             {
                 "trend_name": "afganistan war",
