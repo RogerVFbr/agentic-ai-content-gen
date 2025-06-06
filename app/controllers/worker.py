@@ -1,9 +1,9 @@
 from controllers.controller import MemeGenController
-from crosscutting.background_service import BackgroundService, CancellationToken
+from crosscutting.one_shot_background_service import OneShotBackgroundService, CancellationToken
 from crosscutting.logging.app_logger import AppLogger
 
 
-class MemeGenWorker(BackgroundService):
+class MemeGenWorker(OneShotBackgroundService):
 
     def __init__(self,
                  logger: AppLogger,
