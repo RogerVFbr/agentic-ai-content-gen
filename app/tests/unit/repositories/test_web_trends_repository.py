@@ -1,9 +1,12 @@
 import pytest
+from sentence_transformers import SentenceTransformer
 from unittest.mock import AsyncMock, MagicMock
 from repositories.web_trends_repository import WebTrendsRepository
 
 
 class TestWebTrendsRepository:
+
+    SENTENCE_TRANSFORMER = SentenceTransformer('all-MiniLM-L6-v2')
 
     @pytest.fixture
     def mock_dependencies(self):
@@ -16,7 +19,9 @@ class TestWebTrendsRepository:
 
     @pytest.fixture
     def repository(self, mock_dependencies):
-        return WebTrendsRepository(**mock_dependencies)
+        repo = WebTrendsRepository(**mock_dependencies)
+        repo.model = self.SENTENCE_TRANSFORMER
+        return repo
 
     @pytest.mark.asyncio
     async def test_get_trending_now_initializes_model(self, repository, mock_dependencies):

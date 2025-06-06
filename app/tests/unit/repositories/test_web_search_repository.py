@@ -48,6 +48,8 @@ class TestWebSearchRepository:
     @pytest.mark.asyncio
     async def test_search_quota_exceeded(self, repository, mock_dependencies):
         # Arrange: Set the quota usage to exceed the limit
+        repository.cache = MagicMock()
+        repository.cache.search.return_value = None
         repository.quota_usage["node_01"] = 5
 
         # Act: Perform the search operation
