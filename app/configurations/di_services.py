@@ -1,8 +1,4 @@
-from typing import List, Type, Any, Dict
-
 from agents.meme_gen.agent import MemeGenAgent
-from controllers.controller import MemeGenController
-from controllers.worker import MemeGenWorker
 from agents.meme_gen.graph import MemeGenGraph
 from agents.meme_gen.nodes.node_00_initializer import MemeGenInitializer
 from agents.meme_gen.nodes.node_01_researcher import MemeGenTrendResearcher
@@ -11,6 +7,8 @@ from agents.meme_gen.nodes.node_03_editor import MemeGenEditor
 from agents.meme_gen.nodes.node_04_publisher import MemeGenPublisher
 from agents.meme_gen.nodes.node_05_failure import MemeGenFailure
 from agents.meme_gen.nodes.node_06_success import MemeGenSuccess
+from controllers.controller import MemeGenController
+from controllers.worker import MemeGenWorker
 from crosscutting.logging.app_logger import AppLogger
 from crosscutting.service_provider import ServiceCollection
 from infrastructure.google_trends_client import GoogleTrendsClient

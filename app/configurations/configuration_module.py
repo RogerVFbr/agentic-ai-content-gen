@@ -1,4 +1,3 @@
-import asyncio
 import boto3
 import os
 from dotenv import load_dotenv
@@ -27,23 +26,13 @@ class ConfigurationModule:
     def __init__(self):
         self.service_provider = None
 
-    def run(self, service_collection, obj, callback):
-        async def execute():
-            module = ConfigurationModule()
-            if module.initialize(service_collection):
-                instance = module.service_provider.get_service(obj)
-                await callback(instance)
-
-        asyncio.run(execute())
-
     @AppLogger.timeit()
     def initialize(self, service_collection: ServiceCollection) -> bool:
         AppLogger.highlight_1(f"Initializing configuration ...")
 
         try:
             self._load_env_vars()
-            configs = self._load_configs()
-            service_collection.add_singleton(Configs, lambda sp: configs)
+            configs = self._load_configs(service_collection)
             self._override_env_vars(configs)
             self._validate_env_vars()
             self._build_di_container(service_collection)
@@ -70,16 +59,17 @@ class ConfigurationModule:
                 raise ValueError(f"Missing required environment variable: 'APP_ENV'.")
 
         except Exception as e:
-            AppLogger.error(f"Failed to load or verify environment variables: {e}", exception=e)
+            AppLogger.error(f"Failed to load or verify environment variables: {e}")
             raise
 
-    def _load_configs(self) -> Configs:
+    def _load_configs(self, service_collection: ServiceCollection) -> Configs:
         try:
             configs = ConfigsParser().parse()
+            service_collection.add_singleton(Configs, lambda sp: configs)
             AppLogger.debug("Configs loaded.")
             return configs
         except Exception as e:
-            AppLogger.error(f"Failed to load configs: {e}", exception=e)
+            AppLogger.error(f"Failed to load configs: {e}")
             raise
 
     def _override_env_vars(self, configs: Configs) -> None:
@@ -94,21 +84,26 @@ class ConfigurationModule:
                     continue
                 if client is None:
                     client = boto3.client('ssm')
-                value = client.get_parameter(Name=param_name, WithDecryption=True)['Parameter']['Value']
-                os.environ[env_var] = value
+                os.environ[env_var] = client.get_parameter(Name=param_name, WithDecryption=True)['Parameter']['Value']
                 overridden_values.append(env_var)
 
             if overridden_values:
                 AppLogger.info(f"Overridden environment variables: {', '.join(overridden_values)}")
         except Exception as e:
-            AppLogger.error(f"Failed to override environment variables: {e}", exception=e)
+            AppLogger.error(f"Failed to override environment variables: {e}")
             raise
 
     def _validate_env_vars(self) -> None:
+        missing_env_vars = []
+
         for key in self.REQUIRED_ENV_VARS:
             if key not in os.environ or len(os.environ[key]) == 0:
-                AppLogger.error(f"Failed to load or verify environment variable: '{key}'.")
-                raise ValueError(f"Missing required environment variable: {key}")
+                missing_env_vars.append(key)
+
+        if missing_env_vars:
+            env_vars = ', '.join(missing_env_vars)
+            AppLogger.error(f"Failed to load or verify environment variable(s): {env_vars}.")
+            raise ValueError(f"Missing required environment variable(s): {env_vars}")
 
         AppLogger.debug(f"Environment variables validated.")
 
@@ -120,5 +115,5 @@ class ConfigurationModule:
             self.service_provider = service_collection.build_service_provider()
             AppLogger.debug("DI container built.")
         except Exception as e:
-            AppLogger.error(f"Failed to build DI container: {e}", exception=e)
+            AppLogger.error(f"Failed to build DI container: {e}")
             raise
