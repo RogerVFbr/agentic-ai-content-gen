@@ -37,10 +37,17 @@ class OneShotBackgroundService(ABC):
                 pass
         else:
             shutdown_task.cancel()
+            if lifecycle_task.exception():
+                raise lifecycle_task.exception()
 
     def _register_signal_handlers(self):
         for sig in (signal.SIGINT, signal.SIGTERM):
-            self._loop.add_signal_handler(sig, self._shutdown_event.set)
+            self._loop.add_signal_handler(sig, self._set_shutdown_event)
+
+    def _set_shutdown_event(self):
+        """Set the shutdown event to signal termination."""
+        if self._shutdown_event:
+            self._shutdown_event.set()
 
     async def _lifecycle(self, input=None):
         try:
