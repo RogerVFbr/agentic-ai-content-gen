@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from app.agents.meme_gen.graph import MemeGenGraph
+from app.agents.meme_gen.graph import MemeGenGraphBuilder
 
 
 class TestMemeGenGraph:
@@ -19,9 +19,22 @@ class TestMemeGenGraph:
         }
 
     @pytest.mark.asyncio
+    async def test_initialize_success(self, mock_dependencies):
+        # Arrange: Create a MemeGenGraphBuilder instance and mock required methods
+        graph = MemeGenGraphBuilder(**mock_dependencies)
+        with patch.object(graph, "_initialize_checkpointer", new_callable=AsyncMock) as mock_initialize_checkpointer:
+            # Act: Call the initialize method
+            await graph.initialize()
+
+            # Assert: Verify that the checkpointer is initialized and nodes are initialized
+            mock_initialize_checkpointer.assert_awaited_once()
+            mock_dependencies["researcher"].initialize.assert_called_once()
+            mock_dependencies["validator"].initialize.assert_called_once()
+
+    @pytest.mark.asyncio
     async def test_initialize_checkpointer(self, mock_dependencies):
         # Arrange: Create a MemeGenGraph instance and mock required methods
-        graph = MemeGenGraph(**mock_dependencies)
+        graph = MemeGenGraphBuilder(**mock_dependencies)
 
         with patch("os.makedirs") as mock_makedirs, \
                 patch("os.path.exists", return_value=False), \
@@ -37,7 +50,7 @@ class TestMemeGenGraph:
     @pytest.mark.asyncio
     async def test_build(self, mock_dependencies):
         # Arrange: Create a MemeGenGraph instance and mock required methods
-        graph = MemeGenGraph(**mock_dependencies)
+        graph = MemeGenGraphBuilder(**mock_dependencies)
 
         with patch("app.agents.meme_gen.graph.StateGraph") as MockStateGraph, \
                 patch.object(graph, "_save_graph_image", new_callable=AsyncMock) as mock_save_image:
@@ -61,7 +74,7 @@ class TestMemeGenGraph:
 
     def test_save_graph_image(self, mock_dependencies):
         # Arrange: Create a MemeGenGraph instance and mock required methods
-        graph = MemeGenGraph(**mock_dependencies)
+        graph = MemeGenGraphBuilder(**mock_dependencies)
         mock_graph = MagicMock()
         with patch("os.makedirs") as mock_makedirs, \
                 patch("os.path.exists", return_value=False), \
@@ -77,7 +90,7 @@ class TestMemeGenGraph:
     @pytest.mark.asyncio
     async def test_terminate(self, mock_dependencies):
         # Arrange: Create a MemeGenGraph instance and mock the SQLite connection
-        graph = MemeGenGraph(**mock_dependencies)
+        graph = MemeGenGraphBuilder(**mock_dependencies)
         mock_conn = AsyncMock()
         graph.conn = mock_conn
 

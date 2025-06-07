@@ -22,7 +22,7 @@ class TestWebTrendsRepository:
         repo = WebTrendsRepository(**mock_dependencies)
         repo.model = self.SENTENCE_TRANSFORMER
         return repo
-
+    
     @pytest.mark.asyncio
     async def test_get_trending_now_initializes_model(self, repository, mock_dependencies):
         # Arrange: Ensure the model is not initialized

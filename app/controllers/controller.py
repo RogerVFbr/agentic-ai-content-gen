@@ -12,6 +12,15 @@ class MemeGenController:
         self.agent = agent
 
     @AppLogger.timeit()
+    async def initialize(self) -> None:
+        try:
+            self.logger.info("Initialization requested ...")
+            await self.agent.initialize()
+        except Exception as e:
+            self.logger.critical(f"An error occurred while running the agent: {e}.", exception=e)
+            raise e
+
+    @AppLogger.timeit()
     async def run(self, input: dict) -> None:
         try:
             self.logger.highlight_1("Running agent ...")
@@ -19,6 +28,7 @@ class MemeGenController:
             self.logger.highlight_1("Agent finished.")
         except Exception as e:
             self.logger.critical(f"An error occurred while running the agent: {e}.", exception=e)
+            raise e
 
     @AppLogger.timeit()
     async def terminate(self) -> None:
@@ -28,3 +38,4 @@ class MemeGenController:
             self.logger.highlight_1("Shutdown completed.")
         except Exception as e:
             self.logger.critical(f"Unable to gracefully shutdown the application: {e}.", exception=e)
+            raise e

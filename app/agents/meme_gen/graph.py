@@ -14,7 +14,7 @@ from agents.meme_gen.state import MemeGenState
 from crosscutting.logging.app_logger import AppLogger
 
 
-class MemeGenGraph:
+class MemeGenGraphBuilder:
 
     MEMORY_FILE = "sql_memory.db"
 
@@ -43,11 +43,12 @@ class MemeGenGraph:
 
         self.memory_file = os.path.join(os.path.dirname(__file__), "persistence", self.MEMORY_FILE)
 
-    async def build(self):
+    async def initialize(self):
         await self._initialize_checkpointer()
         self.researcher.initialize()
         self.validator.initialize()
 
+    async def build(self):
         builder = StateGraph(MemeGenState)
 
         builder.add_node(MemeGenInitializer.NODE_NAME, self.initializer.run)
@@ -101,9 +102,7 @@ class MemeGenGraph:
         )
 
         graph = builder.compile(checkpointer=self.sql_memory)
-
         self._save_graph_image(graph)
-
         return graph
 
     async def _initialize_checkpointer(self):

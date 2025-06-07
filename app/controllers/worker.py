@@ -13,10 +13,13 @@ class MemeGenWorker(OneShotBackgroundService):
         self.controller = controller
         self.logger = logger
 
+    async def on_initialize(self):
+        await self.controller.initialize()
+
     async def start(self, cancellation_token: CancellationToken, input=None):
         await self.controller.run(input)
 
-    async def stop(self):
+    async def stop(self, cancellation_token: CancellationToken, input=None):
         await self.controller.terminate()
 
     async def on_terminate(self):

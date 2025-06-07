@@ -98,33 +98,3 @@ class SemanticCache:
                 if isinstance(entry, dict):
                     self.entries[i] = CacheEntry(**entry)
             self._rebuild_index()
-
-
-if __name__ == "__main__":
-    cache = SemanticCache(cache_file="../infrastructure/test_cache.json", threshold=0.85)
-    cache.store("Who is the CEO of OpenAI?", "Sam Altman is the CEO of OpenAI.")
-    cache.store("Capital of France", "The capital of France is Paris.")
-    queries = [
-        "Who runs OpenAI?",
-        "What's France's capital?",
-        "Tell me the leader of OpenAI",
-        "Where's the HQ of OpenAI?"
-    ]
-
-    for q in queries:
-        hit = cache.search(q)
-        if hit:
-            result = hit["result"]
-            original_query = hit["match_query"]
-            score = hit["score"]
-            print(f"\n✅ Cache HIT for: \"{q}\"")
-            print(f"  ↳ Matched: \"{original_query}\" (Score: {score:.2f})")
-            print(f"  ↳ Result: {result}")
-        else:
-            print(f"\n❌ Cache MISS for: \"{q}\"")
-            print("→ Would call web search and store result.")
-            # Simulate web result
-            fake_result = f"Simulated result for: {q}"
-            cache.store(q, fake_result)
-
-    cache.save()

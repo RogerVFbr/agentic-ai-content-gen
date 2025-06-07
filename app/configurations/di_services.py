@@ -1,5 +1,5 @@
 from agents.meme_gen.agent import MemeGenAgent
-from agents.meme_gen.graph import MemeGenGraph
+from agents.meme_gen.graph import MemeGenGraphBuilder
 from agents.meme_gen.nodes.node_00_initializer import MemeGenInitializer
 from agents.meme_gen.nodes.node_01_researcher import MemeGenTrendResearcher
 from agents.meme_gen.nodes.node_02_validator import MemeGenTrendValidator
@@ -34,7 +34,7 @@ class AppDi:
         services.add_singleton(MemeGenWorker)
         services.add_singleton(MemeGenController)
         services.add_singleton(MemeGenAgent)
-        services.add_singleton(MemeGenGraph)
+        services.add_singleton(MemeGenGraphBuilder)
         services.add_singleton(MemeGenInitializer)
         services.add_singleton(MemeGenTrendResearcher)
         services.add_singleton(MemeGenTrendValidator)

@@ -25,7 +25,6 @@ class WebSearchRepository:
         self.cache_hits = 0
         self.cache = None
 
-
     async def search(self, node_name: str, query: str):
         """Executes searches on the web"""
 

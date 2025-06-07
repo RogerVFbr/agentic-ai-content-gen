@@ -51,9 +51,10 @@ class OneShotBackgroundService(ABC):
 
     async def _lifecycle(self, input=None):
         try:
+            await self.on_initialize()
             await self.start(self._cancellation_token_source.token, input)
         finally:
-            await self.stop()
+            await self.stop(self._cancellation_token_source.token)
 
     @abstractmethod
     async def start(self, cancellation_token: CancellationToken, input=None):
@@ -61,8 +62,12 @@ class OneShotBackgroundService(ABC):
         pass
 
     @abstractmethod
-    async def stop(self):
+    async def stop(self, cancellation_token: CancellationToken, input=None):
         """To be implemented by subclass"""
+        pass
+
+    async def on_initialize(self):
+        """To be optionally overridden by subclass"""
         pass
 
     async def on_terminate(self):
