@@ -1,23 +1,31 @@
+# python
 import asyncio
 import signal
 from abc import ABC, abstractmethod
 
-from crosscutting.cancellation_token import CancellationTokenSource, CancellationToken
+from crosscutting.background_service.cancellation_token import CancellationTokenSource, CancellationToken
 
 
-class OneShotBackgroundService(ABC):
+class MultiShotBackgroundService(ABC):
     def __init__(self):
         self._shutdown_event = None
         self._loop = None
-        self._cancellation_token_source = None
+        self._cancellation_token_source = CancellationTokenSource()
+        self._initialize_called = False
+        self._is_request_in_progress = False
 
     async def run(self, input=None):
-        """Entrypoint to start and manage the full lifecycle."""
+        """Entrypoint to start and manage the lifecycle."""
+        if self._shutdown_event is not None and self._shutdown_event.is_set():
+            return
 
-        self._shutdown_event = asyncio.Event()
-        self._loop = asyncio.get_running_loop()
-        self._cancellation_token_source = CancellationTokenSource()
-        self._register_signal_handlers()
+        self._is_request_in_progress = True
+
+        if self._shutdown_event is None:
+            self._shutdown_event = asyncio.Event()
+            self._loop = asyncio.get_running_loop()
+            self._cancellation_token_source = CancellationTokenSource()
+            self._register_signal_handlers()
 
         lifecycle_task = asyncio.create_task(self._lifecycle(input))
         shutdown_task = asyncio.create_task(self._shutdown_event.wait())
@@ -29,16 +37,20 @@ class OneShotBackgroundService(ABC):
 
         if shutdown_task in done:
             self._cancellation_token_source.cancel()
-            await self.on_terminate()
             lifecycle_task.cancel()
             try:
                 await lifecycle_task
             except asyncio.CancelledError:
                 pass
+            await self.stop(self._cancellation_token_source.token, input)
         else:
             shutdown_task.cancel()
             if lifecycle_task.exception():
+                await self.stop(self._cancellation_token_source.token, input)
+                self._is_request_in_progress = False
                 raise lifecycle_task.exception()
+
+        self._is_request_in_progress = False
 
     def _register_signal_handlers(self):
         for sig in (signal.SIGINT, signal.SIGTERM):
@@ -46,15 +58,20 @@ class OneShotBackgroundService(ABC):
 
     def _set_shutdown_event(self):
         """Set the shutdown event to signal termination."""
+        try:
+            asyncio.run(self.on_terminate())
+        except Exception as _:
+            pass
         if self._shutdown_event:
             self._shutdown_event.set()
+        if not self._is_request_in_progress:
+            asyncio.run(self.stop(self._cancellation_token_source.token))
 
     async def _lifecycle(self, input=None):
-        try:
+        if not self._initialize_called:
             await self.on_initialize()
-            await self.start(self._cancellation_token_source.token, input)
-        finally:
-            await self.stop(self._cancellation_token_source.token)
+            self._initialize_called = True
+        await self.start(self._cancellation_token_source.token, input)
 
     @abstractmethod
     async def start(self, cancellation_token: CancellationToken, input=None):

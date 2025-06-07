@@ -1,6 +1,6 @@
 import pytest
 import threading
-from crosscutting.cancellation_token import CancellationToken, CancellationTokenSource, OperationCancelledException
+from crosscutting.background_service.cancellation_token import CancellationToken, CancellationTokenSource, OperationCancelledException
 
 
 class TestCancellationToken:

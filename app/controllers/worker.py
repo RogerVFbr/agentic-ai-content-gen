@@ -1,5 +1,5 @@
 from controllers.controller import MemeGenController
-from crosscutting.one_shot_background_service import OneShotBackgroundService, CancellationToken
+from crosscutting.background_service.one_shot_background_service import OneShotBackgroundService, CancellationToken
 from crosscutting.logging.app_logger import AppLogger
 
 

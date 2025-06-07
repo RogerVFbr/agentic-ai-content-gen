@@ -3,7 +3,7 @@ import pytest
 import threading
 from unittest.mock import AsyncMock
 
-from crosscutting.one_shot_background_service import OneShotBackgroundService
+from crosscutting.background_service.one_shot_background_service import OneShotBackgroundService
 
 
 class MockBackgroundService(OneShotBackgroundService):
@@ -11,6 +11,9 @@ class MockBackgroundService(OneShotBackgroundService):
         await asyncio.sleep(0.5)
 
     async def stop(self, cancellation_token, input=None):
+        pass
+
+    async def on_initialize(self):
         pass
 
     async def on_terminate(self):
