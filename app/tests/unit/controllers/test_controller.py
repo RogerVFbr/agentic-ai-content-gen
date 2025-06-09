@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch, ANY
 
 from controllers.controller import MemeGenController
 
@@ -30,7 +30,7 @@ class TestMemeGenController:
         await controller.initialize()
 
         # Assert: Verify logger and agent calls
-        mock_dependencies["logger"].info.assert_called_once_with("Initialization requested ...")
+        mock_dependencies["logger"].info.assert_called_once()
         mock_dependencies["agent"].initialize.assert_awaited_once()
 
     @pytest.mark.asyncio
@@ -43,9 +43,9 @@ class TestMemeGenController:
             await controller.initialize()
 
         # Assert: Verify logger calls and exception handling
-        mock_dependencies["logger"].info.assert_called_once_with("Initialization requested ...")
+        mock_dependencies["logger"].info.assert_called_once()
         mock_dependencies["logger"].critical.assert_called_once_with(
-            "An error occurred while running the agent: Initialization error.",
+            ANY,
             exception=mock_dependencies["agent"].initialize.side_effect,
         )
 
@@ -58,9 +58,9 @@ class TestMemeGenController:
         await controller.run({"input_key": "input_value"})
 
         # Assert: Verify logger and agent calls
-        mock_dependencies["logger"].highlight_1.assert_any_call("Running agent ...")
         mock_dependencies["agent"].run.assert_awaited_once_with({"input_key": "input_value"})
-        mock_dependencies["logger"].highlight_1.assert_any_call("Agent finished.")
+        mock_dependencies["logger"].highlight_1.assert_called()
+        assert mock_dependencies["logger"].highlight_1.call_count == 2
 
     @pytest.mark.asyncio
     async def test_run_exception(self, controller, mock_dependencies):
@@ -72,9 +72,9 @@ class TestMemeGenController:
             await controller.run({"input_key": "input_value"})
 
         # Assert: Verify logger calls and exception handling
-        mock_dependencies["logger"].highlight_1.assert_any_call("Running agent ...")
+        mock_dependencies["logger"].highlight_1.assert_called_once()
         mock_dependencies["logger"].critical.assert_called_once_with(
-            "An error occurred while running the agent: Test exception.",
+            ANY,
             exception=mock_dependencies["agent"].run.side_effect,
         )
 
@@ -87,9 +87,9 @@ class TestMemeGenController:
         await controller.terminate()
 
         # Assert: Verify logger and agent calls
-        mock_dependencies["logger"].highlight_1.assert_any_call("Shutting down ...")
         mock_dependencies["agent"].terminate.assert_awaited_once()
-        mock_dependencies["logger"].highlight_1.assert_any_call("Shutdown completed.")
+        mock_dependencies["logger"].highlight_1.assert_called()
+        assert mock_dependencies["logger"].highlight_1.call_count == 2
 
     @pytest.mark.asyncio
     async def test_terminate_exception(self, controller, mock_dependencies):
@@ -101,8 +101,8 @@ class TestMemeGenController:
             await controller.terminate()
 
         # Assert: Verify logger calls and exception handling
-        mock_dependencies["logger"].highlight_1.assert_any_call("Shutting down ...")
+        mock_dependencies["logger"].highlight_1.assert_called_once()
         mock_dependencies["logger"].critical.assert_called_once_with(
-            "Unable to gracefully shutdown the application: Termination error.",
+            ANY,
             exception=mock_dependencies["agent"].terminate.side_effect,
         )

@@ -18,6 +18,7 @@ class TestMemeGenTrendValidator:
         # Arrange
         state = MemeGenState()
         state.trend_research = self._get_valid_trends()
+        state.trend_research_validation = None
 
         # Act
         final_state = await node.run(state)

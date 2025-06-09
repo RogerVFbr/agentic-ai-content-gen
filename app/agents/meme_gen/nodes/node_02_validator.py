@@ -38,43 +38,40 @@ class MemeGenTrendValidator(MemeGenBase):
 
         self.user_prompt = PromptTemplate(
             input_variables=["time_now", "research"],
-            template=prompts["user"]
-        )
+            template=prompts["user"])
 
         self.agent = create_react_agent(
             model=self.get_llm(),
             prompt=self.system_prompt,
             response_format=TrendResearchValidationStatus,
-            tools=[
-                self._search_web
-            ],
-            debug=False,
-        )
+            tools=[self._search_web],
+            debug=False)
 
     @AppLogger.timeit()
     async def run(self, state: MemeGenState):
         self.logger.highlight_2(f"Starting {self.NODE_NAME} ...")
-
         self.web_search_repository.reset_quota(self.NODE_NAME)
+        prompt = self._build_prompt(state)
 
+        response = None
+        async for step in self.agent.astream(prompt):
+            await self.log_progress(step)
+            response = step
+
+        state = self._update_state(state, response)
+        self.logger.info("Completed.", data=state.trend_research_validation.__dict__)
+        return state
+
+    def _build_prompt(self, state: MemeGenState):
         research = state.trend_research.__dict__.copy()
         del research['search_tool_call_status']
         del research['search_tool_call_reason']
         del research['full_topics_list']
         research = json.dumps(research)
 
-        user_message = self.get_user_message(self.user_prompt.template.format(
+        return self.get_user_message(self.user_prompt.template.format(
             time_now=self.time_now(),
             research=research))
-
-        final_response = None
-        async for response in self.agent.astream(user_message):
-            await self.log_progress(response)
-            final_response = response
-
-        state = self._update_state(state, final_response)
-        self.logger.info("Completed.", data=state.trend_research_validation.__dict__)
-        return state
 
     async def _search_web(self, query: str):
         """Executes searches on the web"""

@@ -38,46 +38,37 @@ class MemeGenTrendResearcher(MemeGenBase):
         self.system_prompt = prompts["system"]
 
         self.user_prompt = PromptTemplate(
-            input_variables=["time_now", "remake", "current_trends", "previous_assignment"],
-            template=prompts["user"]["main"]
-        )
+            input_variables=["time_now", "current_trends"],
+            template=prompts["user"]["main"])
 
         self.agent = create_react_agent(
             model=self.get_llm(),
             prompt=self.system_prompt,
             response_format=TrendResearch,
-            tools=[
-                self._search_web
-            ],
-            debug=False,
-        )
+            tools=[self._search_web],
+            debug=False)
 
     @AppLogger.timeit()
     async def run(self, state: MemeGenState):
         self.logger.highlight_2(f"Starting {self.NODE_NAME} ...")
-
         self.web_search_repository.reset_quota(self.NODE_NAME)
+        prompt = await self._build_prompt(state)
 
-        prompt = await self.build_prompt(state)
+        response = None
+        async for step in self.agent.astream(self.get_user_message(prompt)):
+            await self.log_progress(step)
+            response = step
 
-        final_response = None
-        async for response in self.agent.astream(self.get_user_message(prompt)):
-            await self.log_progress(response)
-            final_response = response
-
-        state = self._update_state(state, final_response)
+        state = self._update_state(state, response)
         self.logger.info(f"Completed. Topics: '{state.trend_research.primary_topic}' and '{state.trend_research.secondary_topic}'.", data=state.trend_research.__dict__)
         return state
 
-    async def build_prompt(self, state: MemeGenState):
+    async def _build_prompt(self, state: MemeGenState):
         current_trends = await self.web_trends_repository.get_trending_now("US", sorted(list(state.prior_topics)), 10)
 
-        prompt = self.user_prompt.format(
+        return self.user_prompt.format(
             time_now=self.time_now(),
-            current_trends=current_trends,
-        )
-
-        return prompt
+            current_trends=current_trends)
 
     async def _search_web(self, query: str):
         """Executes searches on the web"""
