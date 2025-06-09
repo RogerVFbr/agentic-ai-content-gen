@@ -7,7 +7,6 @@ from langgraph.prebuilt import create_react_agent
 from agents.meme_gen.nodes.node_base import MemeGenBase
 from agents.meme_gen.state import MemeGenState, TrendResearchValidationStatus
 from crosscutting.logging.app_logger import AppLogger
-from crosscutting.memoize_method import memoize_method
 from repositories.web_search_repository import WebSearchRepository
 
 
@@ -32,7 +31,6 @@ class MemeGenTrendValidator(MemeGenBase):
 
         self.prompts_file = os.path.join(os.path.dirname(__file__), self.PROMPTS_FILE)
 
-    @memoize_method()
     def initialize(self):
         prompts = self.load_prompts(self.prompts_file)["trend_research_validator"]
 
@@ -82,10 +80,9 @@ class MemeGenTrendValidator(MemeGenBase):
         """Executes searches on the web"""
         return await self.web_search_repository.search(self.NODE_NAME, query)
 
-    @staticmethod
-    def _update_state(state: MemeGenState, response):
+    def _update_state(self, state: MemeGenState, response):
         orig_validation = copy.deepcopy(state.trend_research_validation) if state.trend_research_validation else None
-        state.trend_research_validation = response["structured_response"]
+        state.trend_research_validation = self.get_structured_response(response)
 
         if state.trend_research_validation.primary_topic_status and not state.trend_research_validation.secondary_topic_status:
             state.prior_topics.remove(state.trend_research.primary_topic)

@@ -1,5 +1,4 @@
 import pytest
-from typing import Union
 
 from agents.meme_gen.nodes.node_00_initializer import MemeGenInitializer
 from agents.meme_gen.state import MemeGenState

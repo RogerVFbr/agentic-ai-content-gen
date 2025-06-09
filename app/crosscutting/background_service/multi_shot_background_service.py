@@ -1,4 +1,3 @@
-# python
 import asyncio
 import signal
 from abc import ABC, abstractmethod

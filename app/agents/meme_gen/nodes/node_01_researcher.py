@@ -5,7 +5,6 @@ from langgraph.prebuilt import create_react_agent
 from agents.meme_gen.nodes.node_base import MemeGenBase
 from agents.meme_gen.state import MemeGenState, TrendResearch
 from crosscutting.logging.app_logger import AppLogger
-from crosscutting.memoize_method import memoize_method
 from repositories.web_search_repository import WebSearchRepository
 from repositories.web_trends_repository import WebTrendsRepository
 
@@ -33,7 +32,6 @@ class MemeGenTrendResearcher(MemeGenBase):
 
         self.prompts_file = os.path.join(os.path.dirname(__file__), self.PROMPTS_FILE)
 
-    @memoize_method()
     def initialize(self):
         prompts = self.load_prompts(self.prompts_file)["trend_researcher"]
 
@@ -85,9 +83,8 @@ class MemeGenTrendResearcher(MemeGenBase):
         """Executes searches on the web"""
         return await self.web_search_repository.search(self.NODE_NAME, query)
 
-    @staticmethod
-    def _update_state(state: MemeGenState, response):
-        state.trend_research = response["structured_response"] if "structured_response" in response else response["generate_structured_response"]["structured_response"]
+    def _update_state(self, state: MemeGenState, response):
+        state.trend_research = self.get_structured_response(response)
         state.prior_topics.add(state.trend_research.primary_topic)
         state.prior_topics.add(state.trend_research.secondary_topic)
         return state

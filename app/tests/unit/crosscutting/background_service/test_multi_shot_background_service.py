@@ -126,3 +126,20 @@ class TestMultiShotBackgroundService:
         assert not mock_service._cancellation_token_source.token.is_cancellation_requested()
         mock_service.on_terminate.assert_awaited_once()
         mock_service.stop.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_on_terminate_exception_handling(self, mock_service: MockMultiShotBackgroundService):
+        # Arrange: Mock on_terminate to throw an exception
+        mock_service.on_terminate.side_effect = Exception("Terminate exception")
+
+        # Act: Emulate cancellation
+        def emulate_cancellation():
+            mock_service._set_shutdown_event()
+
+        shutdown_thread = threading.Thread(target=emulate_cancellation)
+        shutdown_thread.start()
+        shutdown_thread.join()
+
+        # Assert: Verify exception is not propagated and stop is still called
+        mock_service.on_terminate.assert_awaited_once()
+        mock_service.stop.assert_awaited_once()

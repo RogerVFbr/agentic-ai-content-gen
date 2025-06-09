@@ -32,6 +32,10 @@ class MemeGenBase:
             temperature=temperature
         )
 
+    @staticmethod
+    def get_structured_response(response):
+        return response["structured_response"] if "structured_response" in response else response["generate_structured_response"]["structured_response"]
+
     async def log_progress(self, step):
         if 'structured_response' in step:
             self.logger.highlight_3(LogLevel.DEBUG, f"Structured response generated ({type(step['structured_response'])}).")
