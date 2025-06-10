@@ -232,7 +232,7 @@ class TestServiceProvider:
         assert isinstance(repository, Repository)
         assert isinstance(repository.logger, Logger)
 
-    def test_multiple_dependencies(self, service_collection):
+    def test_multiple_dependencies_for_transient(self, service_collection):
         # Arrange: Define classes with multiple dependencies
         class Logger:
             pass
@@ -258,7 +258,33 @@ class TestServiceProvider:
         assert isinstance(service.logger, Logger)
         assert isinstance(service.config, Config)
 
-    def test_nested_dependencies(self, service_collection):
+    def test_multiple_dependencies_for_singleton(self, service_collection):
+        # Arrange: Define classes with multiple dependencies
+        class Logger:
+            pass
+
+        class Config:
+            pass
+
+        class Service:
+            def __init__(self, logger: Logger, config: Config):
+                self.logger = logger
+                self.config = config
+
+        service_collection.add_singleton(Logger)
+        service_collection.add_singleton(Config)
+        service_collection.add_singleton(Service)
+        provider = service_collection.build_service_provider()
+
+        # Act: Resolve the service
+        service = provider.get_service(Service)
+
+        # Assert: Verify that all dependencies are injected correctly
+        assert isinstance(service, Service)
+        assert isinstance(service.logger, Logger)
+        assert isinstance(service.config, Config)
+
+    def test_nested_dependencies_for_transient(self, service_collection):
         # Arrange: Define classes with nested dependencies
         class Logger:
             pass
@@ -284,7 +310,33 @@ class TestServiceProvider:
         assert isinstance(service.repository, Repository)
         assert isinstance(service.repository.logger, Logger)
 
-    def test_dependency_with_factory(self, service_collection):
+    def test_nested_dependencies_for_singleton(self, service_collection):
+        # Arrange: Define classes with nested dependencies
+        class Logger:
+            pass
+
+        class Repository:
+            def __init__(self, logger: Logger):
+                self.logger = logger
+
+        class Service:
+            def __init__(self, repository: Repository):
+                self.repository = repository
+
+        service_collection.add_singleton(Logger)
+        service_collection.add_singleton(Repository)
+        service_collection.add_singleton(Service)
+        provider = service_collection.build_service_provider()
+
+        # Act: Resolve the service
+        service = provider.get_service(Service)
+
+        # Assert: Verify that nested dependencies are injected correctly
+        assert isinstance(service, Service)
+        assert isinstance(service.repository, Repository)
+        assert isinstance(service.repository.logger, Logger)
+
+    def test_dependency_with_factory_for_transient(self, service_collection):
         # Arrange: Define a class with a dependency provided by a factory
         class Config:
             def __init__(self, value):
@@ -305,7 +357,28 @@ class TestServiceProvider:
         assert isinstance(service, Service)
         assert service.config.value == 42
 
-    def test_optional_dependency(self, service_collection):
+    def test_dependency_with_factory_for_singleton(self, service_collection):
+        # Arrange: Define a class with a dependency provided by a factory
+        class Config:
+            def __init__(self, value):
+                self.value = value
+
+        class Service:
+            def __init__(self, config: Config):
+                self.config = config
+
+        service_collection.add_singleton(Config, lambda sp: Config(42))
+        service_collection.add_singleton(Service)
+        provider = service_collection.build_service_provider()
+
+        # Act: Resolve the service
+        service = provider.get_service(Service)
+
+        # Assert: Verify that the factory-provided dependency is injected correctly
+        assert isinstance(service, Service)
+        assert service.config.value == 42
+
+    def test_optional_dependency_for_transient(self, service_collection):
         # Arrange: Define a class with an optional dependency
         class Logger:
             pass
@@ -315,6 +388,25 @@ class TestServiceProvider:
                 self.logger = logger
 
         service_collection.add_transient(Service)
+        provider = service_collection.build_service_provider()
+
+        # Act: Resolve the service
+        service = provider.get_service(Service)
+
+        # Assert: Verify that the optional dependency is handled correctly
+        assert isinstance(service, Service)
+        assert service.logger is None
+
+    def test_optional_dependency_for_singleton(self, service_collection):
+        # Arrange: Define a class with an optional dependency
+        class Logger:
+            pass
+
+        class Service:
+            def __init__(self, logger: Logger = None):
+                self.logger = logger
+
+        service_collection.add_singleton(Service)
         provider = service_collection.build_service_provider()
 
         # Act: Resolve the service
