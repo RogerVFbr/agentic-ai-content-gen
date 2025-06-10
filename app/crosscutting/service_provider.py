@@ -69,55 +69,8 @@ class ServiceProvider:
             dependencies = {
                 param.name: self.get_service(param.annotation)
                 for param in constructor.parameters.values()
-                if param.annotation != inspect.Parameter.empty
+                if param.annotation != inspect.Parameter.empty and
+                   (param.default == inspect.Parameter.empty or param.annotation in self._services)
             }
             return implementation(**dependencies)
         return implementation
-
-
-# Example usage
-class Logger:
-    def log(self, message):
-        print(f"Logger: {message} (Logger Id: {id(self)})")
-
-
-class Database:
-    def save(self):
-        print(f"Database: Data saved. (Id: {id(self)})")
-
-
-class Repository:
-    def __init__(self, logger: Logger, database: Database, config: str):
-        self.logger = logger
-        self.database = database
-        self.config = config
-
-    def save(self):
-        self.logger.log(f"Repository: Repository called. Config: {self.config}. (Id: {id(self)})")
-        self.database.save()
-
-
-class MyService:
-    def __init__(self, logger: Logger, repository: Repository):
-        self.logger = logger
-        self.repository = repository
-
-    def do_something(self):
-        self.logger.log(f"Service: Service called. (Id: {id(self)})")
-        self.repository.save()
-
-
-if __name__ == "__main__":
-    # Register services
-    services = ServiceCollection()
-    services.add_transient(Repository, lambda sp: Repository(sp.get_service(Logger), sp.get_service(Database), "some_config"))
-    services.add_singleton(MyService)
-    services.add_transient(Logger, Logger)
-    services.add_transient(Database, Database)
-
-    # Build service provider
-    provider = services.build_service_provider()
-
-    # Resolve services
-    my_service = provider.get_service(MyService)
-    my_service.do_something()  # Output: Service called. Repository called. Data saved.
