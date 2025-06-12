@@ -32,7 +32,7 @@ class MemeGenTrendValidator(MemeGenBase):
         self.prompts_file = os.path.join(os.path.dirname(__file__), self.PROMPTS_FILE)
 
     def initialize(self):
-        prompts = self.load_prompts(self.prompts_file)["trend_research_validator"]
+        prompts = self.load_prompts(self.prompts_file)["validator"]
 
         self.system_prompt = prompts["system"]
 

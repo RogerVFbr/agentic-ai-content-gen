@@ -33,13 +33,13 @@ class MemeGenTrendResearcher(MemeGenBase):
         self.prompts_file = os.path.join(os.path.dirname(__file__), self.PROMPTS_FILE)
 
     def initialize(self):
-        prompts = self.load_prompts(self.prompts_file)["trend_researcher"]
+        prompts = self.load_prompts(self.prompts_file)["researcher"]
 
         self.system_prompt = prompts["system"]
 
         self.user_prompt = PromptTemplate(
             input_variables=["time_now", "current_trends"],
-            template=prompts["user"]["main"])
+            template=prompts["user"])
 
         self.agent = create_react_agent(
             model=self.get_llm(),

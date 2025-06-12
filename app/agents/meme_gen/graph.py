@@ -47,6 +47,7 @@ class MemeGenGraphBuilder:
         await self._initialize_checkpointer()
         self.researcher.initialize()
         self.validator.initialize()
+        self.editor.initialize()
 
     async def build(self):
         builder = StateGraph(MemeGenState)
