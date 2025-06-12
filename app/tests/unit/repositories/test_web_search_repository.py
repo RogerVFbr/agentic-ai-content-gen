@@ -128,5 +128,5 @@ class TestWebSearchRepository:
 
         # Assert: Verify the logger calls and cache save
         mock_dependencies["logger"].info.assert_any_call("Web search session usage: 10 (+3 cache hits).")
-        repository.cache.save.assert_called_once()
+        repository.cache.flush.assert_called_once()
         mock_dependencies["logger"].info.assert_any_call("Web search cache flushed.")

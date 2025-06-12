@@ -1,6 +1,4 @@
-import aiosqlite
 import os
-from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.graph import StateGraph, END
 
 from agents.meme_gen.nodes.node_00_initializer import MemeGenInitializer
@@ -17,8 +15,6 @@ from repositories.used_topics_repository import UsedTopicsRepository
 
 class MemeGenGraphBuilder:
 
-    MEMORY_FILE = "sql_memory.db"
-
     def __init__(self,
                  logger: AppLogger,
                  initializer: MemeGenInitializer,
@@ -31,7 +27,6 @@ class MemeGenGraphBuilder:
                  used_topics_repository: UsedTopicsRepository):
 
         self.logger = logger
-
         self.initializer = initializer
         self.researcher = researcher
         self.validator = validator
@@ -41,12 +36,7 @@ class MemeGenGraphBuilder:
         self.success = success
         self.used_topics_repository = used_topics_repository
 
-        self.conn = None
-        self.sql_memory = None
-
-        self.memory_file = os.path.join(os.path.dirname(__file__), "persistence", self.MEMORY_FILE)
     async def initialize(self):
-        # await self._initialize_checkpointer()
         await self.used_topics_repository.load()
         self.researcher.initialize()
         self.validator.initialize()
@@ -105,21 +95,9 @@ class MemeGenGraphBuilder:
             }
         )
 
-        # graph = builder.compile(checkpointer=self.sql_memory)
         graph = builder.compile()
         self._save_graph_image(graph)
         return graph
-
-    async def _initialize_checkpointer(self):
-        if self.conn:
-            return
-
-        memory_dir = os.path.dirname(self.memory_file)
-        if not os.path.exists(memory_dir):
-            os.makedirs(memory_dir)
-
-        self.conn = await aiosqlite.connect(self.memory_file)
-        self.sql_memory = AsyncSqliteSaver(self.conn)
 
     def _save_graph_image(self, graph):
         output_dir = os.path.join(os.path.dirname(__file__), "persistence")
@@ -133,10 +111,5 @@ class MemeGenGraphBuilder:
             f.write(png_graph)
 
     async def terminate(self):
-        if self.conn:
-            await self.conn.commit()
-            await self.conn.close()
-            self.conn = None
-            self.logger.info("Checkpointer database connection terminated.")
         await self.used_topics_repository.flush()
         self.researcher.terminate()
