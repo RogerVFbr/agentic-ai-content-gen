@@ -1,20 +1,33 @@
+from unittest.mock import AsyncMock
+
+from typing import Any, Type, Dict
+
 import pytest
 
 from agents.meme_gen.nodes.node_00_initializer import MemeGenInitializer
 from agents.meme_gen.state import MemeGenState
 from integration.configuration_module_factory import ConfigurationModuleFactory
+from repositories.used_topics_repository import UsedTopicsRepository
 
 
 class TestMemeGenInitializer:
 
     @pytest.fixture
-    def node(self) -> MemeGenInitializer:
-        return ConfigurationModuleFactory.build(MemeGenInitializer)
+    def mocks(self) -> Dict[Type[Any], Any]:
+        return {
+            UsedTopicsRepository: AsyncMock()
+        }
+
+    @pytest.fixture
+    def node(self, mocks: Dict[Type[Any], Any]) -> MemeGenInitializer:
+        return ConfigurationModuleFactory.build(MemeGenInitializer, mocks)
 
     @pytest.mark.asyncio
-    async def test_run(self, node: MemeGenInitializer):
+    async def test_run(self, node: MemeGenInitializer, mocks: Dict[Type[Any], Any]):
         # Arrange
         state = MemeGenState()
+        used_topics = ["Topic1", "Topic2", "Topic3"]
+        mocks[UsedTopicsRepository].get_all_topic_names.return_value = used_topics
 
         # Act
         final_state = await node.run(state)
@@ -22,4 +35,5 @@ class TestMemeGenInitializer:
         # Assert
         assert final_state.trend_research is None
         assert final_state.trend_research_validation is None
+        assert final_state.prior_topics == set(used_topics)
 
