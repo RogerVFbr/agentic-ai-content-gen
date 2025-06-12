@@ -27,10 +27,10 @@ class TestMemeGenTrendValidator:
         assert final_state.trend_research_validation is not None
         assert final_state.trend_research_validation.primary_topic_status
         assert final_state.trend_research_validation.primary_topic == "birthday party"
-        assert len(final_state.trend_research_validation.primary_topic_reason) > 0
+        assert final_state.trend_research_validation.primary_topic_reason
         assert final_state.trend_research_validation.secondary_topic_status
         assert final_state.trend_research_validation.secondary_topic == "mountain hike"
-        assert len(final_state.trend_research_validation.secondary_topic_reason) > 0
+        assert final_state.trend_research_validation.secondary_topic_reason
 
     @pytest.mark.asyncio
     async def test_run_invalid_trends(self, node: MemeGenTrendValidator):
@@ -46,10 +46,10 @@ class TestMemeGenTrendValidator:
         assert final_state.trend_research_validation is not None
         assert not final_state.trend_research_validation.primary_topic_status
         assert final_state.trend_research_validation.primary_topic == "afghanistan war"
-        assert len(final_state.trend_research_validation.primary_topic_reason) > 0
+        assert final_state.trend_research_validation.primary_topic_reason
         assert not final_state.trend_research_validation.secondary_topic_status
         assert final_state.trend_research_validation.secondary_topic == "covid 19"
-        assert len(final_state.trend_research_validation.secondary_topic_reason) > 0
+        assert final_state.trend_research_validation.secondary_topic_reason
 
     @staticmethod
     def _get_valid_trends():
