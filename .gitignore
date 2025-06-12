@@ -2,6 +2,7 @@ app/.env
 __pycache__/
 .DS_Store
 .idea/
+app/imgur_tokens.json
 
 
 
