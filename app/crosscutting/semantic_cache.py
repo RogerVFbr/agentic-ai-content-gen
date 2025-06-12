@@ -82,7 +82,7 @@ class SemanticCache:
         self.entries.append(entry)
         self.index.add(np.array([embedding]))
 
-    def save(self):
+    def flush(self):
         with open(self.cache_file, "wb") as f:
             pickle.dump(self.entries, f)
 

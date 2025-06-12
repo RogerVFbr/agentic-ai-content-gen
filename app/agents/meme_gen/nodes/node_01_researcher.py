@@ -88,4 +88,4 @@ class MemeGenTrendResearcher(MemeGenBase):
         return "end"
 
     def terminate(self):
-        self.web_search_repository.save()
+        self.web_search_repository.flush()

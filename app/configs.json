@@ -1,4 +1,8 @@
 {
+  "used_topics": {
+    "cache_path": "/agents/meme_gen/persistence/used_topics_cache.pkl",
+    "cache_ttl_hours": 72
+  },
   "web_search": {
     "client": "Tavily",
     "cache_path": "/agents/meme_gen/persistence/web_search_cache.pkl",

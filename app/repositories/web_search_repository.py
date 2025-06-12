@@ -74,8 +74,8 @@ class WebSearchRepository:
         """Resets the usage quota."""
         self.quota_usage[node_name] = 0
 
-    def save(self):
+    def flush(self):
         self.logger.info(f"Web search session usage: {self.usage} (+{self.cache_hits} cache hits).")
         if self.cache:
-            self.cache.save()
+            self.cache.flush()
             self.logger.info("Web search cache flushed.")

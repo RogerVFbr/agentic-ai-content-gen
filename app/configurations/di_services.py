@@ -14,6 +14,7 @@ from crosscutting.service_provider import ServiceCollection
 from infrastructure.google_trends_client import GoogleTrendsClient
 from infrastructure.serper_dev_client import SerperDevClient
 from infrastructure.tavily_client import TavilyClient
+from repositories.used_topics_repository import UsedTopicsRepository
 from repositories.web_search_repository import WebSearchRepository
 from repositories.web_trends_repository import WebTrendsRepository
 
@@ -27,6 +28,7 @@ class AppDi:
         services.add_singleton(AppLogger)
         services.add_singleton(WebSearchRepository)
         services.add_singleton(WebTrendsRepository)
+        services.add_singleton(UsedTopicsRepository)
         services.add_singleton(GoogleTrendsClient)
         services.add_singleton(TavilyClient)
         services.add_singleton(SerperDevClient)

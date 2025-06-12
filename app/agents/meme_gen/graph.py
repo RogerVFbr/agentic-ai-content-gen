@@ -12,6 +12,7 @@ from agents.meme_gen.nodes.node_05_failure import MemeGenFailure
 from agents.meme_gen.nodes.node_06_success import MemeGenSuccess
 from agents.meme_gen.state import MemeGenState
 from crosscutting.logging.app_logger import AppLogger
+from repositories.used_topics_repository import UsedTopicsRepository
 
 
 class MemeGenGraphBuilder:
@@ -26,7 +27,8 @@ class MemeGenGraphBuilder:
                  editor: MemeGenEditor,
                  publisher: MemeGenPublisher,
                  failure: MemeGenFailure,
-                 success: MemeGenSuccess):
+                 success: MemeGenSuccess,
+                 used_topics_repository: UsedTopicsRepository):
 
         self.logger = logger
 
@@ -37,14 +39,15 @@ class MemeGenGraphBuilder:
         self.publisher = publisher
         self.failure = failure
         self.success = success
+        self.used_topics_repository = used_topics_repository
 
         self.conn = None
         self.sql_memory = None
 
         self.memory_file = os.path.join(os.path.dirname(__file__), "persistence", self.MEMORY_FILE)
-
     async def initialize(self):
-        await self._initialize_checkpointer()
+        # await self._initialize_checkpointer()
+        await self.used_topics_repository.load()
         self.researcher.initialize()
         self.validator.initialize()
         self.editor.initialize()
@@ -102,7 +105,8 @@ class MemeGenGraphBuilder:
             }
         )
 
-        graph = builder.compile(checkpointer=self.sql_memory)
+        # graph = builder.compile(checkpointer=self.sql_memory)
+        graph = builder.compile()
         self._save_graph_image(graph)
         return graph
 
@@ -134,4 +138,5 @@ class MemeGenGraphBuilder:
             await self.conn.close()
             self.conn = None
             self.logger.info("Checkpointer database connection terminated.")
+        await self.used_topics_repository.flush()
         self.researcher.terminate()

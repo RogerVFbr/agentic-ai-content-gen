@@ -124,7 +124,7 @@ class TestWebSearchRepository:
         repository.cache_hits = 3
 
         # Act: Save the repository state
-        repository.save()
+        repository.flush()
 
         # Assert: Verify the logger calls and cache save
         mock_dependencies["logger"].info.assert_any_call("Web search session usage: 10 (+3 cache hits).")

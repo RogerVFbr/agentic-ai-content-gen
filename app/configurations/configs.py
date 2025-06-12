@@ -8,6 +8,10 @@ class WebSearchClient(Enum):
     Tavily = "Tavily"
     SerperDev = "SerperDev"
 
+class UsedTopics(BaseModel):
+    cache_path: str
+    cache_ttl_hours: int
+
 class WebSearch(BaseModel):
     client: WebSearchClient = WebSearchClient.Tavily
     cache_path: str
@@ -19,6 +23,7 @@ class Flags(BaseModel):
     feature_y: bool
 
 class Configs(BaseModel):
+    used_topics: UsedTopics
     web_search: WebSearch
     flags: Flags
     remote_credentials: Dict[str, str]
