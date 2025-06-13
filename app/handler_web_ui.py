@@ -1,0 +1,14 @@
+from configurations.configuration_module import ConfigurationModule
+from configurations.di_services import AppDi
+from controllers.web_ui import MemeGenWebUi
+
+
+module = ConfigurationModule()
+services = AppDi.get_service_collection()
+if module.initialize(services):
+    web_ui = module.service_provider.get_service(MemeGenWebUi)
+else:
+    raise Exception("Failed to initialize configuration module.")
+
+if __name__ == "__main__":
+    web_ui.run()

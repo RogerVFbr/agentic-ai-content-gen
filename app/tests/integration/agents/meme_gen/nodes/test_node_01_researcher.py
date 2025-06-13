@@ -38,12 +38,12 @@ class TestMemeGenTrendResearcher:
         assert final_state.trend_research.secondary_topic == "birthday party" or final_state.trend_research.secondary_topic == "mountain hike"
         assert final_state.trend_research.primary_topic != final_state.trend_research.secondary_topic
         assert final_state.trend_research.search_tool_call_status
-        assert len(final_state.trend_research.search_tool_call_reason) > 0
-        assert len(final_state.trend_research.combined_joke) > 0
-        assert len(final_state.trend_research.primary_topic_reason) > 0
-        assert len(final_state.trend_research.secondary_topic_reason) > 0
-        assert len(final_state.trend_research.primary_topic_facts) > 0
-        assert len(final_state.trend_research.secondary_topic_facts) > 0
+        assert final_state.trend_research.search_tool_call_reason
+        assert final_state.trend_research.combined_joke
+        assert final_state.trend_research.primary_topic_reason
+        assert final_state.trend_research.secondary_topic_reason
+        assert final_state.trend_research.primary_topic_facts
+        assert final_state.trend_research.secondary_topic_facts
         assert len(final_state.trend_research.full_topics_list) == len(api_results)
 
     @staticmethod

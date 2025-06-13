@@ -6,7 +6,6 @@ from configurations.configuration_module import ConfigurationModule
 from tests.mock_input import MockInput
 
 
-worker = None
 module = ConfigurationModule()
 services = AppDi.get_service_collection()
 if module.initialize(services):

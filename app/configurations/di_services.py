@@ -8,6 +8,7 @@ from agents.meme_gen.nodes.node_04_publisher import MemeGenPublisher
 from agents.meme_gen.nodes.node_05_failure import MemeGenFailure
 from agents.meme_gen.nodes.node_06_success import MemeGenSuccess
 from controllers.controller import MemeGenController
+from controllers.web_ui import MemeGenWebUi
 from controllers.worker import MemeGenWorker
 from crosscutting.logging.app_logger import AppLogger
 from crosscutting.service_provider import ServiceCollection
@@ -33,6 +34,7 @@ class AppDi:
         services.add_singleton(TavilyClient)
         services.add_singleton(SerperDevClient)
 
+        services.add_singleton(MemeGenWebUi)
         services.add_singleton(MemeGenWorker)
         services.add_singleton(MemeGenController)
         services.add_singleton(MemeGenAgent)
