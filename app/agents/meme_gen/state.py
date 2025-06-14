@@ -3,10 +3,10 @@ from typing import List, Set, Optional
 from pydantic import BaseModel, Field
 
 
-class TrendResearch(BaseModel):
+class Research(BaseModel):
     """Final result of the trend research"""
-    search_tool_call_status: bool = Field(description = "Whether the search tool was called successfully or not")
-    search_tool_call_reason: str = Field(description = "Reason why or why not you called the search tool. Give all possible details. Include eny error logs.")
+    tool_call_status: bool = Field(description ="Whether the search tool was called successfully or not")
+    tool_call_reason: str = Field(description ="Reason why or why not you called the search tool. Give all possible details. Include eny error logs.")
     combined_joke: str = Field(description = "The joke you created by combining the topics.")
     primary_topic: str = Field(description = "The primary topic you would recommend from your search")
     primary_topic_reason: str = Field(description = "The reason why you would recommend the primary topic")
@@ -17,7 +17,7 @@ class TrendResearch(BaseModel):
     full_topics_list: List[str] = Field(description = "The list of topics originally retrieved from Google Trends only with their names")
 
 
-class TrendResearchValidationStatus(BaseModel):
+class Validation(BaseModel):
     """Final result of the trend research validation"""
     iterations: int
     primary_topic: str = Field(description = "The primary topic exactly how you received it.")
@@ -28,14 +28,15 @@ class TrendResearchValidationStatus(BaseModel):
     secondary_topic_reason: str = Field(description ="Justify your validation conclusion for the secondary topic. Give all possible details. Include any error logs.")
 
 
-class TrendResearchEditor(BaseModel):
+class Edition(BaseModel):
     """Final result of the meme creation"""
     meme_type: str = Field(description = "The meme type you chosen.")
     prompt: str = Field(description = "The final image generation prompt you created.")
+    image_url: str = None
 
 
 class MemeGenState(BaseModel):
     prior_topics: Set[str] = set()
-    trend_research: Optional[TrendResearch] = None
-    trend_research_validation: Optional[TrendResearchValidationStatus] = None
-    editor: Optional[TrendResearchEditor] = None
+    research: Optional[Research] = None
+    validation: Optional[Validation] = None
+    editor: Optional[Edition] = None

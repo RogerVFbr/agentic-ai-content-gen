@@ -28,15 +28,6 @@ class UsedTopicsRepository:
         await self._prune()
         return [topic.name for topic in self.topics]
 
-    async def add_topic(self, name: str):
-        """Add a new topic or update the timestamp if it already exists."""
-        await self._prune()
-        for topic in self.topics:
-            if topic.name == name:
-                topic.timestamp = datetime.now(timezone.utc)
-                return
-        self.topics.append(UsedTopic(name=name, timestamp=datetime.now(timezone.utc)))
-
     async def add_topics_batch(self, topics: List[str] | set[str]):
         """Add multiple topics or update their timestamps if they already exist."""
         await self._prune()

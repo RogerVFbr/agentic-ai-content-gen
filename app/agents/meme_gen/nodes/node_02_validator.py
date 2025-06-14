@@ -5,7 +5,7 @@ from langchain_core.prompts import PromptTemplate
 from langgraph.prebuilt import create_react_agent
 
 from agents.meme_gen.nodes.node_base import MemeGenBase
-from agents.meme_gen.state import MemeGenState, TrendResearchValidationStatus
+from agents.meme_gen.state import MemeGenState, Validation
 from crosscutting.logging.app_logger import AppLogger
 from repositories.web_search_repository import WebSearchRepository
 
@@ -22,83 +22,83 @@ class MemeGenTrendValidator(MemeGenBase):
 
         super().__init__(logger)
 
-        self.logger = logger
-        self.web_search_repository = web_search_repository
+        self._logger = logger
+        self._web_search_repository = web_search_repository
 
-        self.system_prompt = None
-        self.user_prompt = None
-        self.agent = None
+        self._user_prompt = None
+        self._agent = None
 
-        self.prompts_file = os.path.join(os.path.dirname(__file__), self.PROMPTS_FILE)
+        self._prompts_file = os.path.join(os.path.dirname(__file__), self.PROMPTS_FILE)
 
     def initialize(self):
-        prompts = self.load_prompts(self.prompts_file)["validator"]
+        prompts = self.load_prompts(self._prompts_file)["validator"]
 
-        self.system_prompt = prompts["system"]
-
-        self.user_prompt = PromptTemplate(
+        self._user_prompt = PromptTemplate(
             input_variables=["time_now", "research"],
-            template=prompts["user"])
+            template=prompts["user"]
+        )
 
-        self.agent = create_react_agent(
+        self._agent = create_react_agent(
             model=self.get_llm(),
-            prompt=self.system_prompt,
-            response_format=TrendResearchValidationStatus,
+            prompt=prompts["system"],
+            response_format=Validation,
             tools=[self._search_web],
-            debug=False)
+            debug=False
+        )
 
     @AppLogger.timeit()
     async def run(self, state: MemeGenState):
-        self.logger.highlight_2(f"Starting {self.NODE_NAME} ...")
-        self.web_search_repository.reset_quota(self.NODE_NAME)
+        self._logger.highlight_2(f"Starting {self.NODE_NAME} ...")
+        self._web_search_repository.reset_quota(self.NODE_NAME)
         prompt = self._build_prompt(state)
 
         response = None
-        async for step in self.agent.astream(prompt):
+        async for step in self._agent.astream(prompt):
             await self.log_progress(step)
             response = step
 
         state = self._update_state(state, response)
-        self.logger.info("Completed.", data=state.trend_research_validation.__dict__)
+        self._logger.info("Completed.", data=state.validation.__dict__)
         return state
 
     def _build_prompt(self, state: MemeGenState):
-        research = state.trend_research.__dict__.copy()
-        del research['search_tool_call_status']
-        del research['search_tool_call_reason']
+        research = state.research.__dict__.copy()
+        del research['tool_call_status']
+        del research['tool_call_reason']
         del research['full_topics_list']
         research = json.dumps(research)
 
-        return self.get_user_message(self.user_prompt.template.format(
+        return self.get_user_message(self._user_prompt.template.format(
             time_now=self.time_now(),
-            research=research))
+            research=research)
+        )
 
     async def _search_web(self, query: str):
         """Executes searches on the web"""
-        return await self.web_search_repository.search(self.NODE_NAME, query)
+        return await self._web_search_repository.search(self.NODE_NAME, query)
 
     def _update_state(self, state: MemeGenState, response):
-        orig_validation = copy.deepcopy(state.trend_research_validation) if state.trend_research_validation else None
-        state.trend_research_validation = self.get_structured_response(response)
+        orig_validation = copy.deepcopy(state.validation) if state.validation else None
+        state.validation = self.get_structured_response(response)
 
-        if state.trend_research_validation.primary_topic_status and not state.trend_research_validation.secondary_topic_status:
-            state.prior_topics.remove(state.trend_research.primary_topic)
-        elif not state.trend_research_validation.primary_topic_status and state.trend_research_validation.secondary_topic_status:
-            state.prior_topics.remove(state.trend_research.secondary_topic)
+        if state.validation.primary_topic_status and not state.validation.secondary_topic_status:
+            state.prior_topics.remove(state.research.primary_topic)
+        elif not state.validation.primary_topic_status and state.validation.secondary_topic_status:
+            state.prior_topics.remove(state.research.secondary_topic)
 
-        state.trend_research_validation.iterations = orig_validation.iterations + 1 if orig_validation else 1
+        state.validation.iterations = orig_validation.iterations + 1 if orig_validation else 1
 
         return state
 
     def flow_condition(self, state: MemeGenState) -> str:
-        primary_status = state.trend_research_validation.primary_topic_status
-        secondary_status = state.trend_research_validation.secondary_topic_status
+        primary_status = state.validation.primary_topic_status
+        secondary_status = state.validation.secondary_topic_status
 
         if primary_status and secondary_status:
             return "editor"
 
-        if state.trend_research_validation.iterations >= 4:
-            self.logger.warn("Research and compliance teams could not get to an agreement.")
+        if state.validation.iterations >= 4:
+            self._logger.warn("Research and compliance teams could not get to an agreement.")
             return "end"
 
         return "researcher"

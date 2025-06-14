@@ -14,7 +14,7 @@ class TestWebSearchRepository:
         configs.web_search.cache_path = "/mock/cache/path"
         configs.web_search.cache_ttl_minutes = 60
         configs.web_search.quota_per_node = 5
-        configs.web_search.client = WebSearchClient.Tavily
+        configs.web_search._client = WebSearchClient.Tavily
         return {
             "logger": MagicMock(),
             "configs": configs,

@@ -1,7 +1,7 @@
 import pytest
 
 from agents.meme_gen.nodes.node_03_editor import MemeGenEditor
-from agents.meme_gen.state import MemeGenState, TrendResearch, TrendResearchValidationStatus
+from agents.meme_gen.state import MemeGenState, Research, Validation
 from integration.configuration_module_factory import ConfigurationModuleFactory
 
 
@@ -17,22 +17,22 @@ class TestMemegenEditor:
     async def test_run(self, node: MemeGenEditor):
         # Arrange
         state = MemeGenState()
-        state.trend_research = self._get_research()
-        state.trend_research_validation = self._get_validation()
+        state.research = self._get_research()
+        state.validation = self._get_validation()
 
         # Act
         final_state = await node.run(state)
 
         # Assert
-        assert final_state.editor is not None
+        assert final_state.editor
         assert final_state.editor.meme_type
         assert final_state.editor.prompt
 
     @staticmethod
     def _get_research():
-        return TrendResearch(**{
-            "search_tool_call_status": True,
-            "search_tool_call_reason": "Successfully retrieved funny facts related to the topics 'birthday party' and 'mountain hike'.",
+        return Research(**{
+            "tool_call_status": True,
+            "tool_call_reason": "Successfully retrieved funny facts related to the topics 'birthday party' and 'mountain hike'.",
             "combined_joke": "Why did the birthday cake go on a mountain hike? Because it wanted to blow out its candles at the peak and send its wishes to the gods—just like the Greeks! But it got lost and ended up sending a smoke signal to the parking lot instead!",
             "primary_topic": "birthday party",
             "primary_topic_reason": "Birthday parties are universally relatable and have a lot of humorous elements, such as cake, candles, and party mishaps.",
@@ -58,7 +58,7 @@ class TestMemegenEditor:
 
     @staticmethod
     def _get_validation():
-        return TrendResearchValidationStatus(**{
+        return Validation(**{
             "iterations": 1,
             "primary_topic": "birthday party",
             "primary_topic_status": True,

@@ -33,7 +33,7 @@ class TestMemeGenInitializer:
         final_state = await node.run(state)
 
         # Assert
-        assert final_state.trend_research is None
-        assert final_state.trend_research_validation is None
+        assert not final_state.research
+        assert not final_state.validation
         assert final_state.prior_topics == set(used_topics)
 

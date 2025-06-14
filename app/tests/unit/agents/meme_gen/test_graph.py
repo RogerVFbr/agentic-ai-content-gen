@@ -9,14 +9,14 @@ class TestMemeGenGraphBuilder:
     def mock_dependencies(self):
         return {
             "logger": MagicMock(),
-            "initializer": MagicMock(),
+            "initializer": AsyncMock(),
             "researcher": MagicMock(),
             "validator": MagicMock(),
             "editor": MagicMock(),
             "publisher": MagicMock(),
             "failure": MagicMock(),
             "success": MagicMock(),
-            "used_topics_repository": AsyncMock(),
+            "terminate": AsyncMock(),
         }
 
     @pytest.fixture
@@ -32,7 +32,7 @@ class TestMemeGenGraphBuilder:
         mock_dependencies["researcher"].initialize.assert_called_once()
         mock_dependencies["validator"].initialize.assert_called_once()
         mock_dependencies["editor"].initialize.assert_called_once()
-        mock_dependencies["used_topics_repository"].load.assert_awaited_once()
+        mock_dependencies["initializer"].initialize.assert_awaited_once()
 
     @pytest.mark.asyncio
     async def test_build(self, builder: MemeGenGraphBuilder, mock_dependencies):
@@ -46,8 +46,8 @@ class TestMemeGenGraphBuilder:
             await builder.build()
 
             # Assert: Verify that nodes, edges, and conditional edges are added, and the graph image is saved
-            assert mock_builder.add_node.call_count == 7
-            assert mock_builder.add_edge.call_count == 3
+            assert mock_builder.add_node.call_count == 8
+            assert mock_builder.add_edge.call_count == 4
             assert mock_builder.add_conditional_edges.call_count == 4
             mock_save_image.assert_called_once()
 
@@ -71,6 +71,5 @@ class TestMemeGenGraphBuilder:
         # Act: Call the terminate method
         await builder.terminate()
         
-        # Assert: Verify that the connection is committed, closed, and the logger records the termination
-        mock_dependencies["researcher"].terminate.assert_called_once()
-        mock_dependencies["used_topics_repository"].flush.assert_awaited_once()
+        # Assert: Verify termination
+        mock_dependencies["terminate"].terminate.assert_awaited_once()

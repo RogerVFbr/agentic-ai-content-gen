@@ -1,7 +1,7 @@
 import pytest
 
 from agents.meme_gen.nodes.node_02_validator import MemeGenTrendValidator
-from agents.meme_gen.state import MemeGenState, TrendResearch
+from agents.meme_gen.state import MemeGenState, Research
 from integration.configuration_module_factory import ConfigurationModuleFactory
 
 
@@ -17,45 +17,45 @@ class TestMemeGenTrendValidator:
     async def test_run_valid_trends(self, node: MemeGenTrendValidator):
         # Arrange
         state = MemeGenState()
-        state.trend_research = self._get_valid_trends()
-        state.trend_research_validation = None
+        state.research = self._get_valid_trends()
+        state.validation = None
 
         # Act
         final_state = await node.run(state)
 
         # Assert
-        assert final_state.trend_research_validation is not None
-        assert final_state.trend_research_validation.primary_topic_status
-        assert final_state.trend_research_validation.primary_topic == "birthday party"
-        assert final_state.trend_research_validation.primary_topic_reason
-        assert final_state.trend_research_validation.secondary_topic_status
-        assert final_state.trend_research_validation.secondary_topic == "mountain hike"
-        assert final_state.trend_research_validation.secondary_topic_reason
+        assert final_state.validation
+        assert final_state.validation.primary_topic_status
+        assert final_state.validation.primary_topic == "birthday party"
+        assert final_state.validation.primary_topic_reason
+        assert final_state.validation.secondary_topic_status
+        assert final_state.validation.secondary_topic == "mountain hike"
+        assert final_state.validation.secondary_topic_reason
 
     @pytest.mark.asyncio
     async def test_run_invalid_trends(self, node: MemeGenTrendValidator):
         # Arrange
         state = MemeGenState()
-        state.trend_research = self._get_invalid_trends()
-        state.trend_research_validation = None
+        state.research = self._get_invalid_trends()
+        state.validation = None
 
         # Act
         final_state = await node.run(state)
 
         # Assert
-        assert final_state.trend_research_validation is not None
-        assert not final_state.trend_research_validation.primary_topic_status
-        assert final_state.trend_research_validation.primary_topic == "afghanistan war"
-        assert final_state.trend_research_validation.primary_topic_reason
-        assert not final_state.trend_research_validation.secondary_topic_status
-        assert final_state.trend_research_validation.secondary_topic == "covid 19"
-        assert final_state.trend_research_validation.secondary_topic_reason
+        assert final_state.validation
+        assert not final_state.validation.primary_topic_status
+        assert final_state.validation.primary_topic == "afghanistan war"
+        assert final_state.validation.primary_topic_reason
+        assert not final_state.validation.secondary_topic_status
+        assert final_state.validation.secondary_topic == "covid 19"
+        assert final_state.validation.secondary_topic_reason
 
     @staticmethod
     def _get_valid_trends():
-        return TrendResearch(**{
-            "search_tool_call_status": True,
-            "search_tool_call_reason": "Successfully retrieved funny facts related to the topics 'birthday party' and 'mountain hike'.",
+        return Research(**{
+            "tool_call_status": True,
+            "tool_call_reason": "Successfully retrieved funny facts related to the topics 'birthday party' and 'mountain hike'.",
             "combined_joke": "Why did the birthday cake go on a mountain hike? Because it wanted to blow out its candles at the peak and send its wishes to the gods—just like the Greeks! But it got lost and ended up sending a smoke signal to the parking lot instead!",
             "primary_topic": "birthday party",
             "primary_topic_reason": "Birthday parties are universally relatable and have a lot of humorous elements, such as cake, candles, and party mishaps.",
@@ -81,9 +81,9 @@ class TestMemeGenTrendValidator:
 
     @staticmethod
     def _get_invalid_trends():
-        return TrendResearch(**{
-            "search_tool_call_status": True,
-            "search_tool_call_reason": "Successfully retrieved funny facts related to the topics.",
+        return Research(**{
+            "tool_call_status": True,
+            "tool_call_reason": "Successfully retrieved funny facts related to the topics.",
             "combined_joke": "Why did covid erupt in the afghanistan war? Because it got a cold.",
             "primary_topic": "afghanistan war",
             "primary_topic_reason": "Afghanistan war is a topic suitable for a meme.",
