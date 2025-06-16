@@ -12,5 +12,5 @@ class MemeGenSuccess:
         self._logger = logger
 
     async def run(self, state: MemeGenState):
-        self._logger.info("Agent completed successfully.")
+        self._logger.info("Agent successfully run.")
         return state

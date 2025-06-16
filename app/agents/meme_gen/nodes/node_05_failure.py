@@ -12,5 +12,5 @@ class MemeGenFailure:
         self._logger = logger
 
     async def run(self, state: MemeGenState):
-        self._logger.error("Agent failed to complete successfully.")
+        self._logger.error("Agent run failed.")
         return state

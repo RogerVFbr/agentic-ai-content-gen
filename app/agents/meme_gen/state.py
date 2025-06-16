@@ -30,9 +30,12 @@ class Validation(BaseModel):
 
 class Edition(BaseModel):
     """Final result of the meme creation"""
-    meme_type: str = Field(description = "The meme type you chosen.")
-    prompt: str = Field(description = "The final image generation prompt you created.")
+    # text_setup: str = Field(description = "The setup part of the joke.")
+    # text_punchline: str = Field(description = "The punchline part of the joke.")
+    style: str = Field(description = "The meme style chosen.")
+    prompt: str = Field(description = "The image generation prompt.")
     image_url: str = None
+    image_id: str = None
 
 
 class MemeGenState(BaseModel):

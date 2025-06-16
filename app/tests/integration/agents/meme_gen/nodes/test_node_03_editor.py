@@ -1,32 +1,47 @@
+from unittest.mock import AsyncMock
+
+from typing import Dict, Type, Any
+
 import pytest
 
 from agents.meme_gen.nodes.node_03_editor import MemeGenEditor
 from agents.meme_gen.state import MemeGenState, Research, Validation
 from integration.configuration_module_factory import ConfigurationModuleFactory
+from repositories.image_repository import ImageRepository
 
 
 class TestMemegenEditor:
 
     @pytest.fixture
-    def node(self) -> MemeGenEditor:
-        editor = ConfigurationModuleFactory.build(MemeGenEditor)
+    def mocks(self) -> Dict[Type[Any], Any]:
+        return {
+            ImageRepository: AsyncMock()
+        }
+
+    @pytest.fixture
+    def node(self, mocks: Dict[Type[Any], Any]) -> MemeGenEditor:
+        editor = ConfigurationModuleFactory.build(MemeGenEditor, mocks)
         editor.initialize()
         return editor
 
     @pytest.mark.asyncio
-    async def test_run(self, node: MemeGenEditor):
+    async def test_run(self, node: MemeGenEditor, mocks: Dict[Type[Any], Any]):
         # Arrange
         state = MemeGenState()
         state.research = self._get_research()
         state.validation = self._get_validation()
+        generation_result = ("image_url", "image_id")
+        mocks[ImageRepository].generate_advanced.return_value = generation_result
 
         # Act
         final_state = await node.run(state)
 
         # Assert
         assert final_state.editor
-        assert final_state.editor.meme_type
+        assert final_state.editor.style
         assert final_state.editor.prompt
+        assert final_state.editor.image_url == generation_result[0]
+        assert final_state.editor.image_id == generation_result[1]
 
     @staticmethod
     def _get_research():

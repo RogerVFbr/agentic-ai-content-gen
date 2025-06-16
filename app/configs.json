@@ -1,4 +1,9 @@
 {
+  "image_generation": {
+    "deliverables_path": "/agents/meme_gen/deliverables",
+    "assets_path": "/agents/meme_gen/assets",
+    "image_size": "1024x1792"
+  },
   "used_topics": {
     "cache_path": "/agents/meme_gen/persistence/used_topics_cache.pkl",
     "cache_ttl_hours": 72

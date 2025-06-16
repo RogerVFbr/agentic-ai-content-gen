@@ -18,7 +18,7 @@ class MemeGenTerminate:
         self._web_search_repository = web_search_repository
 
     async def run(self, state: MemeGenState):
-        self._logger.info("Terminating agent.")
+        self._logger.info("Wrapping up agent.")
         await self._used_topics_repository.add_topics_batch(state.prior_topics)
         return state
 

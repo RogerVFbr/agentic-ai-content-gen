@@ -6,7 +6,7 @@ from langgraph.prebuilt import create_react_agent
 from agents.meme_gen.nodes.node_base import MemeGenBase
 from agents.meme_gen.state import MemeGenState, Edition
 from crosscutting.logging.app_logger import AppLogger
-from repositories.image_generation_repository import ImageGenerationRepository
+from repositories.image_repository import ImageRepository
 
 
 class MemeGenEditor(MemeGenBase):
@@ -17,12 +17,12 @@ class MemeGenEditor(MemeGenBase):
 
     def __init__(self,
                  logger: AppLogger,
-                 image_generation_repository: ImageGenerationRepository):
+                 image_repository: ImageRepository):
 
         super().__init__(logger)
 
         self._logger = logger
-        self._image_generation_repository = image_generation_repository
+        self._image_repository = image_repository
 
         self._user_prompt = None
         self._agent = None
@@ -63,8 +63,7 @@ class MemeGenEditor(MemeGenBase):
             await self.log_progress(step)
             response = step
 
-        state = self._update_state(state, response)
-        state.editor.image_url = await self._image_generation_repository.generate(state.editor.prompt)
+        state = await self._update_state(state, response)
         self._logger.info(f"Completed.", data=state.editor.__dict__)
         return state
 
@@ -79,8 +78,13 @@ class MemeGenEditor(MemeGenBase):
             secondary_topic_compliance=state.validation.secondary_topic_reason
         )
 
-    def _update_state(self, state: MemeGenState, response):
+    async def _update_state(self, state: MemeGenState, response):
         state.editor = self.get_structured_response(response)
+
+        image_url, image_id = await self._image_repository.generate_advanced(state.editor.prompt)
+        state.editor.image_url = image_url
+        state.editor.image_id = image_id
+
         return state
 
     def flow_condition(self, state: MemeGenState) -> str:

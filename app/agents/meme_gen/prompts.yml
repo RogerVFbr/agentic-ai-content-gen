@@ -86,21 +86,21 @@ editor:
     Example 1: Waking Up & Productivity
     
     "A cartoon of a person sitting at a desk in pajamas during the day, surrounded by coffee cups and a phone showing 
-    meme apps. The person looks guilty and amused. Add text overlay: '[WAKES UP EARLY TO BE PRODUCTIVE]' at the top, and 
-    '[SPENDS 3 HOURS SCROLLING MEMES ABOUT PRODUCTIVITY]' at the bottom. Use bold white Impact font with a black outline, 
+    meme apps. The person looks guilty and amused. Add text overlay: 'WAKES UP EARLY TO BE PRODUCTIVE' at the top, and 
+    'SPENDS 3 HOURS SCROLLING MEMES ABOUT PRODUCTIVITY' at the bottom. Use bold white Impact font with a black outline, 
     all caps."
     
     Example 2: AI & Jobs Cuts
     
     "A surreal cartoon dog with three noses, odd proportions, and an AI-generated art style. Background is a futuristic 
-    AI lab with monitors. Add text overlay: '[AI WILL REPLACE CREATIVE JOBS]' at the top and '[MEANWHILE, AI DRAWS A DOG WITH 
-    3 NOSES]' at the bottom. Use bold white Impact font with a black outline, all caps."
+    AI lab with monitors. Add text overlay: 'AI WILL REPLACE CREATIVE JOBS' at the top and 'MEANWHILE, AI DRAWS A DOG WITH 
+    3 NOSES' at the bottom. Use bold white Impact font with a black outline, all caps."
     
     Example 3: Side Projects & Changing the world
     
     "Split-scene cartoon showing two moments. On the left, a person excitedly brainstorming with a light bulb above 
     their head. On the right, the same person frustrated at their laptop with CSS code on screen. Add text overlay:
-    '[STARTED A SIDE PROJECT TO CHANGE THE WORLD]' at the top and '[NOW I'M DEBUGGING CSS]' at the bottom. Use bold white 
+    'STARTED A SIDE PROJECT TO CHANGE THE WORLD' at the top and 'NOW I'M DEBUGGING CSS' at the bottom. Use bold white 
     Impact font with a black outline, all caps."
     
     ---
@@ -113,20 +113,20 @@ editor:
     Example 1: Recursion & Hand Drawing
     
     "A cartoon developer standing in front of a chalkboard showing an endless loop of recursion diagrams. The person 
-    looks amazed and slightly horrified. Add text overlay: '[WHEN YOU FINALLY UNDERSTAND RECURSION… BECAUSE IT EXPLAINED ITSELF]' 
+    looks amazed and slightly horrified. Add text overlay: 'WHEN YOU FINALLY UNDERSTAND RECURSION… BECAUSE IT EXPLAINED ITSELF' 
     at the top. Use bold white Impact font with a black outline, all caps."
     
     Example 2: Forgetfulness & Hunger
 
     "A cartoon of a person standing in front of an open fridge, looking confused, with a blank stare. Bright light from 
-    the fridge illuminates the scene. Add text overlay: '[WHEN YOU OPEN THE FRIDGE AND FORGET WHY YOU CAME]' at the top. Use 
+    the fridge illuminates the scene. Add text overlay: 'WHEN YOU OPEN THE FRIDGE AND FORGET WHY YOU CAME' at the top. Use 
     bold white Impact font with a black outline, all caps."
     
     Example 3: Debugging & Religiousness
 
     "A cartoon of a software developer staring at a computer screen that says 'Success'. The person looks surprised and 
-    confused, surrounded by messy code. Add text overlay: '[WHEN YOU SEE YOUR CODE WORKING AND YOU'RE NOT SURE IF IT'S A 
-    MIRACLE OR A BUG]' at the top. Use bold white Impact font with a black outline, all caps."
+    confused, surrounded by messy code. Add text overlay: 'WHEN YOU SEE YOUR CODE WORKING AND YOU'RE NOT SURE IF IT'S A 
+    MIRACLE OR A BUG' at the top. Use bold white Impact font with a black outline, all caps."
         
     ---
     
@@ -139,23 +139,23 @@ editor:
 
     "A two-panel cartoon. Left panel shows a person confidently throwing coffee beans into a trash can, smiling and 
     determined. Right panel shows the same person wide-eyed, drinking espresso at midnight with a shaking hand. A clock 
-    behind them shows 12:00 AM. Add text overlay: '[ME: I'M DONE WITH CAFFEINE]' at the top of the left panel, and '[ALSO ME: 
-    DRINKING ESPRESSO AT MIDNIGHT]' at the top of the right panel. Use bold white Impact font with a black outline, all 
+    behind them shows 12:00 AM. Add text overlay: 'ME: I'M DONE WITH CAFFEINE' at the top of the left panel, and 'ALSO ME: 
+    DRINKING ESPRESSO AT MIDNIGHT' at the top of the right panel. Use bold white Impact font with a black outline, all 
     caps."
     
     Example 2: Sleep Habits & Useless scrolling
     
     "A two-panel cartoon. Left panel shows a person tucking into bed with a sleep mask, smiling peacefully. Right panel 
     shows the same person intensely watching a documentary about sea cucumbers on a laptop in a dark room with snacks 
-    around. Add text overlay: '[ME: TIME TO SLEEP EARLY]' at the top of the left panel, and '[ALSO ME: LEARNING THE MATING 
-    HABITS OF SEA CUCUMBERS AT 3AM]' at the top of the right panel. Use bold white Impact font with a black outline, all 
+    around. Add text overlay: 'ME: TIME TO SLEEP EARLY' at the top of the left panel, and 'ALSO ME: LEARNING THE MATING 
+    HABITS OF SEA CUCUMBERS AT 3AM' at the top of the right panel. Use bold white Impact font with a black outline, all 
     caps."
     
     Example 3: Coding Focus & Useless work
     
     "A two-panel cartoon. Left panel shows a focused person typing code confidently at a sleek computer setup. Right 
     panel shows the same person staring blankly at a file explorer, spending time renaming files like 'final_final_v2.css'. 
-    Add text overlay: '[ME: FOCUSED AND READY TO CODE]' at the top of the left panel, and '[ALSO ME: RENAMING FILES FOR 2 HOURS]' 
+    Add text overlay: 'ME: FOCUSED AND READY TO CODE' at the top of the left panel, and 'ALSO ME: RENAMING FILES FOR 2 HOURS' 
     at the top of the right panel. Use bold white Impact font with a black outline, all caps."
         
     ---
@@ -169,19 +169,19 @@ editor:
 
     "A cartoon image of a simple wooden door being opened by someone turning the knob. The same door has a giant, 
     unnecessary Rube Goldberg machine next to it with pulleys, marbles, and levers. Label the person opening the door as 
-    '[JUNIOR DEV]', the simple door as '[WORKING SOLUTION]', and the complex machine as '[MY OVERENGINEERED ARCHITECTURE]'. 
+    'JUNIOR DEV', the simple door as 'WORKING SOLUTION', and the complex machine as 'MY OVERENGINEERED ARCHITECTURE'. 
     Place labels clearly on each object using bold white Impact font with a black outline, all caps."
     
     Example 2: Project Priorities
     
     "A cartoon of a medieval castle under siege. The guards on top are arguing about which flag to raise. Label the 
-    attacking army as '[BUGS]', the castle as '[MY APP]', and the arguing guards as '[PRODUCT TEAM]'. Place labels directly 
+    attacking army as 'BUGS', the castle as 'MY APP', and the arguing guards as 'PRODUCT TEAM'. Place labels directly 
     over each character or object using bold white Impact font with a black outline, all caps."
     
     Example 3: Tech Debt
     
     "A cartoon of a person frantically taping over a massive crack in a dam with a small sticker. Label the dam as 
-    '[LEGACY CODEBASE]', the crack as '[CRITICAL BUG]', and the person as '[ME ON FRIDAY AT 4:59 PM]'. Add labels in bold 
+    'LEGACY CODEBASE', the crack as 'CRITICAL BUG', and the person as 'ME ON FRIDAY AT 4:59 PM'. Add labels in bold 
     white Impact font with a black outline, all caps, positioned directly on top of the objects they describe."
         
     ---
@@ -195,21 +195,21 @@ editor:
 
     “A two-panel cartoon. Left panel shows a gourmet dish styled like a Michelin-star meal with elegant plating. Right 
     panel shows the same dish attempted at home, messily piled on a plate with sauce spilled everywhere. Add text overlay: 
-    ‘[EXPECTATION]’ on the top of the left panel, and ‘[REALITY]’ on the top of the right panel. Use bold white Impact font 
+    'EXPECTATION' on the top of the left panel, and 'REALITY' on the top of the right panel. Use bold white Impact font 
     with a black outline, all caps.”
     
     Example 2: Starting a Fitness Journey
     
     “A two-panel cartoon. Left panel shows a superhero-like version of the person lifting weights triumphantly in a 
     glowing gym. Right panel shows the same person sweating and gasping after two squats, surrounded by snacks. Add text 
-    overlay: ‘[EXPECTATION]’ on the top of the left panel, and ‘[REALITY]’ on the top of the right panel. Use bold white Impact 
+    overlay: 'EXPECTATION' on the top of the left panel, and 'REALITY' on the top of the right panel. Use bold white Impact 
     font with a black outline, all caps.”
     
     Example 3: DIY Home Improvement
     
     “A two-panel cartoon. Left panel shows a Pinterest-perfect living room with beautiful lighting and furniture. Right 
     panel shows a crooked shelf, paint spilled on the floor, and someone tangled in string lights. Add text overlay: 
-    ‘[EXPECTATION]’ on the top of the left panel, and ‘[REALITY]’ on the top of the right panel. Use bold white Impact font 
+    'EXPECTATION' on the top of the left panel, and 'REALITY' on the top of the right panel. Use bold white Impact font 
     with a black outline, all caps.”
         
     ---
@@ -230,15 +230,15 @@ editor:
     
     “A two-panel cartoon. Left panel shows a dark, cluttered room with clothes and pizza boxes on the floor. Right 
     panel shows the same room clean, with candles lit, a houseplant thriving, and lo-fi music playing. Add text overlay: 
-    ‘[BEFORE CLEANING]’ on the left panel and ‘[AFTER CLEANING (AND EXISTENTIAL CLARITY)]’ on the right panel. Use bold 
+    'BEFORE CLEANING' on the left panel and 'AFTER CLEANING (AND EXISTENTIAL CLARITY)' on the right panel. Use bold 
     white Impact font with a black outline, all caps.”
     
     Example 3: Trying Meditation
     
     “A two-panel cartoon. Top panel shows a frantic person surrounded by buzzing thoughts like ‘what’s for dinner?’ 
     and ‘should I text them?’. Bottom panel shows the same person sitting calmly in lotus pose, eyes half open, with 
-    one thought floating above them: ‘still thinking, but politely.’ Add text overlay: ‘[BEFORE MEDITATION]’ on the top 
-    panel and ‘[AFTER MEDITATION (KIND OF)]’ on the bottom panel. Use bold white Impact font with a black outline, 
+    one thought floating above them: ‘still thinking, but politely.’ Add text overlay: 'BEFORE MEDITATION' on the top 
+    panel and 'AFTER MEDITATION (KIND OF)' on the bottom panel. Use bold white Impact font with a black outline, 
     all caps.”
         
     ---
@@ -251,21 +251,21 @@ editor:
     Example 1: Procrastination Logic
 
     “A chaotic cartoon image of a person riding a unicycle through a burning library while eating cereal. There’s a clock 
-    melting on the wall, and a banner above says ‘[DEADLINE TODAY]’. Add text overlay: ‘[CAN’T START YET — I NEED TO BE IN THE 
-    MOOD]’ floating in the middle in bold white Impact font with a black outline, all caps.”
+    melting on the wall, and a banner above says 'DEADLINE TODAY'. Add text overlay: 'CAN’T START YET — I NEED TO BE IN THE 
+    MOOD' floating in the middle in bold white Impact font with a black outline, all caps.”
     
     Example 2: Modern Life Choices
     
-    “A surreal scene of a person standing at a crossroads. One sign points to ‘[SLEEP]’, the other to ‘[WATCH 19 VIDEOS ON
-    HOW TO SLEEP BETTER]’. The person is walking toward the video path while on their phone watching one of those videos. 
-    Add text overlay: ‘[EVERY NIGHT IS A CHOICE — AND I ALWAYS PICK WRONG]’ floating across the top in bold white Impact font, 
+    “A surreal scene of a person standing at a crossroads. One sign points to 'SLEEP', the other to 'WATCH 19 VIDEOS ON
+    HOW TO SLEEP BETTER'. The person is walking toward the video path while on their phone watching one of those videos. 
+    Add text overlay: 'EVERY NIGHT IS A CHOICE — AND I ALWAYS PICK WRONG' floating across the top in bold white Impact font, 
     black outline, all caps.”
     
     Example 3: Existential Grocery Shopping
     
-    “A surreal grocery store where every product on the shelf is labeled ‘[LIFE CHOICES]’ and the cashier is a giant cat in 
-    a business suit. The person in line is holding only a single banana and sweating nervously. Add text overlay: ‘[I CAME IN 
-    FOR BREAD AND LEFT WITH REGRET]’ across the center of the image in bold white Impact font with black outline, all caps.”
+    “A surreal grocery store where every product on the shelf is labeled 'LIFE CHOICES' and the cashier is a giant cat in 
+    a business suit. The person in line is holding only a single banana and sweating nervously. Add text overlay: 'I CAME IN 
+    FOR BREAD AND LEFT WITH REGRET' across the center of the image in bold white Impact font with black outline, all caps.”
 
   user: |
     Time now: {time_now}. Do your work on the following data:
