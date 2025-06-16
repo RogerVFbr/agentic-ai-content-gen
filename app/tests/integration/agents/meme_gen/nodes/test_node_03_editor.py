@@ -31,7 +31,7 @@ class TestMemegenEditor:
         state.research = self._get_research()
         state.validation = self._get_validation()
         generation_result = ("image_url", "image_id")
-        mocks[ImageRepository].generate_advanced.return_value = generation_result
+        mocks[ImageRepository].generate_image.return_value = generation_result
 
         # Act
         final_state = await node.run(state)

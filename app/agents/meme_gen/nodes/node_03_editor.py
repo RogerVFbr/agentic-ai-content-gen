@@ -81,7 +81,7 @@ class MemeGenEditor(MemeGenBase):
     async def _update_state(self, state: MemeGenState, response):
         state.editor = self.get_structured_response(response)
 
-        image_url, image_id = await self._image_repository.generate_advanced(state.editor.prompt)
+        image_url, image_id = await self._image_repository.generate_image(state.editor.prompt)
         state.editor.image_url = image_url
         state.editor.image_id = image_id
 
