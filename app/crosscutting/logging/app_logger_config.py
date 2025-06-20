@@ -31,7 +31,7 @@ class AppLoggerConfigsParser:
     @classmethod
     def parse(cls) -> AppLoggerConfig:
         try:
-            load_dotenv(find_dotenv(usecwd=True))
+            load_dotenv(find_dotenv(usecwd=True), override=True)
             base_config_file, env_config_file = cls._find_files()
 
             if os.path.exists(base_config_file):
