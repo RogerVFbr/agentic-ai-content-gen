@@ -3,7 +3,6 @@
     "local_servers_log_level": "INFO"
   },
   "flags": {
-    "agent_log_verbose": false,
     "enable_publishing": false,
     "enable_image_generation": false
   }
