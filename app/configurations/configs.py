@@ -29,6 +29,7 @@ class Flags(BaseModel):
     agent_log_verbose: bool
     enable_publishing: bool
     enable_image_generation: bool
+    raise_exception_on_critical_failure: bool
 
 class Configs(BaseModel):
     mcp: Mcp

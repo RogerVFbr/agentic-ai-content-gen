@@ -6,10 +6,11 @@ from crosscutting.background_service.cancellation_token import CancellationToken
 
 
 class OneShotBackgroundService(ABC):
-    def __init__(self):
+    def __init__(self, raise_on_failure: bool = True):
         self._shutdown_event = None
         self._loop = None
         self._cancellation_token_source = None
+        self._raise_on_failure = raise_on_failure
 
     async def run(self, input=None):
         """Entrypoint to start and manage the full lifecycle."""
@@ -37,7 +38,7 @@ class OneShotBackgroundService(ABC):
                 pass
         else:
             shutdown_task.cancel()
-            if lifecycle_task.exception():
+            if lifecycle_task.exception() and self._raise_on_failure:
                 raise lifecycle_task.exception()
 
     def _register_signal_handlers(self):
