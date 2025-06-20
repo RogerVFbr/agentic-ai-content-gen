@@ -13,10 +13,10 @@ if module.initialize(services):
 else:
     raise Exception("Failed to initialize configuration module.")
 
-async def handler(event, context):
-    await worker.run(event)
+def handler(event, context):
+    asyncio.run(worker.run(event))
 
 
 if __name__ == "__main__":
     mock_input = MockInput.get_basic_research()
-    asyncio.run(handler(mock_input, None))
+    handler(mock_input, None)
