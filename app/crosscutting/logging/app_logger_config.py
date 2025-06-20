@@ -1,12 +1,9 @@
-import inspect
-
 import json
 import os
-from dotenv import load_dotenv
-
+from dotenv import load_dotenv, find_dotenv
+from enum import Enum
 from pydantic import BaseModel
 
-from enum import Enum
 
 class LogLevel(Enum):
     DEBUG = "DEBUG"
@@ -28,38 +25,20 @@ class AppLoggerConfig(BaseModel):
 class AppLoggerConfigsParser:
 
     ENVIRONMENT_ENV_VAR = 'LOGGER_ENV'
-    CONFIG_FILE = 'logger_configs.json'
+    CONFIG_FILE = 'configs_logger.json'
+    SEARCH_LEVELS = 10
 
     @classmethod
     def parse(cls) -> AppLoggerConfig:
         try:
-            current_dir = os.path.abspath(os.path.dirname(__file__))
+            load_dotenv(find_dotenv(usecwd=True))
+            base_config_file, env_config_file = cls._find_files()
 
-            for _ in range(10):
-                env_path = os.path.join(current_dir, ".env")
-                if os.path.exists(env_path):
-                    load_dotenv(env_path)
-                    break
-                current_dir = os.path.dirname(current_dir)
-
-            current_dir = os.path.abspath(os.path.dirname(__file__))
-            base_config_file = f'{os.getcwd()}/{cls.CONFIG_FILE}'
-
-            for _ in range(10):
-                env_path = os.path.join(current_dir, cls.CONFIG_FILE)
-                if os.path.exists(env_path):
-                    base_config_file = env_path
-                    break
-                current_dir = os.path.dirname(current_dir)
-
-            if not os.path.exists(base_config_file):
+            if os.path.exists(base_config_file):
+                with open(base_config_file, 'r') as file:
+                    config = json.load(file)
+            else:
                 return AppLoggerConfig()
-
-            with open(base_config_file, 'r') as file:
-                config = json.load(file)
-
-            env = os.getenv(cls.ENVIRONMENT_ENV_VAR)
-            env_config_file = base_config_file.split(".json")[0] + f".{env}.json"
 
             if os.path.exists(env_config_file):
                 with open(env_config_file, 'r') as file:
@@ -69,6 +48,24 @@ class AppLoggerConfigsParser:
             return AppLoggerConfig(**config)
         except Exception as _:
             return AppLoggerConfig()
+
+    @classmethod
+    def _find_files(cls) -> tuple[str, str]:
+        current_dir = os.path.abspath(os.path.dirname(__file__))
+        base_config_file = os.path.join(os.getcwd(), cls.CONFIG_FILE)
+
+        for _ in range(cls.SEARCH_LEVELS):
+            potential_path = os.path.join(current_dir, cls.CONFIG_FILE)
+            if os.path.exists(potential_path):
+                base_config_file = potential_path
+                break
+            current_dir = os.path.dirname(current_dir)
+
+        env = os.getenv(cls.ENVIRONMENT_ENV_VAR)
+        base_name, extension = os.path.splitext(base_config_file)
+        env_config_file = f"{base_name}.{env}{extension}"
+
+        return base_config_file, env_config_file
 
     @classmethod
     def _merge_configs(cls, base: dict, override: dict) -> dict:
