@@ -6,24 +6,15 @@ requires-python = ">=3.11"
 dependencies = [
     "aiosqlite>=0.21.0",
     "ansi2html>=1.9.2",
-    "anthropic>=0.49.0",
-    "autogen-agentchat>=0.4.9.2",
-    "autogen-ext[grpc,mcp,ollama,openai]>=0.4.9.2",
-    "bs4>=0.0.2",
-    "crewai>=0.118.0",
+    "boto3>=1.38.40",
     "faiss-cpu>=1.11.0",
     "gradio>=5.22.0",
     "httpx>=0.28.1",
-    "imgurpython>=1.1.7",
-    "ipywidgets>=8.1.5",
-    "langchain-anthropic>=0.3.10",
     "langchain-community>=0.3.20",
     "langchain-experimental>=0.3.4",
     "langchain-mcp-adapters>=0.1.7",
-    "langchain-ollama>=0.3.3",
     "langchain-openai>=0.3.9",
     "langgraph>=0.3.18",
-    "langgraph-checkpoint-sqlite>=2.0.6",
     "langsmith>=0.3.18",
     "lxml>=5.3.1",
     "mcp-server-fetch>=2025.1.17",
@@ -31,12 +22,8 @@ dependencies = [
     "openai>=1.68.2",
     "openai-agents>=0.0.6",
     "pillow>=11.2.1",
-    "playwright>=1.51.0",
     "plotly>=6.0.1",
-    "polygon-api-client>=1.14.5",
     "psutil>=7.0.0",
-    "pypdf>=5.4.0",
-    "pypdf2>=3.0.1",
     "pytest>=8.3.5",
     "pytest-asyncio>=1.0.0",
     "pytest-xdist>=3.7.0",
@@ -44,8 +31,6 @@ dependencies = [
     "python-hue-v2>=2.2.1",
     "python-levenshtein>=0.27.1",
     "requests>=2.32.3",
-    "semantic-kernel>=1.25.0",
-    "sendgrid>=6.11.0",
     "sentence-transformers>=4.1.0",
     "setuptools>=78.1.0",
     "smithery>=0.1.0",
@@ -55,19 +40,3 @@ dependencies = [
     "wikipedia>=1.4.0",
 ]
 
-[project.scripts]
-coder = "agent.main:run"
-run_crew = "agent.main:run"
-train = "agent.main:train"
-replay = "agent.main:replay"
-test = "agent.main:test"
-
-[tool.hatch.build.targets.wheel]
-packages = ["agent"]
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.crewai]
-type = "crew"
