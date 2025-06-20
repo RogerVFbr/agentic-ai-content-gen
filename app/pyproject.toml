@@ -8,6 +8,7 @@ dependencies = [
     "ansi2html>=1.9.2",
     "boto3>=1.38.40",
     "faiss-cpu>=1.11.0",
+    "fastmcp>=2.8.1",
     "gradio>=5.22.0",
     "httpx>=0.28.1",
     "langchain-community>=0.3.20",
