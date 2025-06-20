@@ -38,11 +38,6 @@ jobs:
       - name: Terraform Plan
         run: terraform plan -var 'environment=develop' -var "bucket_name=$MODELS_BUCKET_NAME" -input=false
 
-#      - name: Create Pull Request to Develop
-#        uses: repo-sync/pull-request@v2
-#        with:
-#          destination_branch: develop
-
       - name: Create Pull Request to Develop
         run: |
           gh pr create --base develop --title "Automated PR to Develop" --body "This PR was created automatically by GitHub Actions."

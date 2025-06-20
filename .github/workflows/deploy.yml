@@ -17,6 +17,7 @@ jobs:
       APPLICATION_NAME: memegen
       MODELS_BUCKET_NAME: fiap-ml-models-monorepo-bucket
       DOCKER_API_VERSION: 1.25
+      GH_TOKEN: ${{ github.token }}
 
     defaults:
       run:
@@ -60,8 +61,7 @@ jobs:
     - name: Terraform Apply
       run: terraform apply -auto-approve -input=false -var 'environment=${{ steps.extract_branch.outputs.branch }}' -var "bucket_name=$MODELS_BUCKET_NAME"
 
-    - name: Create Pull Request to Main
+    - name: Create Pull Request to Develop
       if: steps.extract_branch.outputs.branch == 'develop'
-      uses: repo-sync/pull-request@v2
-      with:
-        destination_branch: main
+      run: |
+        gh pr create --base develop --title "Automated PR to Develop" --body "This PR was created automatically by GitHub Actions."

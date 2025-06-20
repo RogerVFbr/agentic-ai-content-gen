@@ -6,7 +6,7 @@ resource "aws_kms_key" "memegen_key" {
 }
 
 resource "aws_kms_alias" "memegen_key" {
-  name = "alias/fiap-api-cmk-${var.environment}"
+  name = "alias/memegen-cmk-${var.environment}"
   target_key_id = aws_kms_key.memegen_key.key_id
 }
 
