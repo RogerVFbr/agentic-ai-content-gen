@@ -184,6 +184,20 @@ pytest
 
 ---
 
+## Docker
+   ```bash
+      uv lock
+   ```
+   ```bash
+      docker build -t memegen .
+   ```
+   ```bash
+      docker run -p 9000:8080 memegen
+   ```
+   ```bash
+      curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"payload":"hello world!"}'
+   ```
+
 ## License
 This project is licensed under the MIT License. See the `LICENSE` file for details.
 
