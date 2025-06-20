@@ -45,4 +45,4 @@ jobs:
 
       - name: Create Pull Request to Develop
         run: |
-          gh pr create --base develop --head ${{ github.ref_name }} --title "Automated PR to Develop" --body "This PR was created automatically by GitHub Actions."
+          gh pr create --base develop --title "Automated PR to Develop" --body "This PR was created automatically by GitHub Actions."
