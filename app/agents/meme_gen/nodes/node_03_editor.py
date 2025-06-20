@@ -5,6 +5,7 @@ from langgraph.prebuilt import create_react_agent
 
 from agents.meme_gen.nodes.node_base import MemeGenBase
 from agents.meme_gen.state import MemeGenState, Edition
+from configurations.configs import Configs
 from crosscutting.logging.app_logger import AppLogger
 from repositories.image_repository import ImageRepository
 
@@ -17,11 +18,13 @@ class MemeGenEditor(MemeGenBase):
 
     def __init__(self,
                  logger: AppLogger,
+                 configs: Configs,
                  image_repository: ImageRepository):
 
         super().__init__(logger)
 
         self._logger = logger
+        self._configs = configs
         self._image_repository = image_repository
 
         self._user_prompt = None
@@ -50,7 +53,7 @@ class MemeGenEditor(MemeGenBase):
             prompt=prompts["system"],
             response_format=Edition,
             tools=[],
-            debug=False
+            debug=self._configs.flags.agent_log_verbose
         )
 
     @AppLogger.timeit()

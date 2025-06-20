@@ -7,6 +7,7 @@ from langgraph.prebuilt import create_react_agent
 
 from agents.meme_gen.nodes.node_base import MemeGenBase
 from agents.meme_gen.state import MemeGenState, Publisher
+from configurations.configs import Configs
 from crosscutting.logging.app_logger import AppLogger
 
 
@@ -18,11 +19,13 @@ class MemeGenPublisher(MemeGenBase):
 
     def __init__(self,
                  logger: AppLogger,
+                 configs: Configs,
                  client: MultiServerMCPClient):
 
         super().__init__(logger)
 
         self._logger = logger
+        self._configs = configs
         self._mcp_client = client
 
         self._user_prompt = None
@@ -46,7 +49,7 @@ class MemeGenPublisher(MemeGenBase):
             prompt=prompts["system"],
             response_format=Publisher,
             tools=tools,
-            debug=False
+            debug=self._configs.flags.agent_log_verbose
         )
 
     @AppLogger.timeit()

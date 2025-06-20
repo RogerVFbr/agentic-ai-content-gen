@@ -4,6 +4,7 @@ from langgraph.prebuilt import create_react_agent
 
 from agents.meme_gen.nodes.node_base import MemeGenBase
 from agents.meme_gen.state import MemeGenState, Research
+from configurations.configs import Configs
 from crosscutting.logging.app_logger import AppLogger
 from repositories.web_search_repository import WebSearchRepository
 from repositories.web_trends_repository import WebTrendsRepository
@@ -17,12 +18,14 @@ class MemeGenTrendResearcher(MemeGenBase):
 
     def __init__(self,
                  logger: AppLogger,
+                 configs: Configs,
                  web_search_repository: WebSearchRepository,
                  web_trends_repository: WebTrendsRepository):
 
         super().__init__(logger)
 
         self._logger = logger
+        self._configs = configs
         self._web_trends_repository = web_trends_repository
         self._web_search_repository = web_search_repository
 
@@ -44,7 +47,7 @@ class MemeGenTrendResearcher(MemeGenBase):
             prompt=prompts["system"],
             response_format=Research,
             tools=[self._search_web],
-            debug=False
+            debug=self._configs.flags.agent_log_verbose
         )
 
     @AppLogger.timeit()

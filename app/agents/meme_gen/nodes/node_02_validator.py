@@ -6,6 +6,7 @@ from langgraph.prebuilt import create_react_agent
 
 from agents.meme_gen.nodes.node_base import MemeGenBase
 from agents.meme_gen.state import MemeGenState, Validation
+from configurations.configs import Configs
 from crosscutting.logging.app_logger import AppLogger
 from repositories.web_search_repository import WebSearchRepository
 
@@ -18,11 +19,13 @@ class MemeGenTrendValidator(MemeGenBase):
 
     def __init__(self,
                  logger: AppLogger,
+                 configs: Configs,
                  web_search_repository: WebSearchRepository):
 
         super().__init__(logger)
 
         self._logger = logger
+        self._configs = configs
         self._web_search_repository = web_search_repository
 
         self._user_prompt = None
@@ -43,7 +46,7 @@ class MemeGenTrendValidator(MemeGenBase):
             prompt=prompts["system"],
             response_format=Validation,
             tools=[self._search_web],
-            debug=False
+            debug=self._configs.flags.agent_log_verbose
         )
 
     @AppLogger.timeit()
