@@ -1,4 +1,7 @@
 {
+  "mcp": {
+    "local_servers_log_level": "WARNING"
+  },
   "image_generation": {
     "deliverables_path": "/agents/meme_gen/deliverables",
     "assets_path": "/agents/meme_gen/assets",
@@ -6,7 +9,7 @@
   },
   "used_topics": {
     "cache_path": "/agents/meme_gen/persistence/used_topics_cache.pkl",
-    "cache_ttl_hours": 72
+    "cache_ttl_hours": 24
   },
   "web_search": {
     "client": "Tavily",
@@ -19,6 +22,7 @@
   },
   "flags": {
     "agent_log_verbose": false,
-    "feature_y": false
+    "enable_publishing": true,
+    "enable_image_generation": true
   }
 }

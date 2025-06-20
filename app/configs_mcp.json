@@ -1,0 +1,7 @@
+{
+    "social_networks": {
+        "command": "python",
+        "args": ["${BASE_DIR}/mcp_servers/social_networks.py"],
+        "transport": "stdio"
+    }
+}

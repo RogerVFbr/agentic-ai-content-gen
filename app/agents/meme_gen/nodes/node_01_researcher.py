@@ -32,7 +32,7 @@ class MemeGenTrendResearcher(MemeGenBase):
         self._prompts_file = os.path.join(os.path.dirname(__file__), self.PROMPTS_FILE)
 
     def initialize(self):
-        prompts = self.load_prompts(self._prompts_file)["researcher"]
+        prompts = self.load_prompts(self._prompts_file, "researcher")
 
         self._user_prompt = PromptTemplate(
             input_variables=["time_now", "current_trends"],
@@ -54,7 +54,7 @@ class MemeGenTrendResearcher(MemeGenBase):
         prompt = await self._build_prompt(state)
 
         response = None
-        async for step in self._agent.astream(self.get_user_message(prompt)):
+        async for step in self._agent.astream(prompt):
             await self.log_progress(step)
             response = step
 
@@ -65,10 +65,12 @@ class MemeGenTrendResearcher(MemeGenBase):
     async def _build_prompt(self, state: MemeGenState):
         current_trends = await self._web_trends_repository.get_trending_now("US", sorted(list(state.prior_topics)), 10)
 
-        return self._user_prompt.format(
+        prompt = self._user_prompt.format(
             time_now=self.time_now(),
             current_trends=current_trends
         )
+
+        return self.get_user_message(prompt)
 
     async def _search_web(self, query: str):
         """Executes searches on the web"""

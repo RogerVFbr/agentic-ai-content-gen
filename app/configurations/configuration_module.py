@@ -1,6 +1,13 @@
+from pathlib import Path
+
+from typing import Dict
+
 import boto3
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
+import warnings
+warnings.warn = lambda *args, **kwargs: None
+
 
 from configurations.configs import Configs
 from configurations.configs_parser import ConfigsParser
@@ -13,14 +20,15 @@ class ConfigurationModule:
     REQUIRED_ENV_VARS = [
         "APP_ENV",
         "LOGGER_ENV",
-        "MODEL",
         "OPENAI_API_KEY",
         "SERPERDEV_API_KEY",
         "TAVILY_API_KEY",
         "LANGSMITH_TRACING",
         "LANGSMITH_ENDPOINT",
         "LANGSMITH_API_KEY",
-        "LANGSMITH_PROJECT"
+        "LANGSMITH_PROJECT",
+        "PYTHONWARNINGS",
+        "TOKENIZERS_PARALLELISM",
     ]
 
     def __init__(self):
@@ -32,10 +40,10 @@ class ConfigurationModule:
 
         try:
             self._load_env_vars()
-            configs = self._load_configs(service_collection)
-            self._override_env_vars(configs)
+            configs = self._load_configs()
+            self._override_env_vars(configs.remote_credentials)
             self._validate_env_vars()
-            self._build_di_container(service_collection)
+            self._build_service_provider(service_collection, configs)
         except Exception as e:
             AppLogger.critical(f"Unable to finish application initialization -> {type(e).__name__}: {e}", exception=e)
             return False
@@ -45,42 +53,40 @@ class ConfigurationModule:
 
     def _load_env_vars(self) -> None:
         try:
-            current_dir = os.path.abspath(os.path.dirname(__file__))
+            dotenv_path = find_dotenv(usecwd=True)
 
-            for _ in range(5):
-                env_path = os.path.join(current_dir, ".env")
-                if os.path.exists(env_path):
-                    load_dotenv(env_path)
-                    AppLogger.debug(f"'.env' File environment variables loaded. Path: '{env_path}'.")
-                    break
-                current_dir = os.path.dirname(current_dir)
+            if dotenv_path:
+                load_dotenv(dotenv_path, override=True)
+                AppLogger.debug(f"'.env' File environment variables loaded. Path: '{dotenv_path}'.")
 
-            if "APP_ENV" not in os.environ or len(os.environ["APP_ENV"]) == 0:
+            if not os.getenv("APP_ENV"):
                 raise ValueError(f"Missing required environment variable: 'APP_ENV'.")
+
+            AppLogger.debug(f"Application environment: '{os.getenv('APP_ENV')}'.")
 
         except Exception as e:
             AppLogger.error(f"Failed to load or verify environment variables: {e}")
             raise
 
-    def _load_configs(self, service_collection: ServiceCollection) -> Configs:
+    def _load_configs(self) -> Configs:
         try:
-            configs = ConfigsParser().parse()
-            service_collection.add_singleton(Configs, lambda sp: configs)
+            parser = ConfigsParser()
+            placeholders = {"BASE_DIR": Path(__file__).resolve().parent.parent}
+            configs: Configs = Configs(**parser.parse(config_file="configs.json", require_env_override=True))
+            configs.mcp.servers = parser.parse(config_file="configs_mcp.json", require_env_override=False, placeholders=placeholders)
             AppLogger.debug("Configs loaded.")
             return configs
         except Exception as e:
             AppLogger.error(f"Failed to load configs: {e}")
             raise
 
-    def _override_env_vars(self, configs: Configs) -> None:
-        """
-        Override environment variables with remote credentials if applicable.
-        """
+    def _override_env_vars(self, remote_credentials: Dict[str, str]) -> None:
         client = None
         overridden_values = []
+
         try:
-            for env_var, param_name in configs.remote_credentials.items():
-                if env_var in os.environ and os.environ[env_var]:
+            for env_var, param_name in remote_credentials.items():
+                if os.getenv(env_var):
                     continue
                 if client is None:
                     client = boto3.client('ssm')
@@ -97,7 +103,7 @@ class ConfigurationModule:
         missing_env_vars = []
 
         for key in self.REQUIRED_ENV_VARS:
-            if key not in os.environ or len(os.environ[key]) == 0:
+            if not os.getenv(key):
                 missing_env_vars.append(key)
 
         if missing_env_vars:
@@ -107,11 +113,9 @@ class ConfigurationModule:
 
         AppLogger.debug(f"Environment variables validated.")
 
-    def _build_di_container(self, service_collection: ServiceCollection) -> None:
-        """
-        Build the Dependency Injection container.
-        """
+    def _build_service_provider(self, service_collection: ServiceCollection, configs: Configs) -> None:
         try:
+            service_collection.add_singleton(Configs, lambda _: configs)
             self.service_provider = service_collection.build_service_provider()
             AppLogger.debug("DI container built.")
         except Exception as e:

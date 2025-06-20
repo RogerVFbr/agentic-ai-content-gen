@@ -1,14 +1,13 @@
+import faiss
+import numpy as np
 import os
 import pickle
-from datetime import datetime, timedelta, timezone
-from typing import List, Any
-
-from sentence_transformers import SentenceTransformer
-import faiss
-
 from dataclasses import dataclass
 from datetime import datetime
-import numpy as np
+from datetime import timedelta, timezone
+from sentence_transformers import SentenceTransformer
+from typing import List, Any
+
 
 @dataclass
 class CacheEntry:

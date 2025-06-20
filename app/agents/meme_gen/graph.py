@@ -41,6 +41,7 @@ class MemeGenGraphBuilder:
         self._researcher.initialize()
         self._validator.initialize()
         self._editor.initialize()
+        self._publisher.initialize()
 
     async def build(self):
         builder = StateGraph(MemeGenState)
@@ -85,6 +86,7 @@ class MemeGenGraphBuilder:
             self._editor.flow_condition,
             {
                 "publisher": MemeGenPublisher.NODE_NAME,
+                "researcher": MemeGenTrendResearcher.NODE_NAME,
                 "end": MemeGenFailure.NODE_NAME
             }
         )

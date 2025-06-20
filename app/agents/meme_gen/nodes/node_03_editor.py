@@ -30,7 +30,7 @@ class MemeGenEditor(MemeGenBase):
         self._prompts_file = os.path.join(os.path.dirname(__file__), self.PROMPTS_FILE)
 
     def initialize(self):
-        prompts = self.load_prompts(self._prompts_file)["editor"]
+        prompts = self.load_prompts(self._prompts_file, "editor")
 
         self._user_prompt = PromptTemplate(
             input_variables=[
@@ -59,7 +59,7 @@ class MemeGenEditor(MemeGenBase):
         prompt = await self._build_prompt(state)
 
         response = None
-        async for step in self._agent.astream(self.get_user_message(prompt)):
+        async for step in self._agent.astream(prompt):
             await self.log_progress(step)
             response = step
 
@@ -68,7 +68,7 @@ class MemeGenEditor(MemeGenBase):
         return state
 
     async def _build_prompt(self, state: MemeGenState):
-        return self._user_prompt.format(
+        prompt = self._user_prompt.format(
             time_now=self.time_now(),
             primary_topic_name=state.research.primary_topic,
             primary_topic_funny_facts=". ".join(state.research.primary_topic_facts),
@@ -77,6 +77,8 @@ class MemeGenEditor(MemeGenBase):
             secondary_topic_funny_facts=". ".join(state.research.secondary_topic_facts),
             secondary_topic_compliance=state.validation.secondary_topic_reason
         )
+
+        return self.get_user_message(prompt)
 
     async def _update_state(self, state: MemeGenState, response):
         state.editor = self.get_structured_response(response)
@@ -88,4 +90,8 @@ class MemeGenEditor(MemeGenBase):
         return state
 
     def flow_condition(self, state: MemeGenState) -> str:
-        return "publisher"
+        if state.editor.image_id:
+            return "publisher"
+        else:
+            self._logger.warn("Image generation process failed. Restarting research ...")
+            return "researcher"

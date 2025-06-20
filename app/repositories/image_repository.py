@@ -19,27 +19,41 @@ class ImageRepository:
         self._client = OpenAI()
 
     async def generate_image(self, prompt: str) -> tuple[str | None, Any]:
-        response = self._client.responses.create(
-            model="gpt-4.1-mini",
-            input=prompt,
-            tools=[{"type": "image_generation"}],
-        )
+        if not self._configs.flags.enable_image_generation:
+            self._logger.warn("Image generation is disabled by configuration. Returning default image id.")
+            return None, 'image_generation_disabled'
 
-        image_data = [
-            output.result
-            for output in response.output
-            if output.type == "image_generation_call"
-        ]
+        self._logger.debug(f"Generating image ...")
 
-        # Save the image locally with the current datetime as the filename
-        output_dir = os.path.join(os.path.dirname(__file__), f"..{self._configs.image_generation.deliverables_path}")
-        os.makedirs(output_dir, exist_ok=True)
-        current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_file = os.path.join(output_dir, f"{current_time}.png")
+        try:
+            response = self._client.responses.create(
+                model="gpt-4.1-mini",
+                input=prompt,
+                tools=[{"type": "image_generation"}],
+            )
 
-        if image_data:
-            image_base64 = image_data[0]
-            with open(output_file, "wb") as f:
-                f.write(base64.b64decode(image_base64))
+            self._logger.debug(f"Verifying image tool usage ...")
 
-        return None, current_time
+            image_data = [
+                output.result
+                for output in response.output
+                if output.type == "image_generation_call"
+            ]
+
+            output_dir = os.path.join(os.path.dirname(__file__), f"..{self._configs.image_generation.deliverables_path}")
+            os.makedirs(output_dir, exist_ok=True)
+            current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_file = os.path.join(output_dir, f"{current_time}.png")
+
+            if image_data:
+                self._logger.debug(f"Image data found. Saving ...")
+                image_base64 = image_data[0]
+                with open(output_file, "wb") as f:
+                    f.write(base64.b64decode(image_base64))
+            else:
+                raise ValueError("No image data found in the response.")
+
+            return None, current_time
+        except Exception as e:
+            self._logger.error(f"Error generating image: {e}", exception=e)
+            return None, None

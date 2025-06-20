@@ -30,12 +30,16 @@ class Validation(BaseModel):
 
 class Edition(BaseModel):
     """Final result of the meme creation"""
-    # text_setup: str = Field(description = "The setup part of the joke.")
-    # text_punchline: str = Field(description = "The punchline part of the joke.")
     style: str = Field(description = "The meme style chosen.")
     prompt: str = Field(description = "The image generation prompt.")
+    message: str = Field(description = "Short funny message to be used when publishing the meme to a social network.")
     image_url: str = None
     image_id: str = None
+
+
+class Publisher(BaseModel):
+    """Final result of the meme creation"""
+    status: bool = Field(description = "Whether publishing has occurred successfully.")
 
 
 class MemeGenState(BaseModel):
@@ -43,3 +47,4 @@ class MemeGenState(BaseModel):
     research: Optional[Research] = None
     validation: Optional[Validation] = None
     editor: Optional[Edition] = None
+    publisher: Optional[Publisher] = None

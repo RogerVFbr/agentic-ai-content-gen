@@ -15,11 +15,11 @@ class MemeGenBase:
     def __init__(self, logger: AppLogger):
         self.logger = logger
 
-    def load_prompts(self, file_path: str) -> dict:
+    def load_prompts(self, file_path: str, node: str) -> dict:
         if file_path not in self.PROMPT_CACHE:
             with open(file_path, 'r') as file:
                 self.PROMPT_CACHE[file_path] = yaml.safe_load(file)
-        return self.PROMPT_CACHE[file_path]
+        return self.PROMPT_CACHE[file_path][node]
 
     @staticmethod
     def time_now():

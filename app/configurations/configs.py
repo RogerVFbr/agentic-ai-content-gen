@@ -1,7 +1,5 @@
 from enum import Enum
-
 from typing import Dict, Literal
-
 from pydantic import BaseModel
 
 class WebSearchClient(Enum):
@@ -23,11 +21,17 @@ class WebSearch(BaseModel):
     cache_ttl_minutes: int
     quota_per_node: int
 
+class Mcp(BaseModel):
+    local_servers_log_level: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
+    servers: dict = {}
+
 class Flags(BaseModel):
     agent_log_verbose: bool
-    feature_y: bool
+    enable_publishing: bool
+    enable_image_generation: bool
 
 class Configs(BaseModel):
+    mcp: Mcp
     image_generation: ImageGeneration
     used_topics: UsedTopics
     web_search: WebSearch

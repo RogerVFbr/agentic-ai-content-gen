@@ -1,3 +1,5 @@
+from langchain_mcp_adapters.client import MultiServerMCPClient
+
 from agents.meme_gen.agent import MemeGenAgent
 from agents.meme_gen.graph import MemeGenGraphBuilder
 from agents.meme_gen.nodes.node_00_initializer import MemeGenInitializer
@@ -8,6 +10,7 @@ from agents.meme_gen.nodes.node_04_publisher import MemeGenPublisher
 from agents.meme_gen.nodes.node_05_failure import MemeGenFailure
 from agents.meme_gen.nodes.node_06_success import MemeGenSuccess
 from agents.meme_gen.nodes.node_07_terminate import MemeGenTerminate
+from configurations.configs import Configs
 from controllers.controller import MemeGenController
 from controllers.web_ui import MemeGenWebUi
 from controllers.worker import MemeGenWorker
@@ -17,6 +20,7 @@ from infrastructure.google_trends_client import GoogleTrendsClient
 from infrastructure.serper_dev_client import SerperDevClient
 from infrastructure.tavily_client import TavilyClient
 from repositories.image_repository import ImageRepository
+from repositories.social_networks_repository import SocialNetworksRepository
 from repositories.used_topics_repository import UsedTopicsRepository
 from repositories.web_search_repository import WebSearchRepository
 from repositories.web_trends_repository import WebTrendsRepository
@@ -32,11 +36,13 @@ class AppDi:
         services.add_singleton(GoogleTrendsClient)
         services.add_singleton(TavilyClient)
         services.add_singleton(SerperDevClient)
+        services.add_singleton(MultiServerMCPClient, lambda sp: MultiServerMCPClient(sp.get_service(Configs).mcp.servers))
 
         services.add_singleton(WebSearchRepository)
         services.add_singleton(WebTrendsRepository)
         services.add_singleton(UsedTopicsRepository)
         services.add_singleton(ImageRepository)
+        services.add_singleton(SocialNetworksRepository)
 
         services.add_singleton(MemeGenWebUi)
         services.add_singleton(MemeGenWorker)

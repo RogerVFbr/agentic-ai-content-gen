@@ -31,7 +31,7 @@ class MemeGenTrendValidator(MemeGenBase):
         self._prompts_file = os.path.join(os.path.dirname(__file__), self.PROMPTS_FILE)
 
     def initialize(self):
-        prompts = self.load_prompts(self._prompts_file)["validator"]
+        prompts = self.load_prompts(self._prompts_file, "validator")
 
         self._user_prompt = PromptTemplate(
             input_variables=["time_now", "research"],
@@ -68,10 +68,12 @@ class MemeGenTrendValidator(MemeGenBase):
         del research['full_topics_list']
         research = json.dumps(research)
 
-        return self.get_user_message(self._user_prompt.template.format(
+        prompt = self._user_prompt.template.format(
             time_now=self.time_now(),
-            research=research)
+            research=research
         )
+
+        return self.get_user_message(prompt)
 
     async def _search_web(self, query: str):
         """Executes searches on the web"""

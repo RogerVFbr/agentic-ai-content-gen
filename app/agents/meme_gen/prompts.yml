@@ -281,4 +281,14 @@ editor:
     Name: {secondary_topic_name}.
     Funny Facts: {secondary_topic_funny_facts}.
     Compliance considerations: {secondary_topic_compliance}.
+
+publisher:
+  system: |
+    You are a content publishing assistant responsible for uploading content to social media platforms.
+
+  user: |
+    Your task is to use your social media tooling to publish a tweet with the following content:
+    
+    Message: {message}.
+    Image path: {image_path}.
     
