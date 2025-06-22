@@ -1,19 +1,94 @@
-# Multi-Agent Application Proof of Concept
-
-## Overview
-This project is a proof of concept for a multi-agent application that demonstrates production-ready features. It showcases a modular architecture, an orchestration layer powered by `LangGraph`, and robust application lifecycle management using a `BackgroundService` implementation. The project also includes a custom dependency injection solution, unit testing, semantic caching, tool quota control, and a custom logging solution for local and remote structured logging.
+# Agentic AI MemeGen
+*Not just another GenAI Meme Generator!* This project suggests a blueprint for integrating modern agentic AI implementations with software engineering best practices — ensuring maintainability, extensibility, portability, and scalability.
 
 ---
 
-## Features
-- **Modular Architecture**: Each component of the application is encapsulated in separate modules for better maintainability and scalability.
-- **Orchestration Layer**: Utilizes `LangGraph` to define and manage workflows with conditional transitions between states.
-- **Application Lifecycle Management**: Implements a `BackgroundService` for managing the lifecycle of the application.
-- **Custom Dependency Injection**: Provides a lightweight, custom-built dependency injection solution for managing dependencies.
-- **Unit Testing**: Comprehensive unit tests ensure the reliability of individual components.
-- **Semantic Caching**: Implements caching mechanisms to optimize performance and reduce redundant operations.
-- **Tool Quota Control**: Manages and enforces quotas for external tools and APIs to ensure efficient resource usage.
-- **Custom Logging Solution**: Provides structured logging for both local and remote environments, supporting JSON-based logs and integration with external logging services.
+## Table of Contents
+- [Business Case](#business-case)
+- [Technical Features](#technical-features)
+- [Solution Metrics](#solution-metrics)
+- [Technology Stack](#technology-stack)
+- [Architecture and Design Decisions](#architecture-and-design-decisions)
+- [Project Structure](#project-structure)
+- [Limitations and Future Improvements](#limitations-and-future-improvements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
+
+---
+
+## Business Case
+| Feature                           | Description                                                                                                                                                                                                                                                                                                    |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Industry                          | Content Creation, Marketing, Social Networks                                                                                                                                                                                                                                                                  |
+| Persona                           | Content Marketers, Copywriters, Social Media Managers, Agencies                                                                                                                                                                                                                                               |
+| Problem                           | Creating content at scale is time-consuming. Manual workflows limit throughput and consistency.                                                                                                                                                                                                              |
+| Solution                          | This application uses AI agents to autonomously generate content. It orchestrates multiple LLM-powered tasks including research, validation, edition, and publishing.                                                                                                                                        |
+| User Interface                    | Not applicable. Fully autonomous scheduled triggering.                                                                                                                                                                                                                                                        |
+| LLM Models                        | OpenAI GPT-4o Mini, OpenAI DALL·E 3                                                                                                                                                                                                                                                                             |
+| External Data Sources             | Google Trends, Web Search, Twitter (X)                                                                                                                                                                                                                                                                        |
+| Key Features                      | 1. Researches funny trends on the internet.<br>2. Validates chosen topics for morality and ethics.<br>3. Designs a meme and other deliverables.<br>4. Publishes the results on social media.                                                                                                                 |
+| Complexity                        | Medium — depends on API setup, agent configuration, and deployment requirements.                                                                                                                                                                                                                              |
+| Value Proposition / Benefits      | - Reduces content creation time from hours to minutes.<br>- Enables scaling content production without growing headcount.                                                                                                   |
+
+---
+
+## Technical Features
+- **Robust multi-environment configuration** - Enables seamless adaptation across local, development, testing, and production environments.
+- **Modular architecture (Onion-inspired)** - Enforces strict responsibility boundaries for high reusability and maintainability.
+- **Application lifecycle management** - Handles graceful shutdowns during cancellations or failures to ensure system integrity.
+- **Dependency injection with automatic resolution** - Simplifies development and testing through clean, decoupled component management.
+- **Fully asynchronous I/O architecture** - Improves performance and enables fast, reliable cancellation handling.
+- **Comprehensive automated testing** - Includes both unit and integration tests to guarantee maintainability and safe extensibility.
+- **Semantic in-memory caching** - Optimizes performance by reducing redundant LLM tool calls.
+- **Tool quota management** - Controls and enforces agent nodes’ usage limits for external APIs, ensuring efficient and predictable resource consumption.
+- **Flexible logging solution** - Provides developer-friendly logs formatting locally while structuring logs in JSON for production environments.
+- **LLM and traditional observability integration** - Provides deep insights for troubleshooting, monitoring, and performance optimization.
+- **Automated deployment pipeline** - Enables consistent, governed version releases without manual intervention.
+- **Containerized deployment** - Ensures cross-environment portability and operational consistency.
+- **Serverless cloud architecture** - Simplifies deployment with low-cost, low-maintenance infrastructure, accelerating time to market.
+
+---
+
+## Solution Metrics
+
+
+| Metric                  | Value                     |
+|-------------------------| ------------------------- |
+| Latency *               | 2 minutes, 30 seconds     |
+| Token Count * (Input)   | 30k                       |
+| Token Count * (Output)  | 15k                       |
+| Estimated Cost *        | US$ 0.07                  |
+| Container Size          | 3GB                       |
+| Deployment Time         | 5 minutes                 |
+| Peak Memory Consumption | 3GB                       |
+\* *(Avegage, per run)*
+
+---
+
+## Technology Stack
+| Component                  | Technology/Tool                                              |
+| -------------------------- | ------------------------------------------------------------ |
+| Programming Language       | Python >= 3.11                                               |
+| Package Management         | Astral UV                                                   |
+| Containerization           | Docker                                                      |
+| LLM                        | OpenAI GPT-4o Mini, OpenAI DALL·E 3                          |
+| Agent Orchestration        | LangChain, LangGraph                                        |
+| Agent Tooling              | MCP, Custom Implementations                                 |
+| Agent Web Search           | Tavily, SerperDev                                           |
+| Testing                    | Pytest, MagikMock                                           |
+| CI/CD                      | GitHub, GitHub Actions                                      |
+| Cloud Infrastructure       | AWS (Lambda, S3)                                            |
+| Observability              | LangSmith, CloudWatch                                       |
+| Infrastructure as Code     | Terraform                                                   |
+| Similarity Search          | Levenshtein, Text Embeddings                                |
+
+---
+
+## Architecture and Design Decisions
+*(W.I.P.)*
 
 ---
 
@@ -69,143 +144,62 @@ This project is a proof of concept for a multi-agent application that demonstrat
 
 ---
 
+## Limitations and Future Improvements
+*(W.I.P)*
+
+* Single instance run per time
+* Lacks human in the loop
+* Meme joke quality questionable
+* Meme text on images might be defective
+* Lack of prompt evals
+
+---
+
 ## Installation
+*(W.I.P)*
 
 ### Prerequisites
-- Python 3.8 or higher
-- `pip` (Python package manager)
+- Python 3.11 or higher
 
-### Steps
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/multi-agent-poc.git
-   cd multi-agent-poc
-   ```
+### No docker:
+* Install UV
+* Navigate to your default projects folder
+* Clone repo
+* Navigate to app folder
+* Uv sync
+* Run tests
+* Run application
 
-2. Create a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Run the tests to ensure everything is set up correctly:
-   ```bash
-   pytest
-   ```
+### Docker
+* Install Docker
+* Start docker
+* Navigate to your default projects folder
+* Clone Repo
+* Navigate to app folder
+* Build image
+* Run image
+* Ping image
 
 ---
 
 ## Usage
-
-### Building the Workflow
-The `MultiAgentGraph` class defines the workflow. To build and visualize the graph:
-```python
-from app.agents.multi_agent.graph import MultiAgentGraph
-
-# Initialize dependencies
-graph = MultiAgentGraph(logger, initializer, researcher, validator, editor, publisher, failure, success)
-
-# Build the graph
-await graph.build()
-```
-
-### Running the Controller
-The `MultiAgentController` manages the execution of the workflow:
-```python
-from app.controllers.controller import MultiAgentController
-
-controller = MultiAgentController(agent=graph)
-await controller.run({"input_key": "input_value"})
-```
-
-### Visualizing the Workflow
-The workflow graph is saved as a PNG file in the `persistence` directory:
-```
-app/agents/multi_agent/persistence/multi_agent_graph.png
-```
-
----
-
-## Testing
-Unit tests are provided for all major components. To run the tests:
-```bash
-pytest
-```
-
----
-
-## Key Components
-
-### `MultiAgentGraph`
-- **Purpose**: Defines the state-driven workflow for the multi-agent application.
-- **Nodes**:
-  - `Initializer`: Initializes the process.
-  - `Researcher`: Conducts research tasks.
-  - `Validator`: Validates research results.
-  - `Editor`: Processes and edits data.
-  - `Publisher`: Publishes the final output.
-  - `Failure`: Handles failure states.
-  - `Success`: Handles success states.
-
-### `MultiAgentController`
-- **Purpose**: Orchestrates the execution of the workflow.
-- **Features**:
-  - Handles input and output.
-  - Manages logging and error handling.
-
-### Logging
-- **Implementation**: The custom logging solution includes:
-  - **Local Logging**: Logs structured data to local files in JSON format.
-  - **Remote Logging**: Integrates with external logging services for centralized log management.
-  - **AppLogger**: Provides decorators like `@timeit` for measuring execution time.
+*(W.I.P)*
 
 ---
 
 ## Contributing
-1. Fork the repository.
-2. Create a feature branch:
-   ```bash
-   git checkout -b feature-name
-   ```
-3. Commit your changes:
-   ```bash
-   git commit -m "Add feature description"
-   ```
-4. Push to your branch:
-   ```bash
-   git push origin feature-name
-   ```
-5. Open a pull request.
+*(W.I.P)*
 
 ---
-
-## Docker
-   ```bash
-      uv lock
-   ```
-   ```bash
-      docker build -t memegen .
-   ```
-   ```bash
-      docker run -p 9000:8080 memegen
-   ```
-   ```bash
-      curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"payload":"hello world!"}'
-   ```
 
 ## License
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+*(W.I.P)*
 
 ---
 
-## Acknowledgments
-- [LangGraph](https://github.com/langgraph) for the state graph framework.
-- Contributors and maintainers of this project.
+## Contact
+*(W.I.P)*
+
 
 
 
