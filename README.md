@@ -197,6 +197,13 @@ pytest
    ```bash
       curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"payload":"hello world!"}'
    ```
+   Docker local disk usage
+   ```bash
+      docker system df
+   ```
+   ```bash
+      docker system prune -af
+   ```
 
 ## License
 This project is licensed under the MIT License. See the `LICENSE` file for details.
