@@ -62,28 +62,29 @@
 | Token Count * (Output)  | 15k                       |
 | Estimated Cost *        | US$ 0.07                  |
 | Container Size          | 3GB                       |
-| Deployment Time         | 5 minutes                 |
+| Deployment Time         | 5 minutes                 | 
 | Peak Memory Consumption | 3GB                       |
+
 \* *(Avegage, per run)*
 
 ---
 
 ## Technology Stack
-| Component                  | Technology/Tool                                              |
-| -------------------------- | ------------------------------------------------------------ |
-| Programming Language       | Python >= 3.11                                               |
-| Package Management         | Astral UV                                                   |
-| Containerization           | Docker                                                      |
-| LLM                        | OpenAI GPT-4o Mini, OpenAI DALL·E 3                          |
-| Agent Orchestration        | LangChain, LangGraph                                        |
-| Agent Tooling              | MCP, Custom Implementations                                 |
-| Agent Web Search           | Tavily, SerperDev                                           |
-| Testing                    | Pytest, MagikMock                                           |
-| CI/CD                      | GitHub, GitHub Actions                                      |
-| Cloud Infrastructure       | AWS (Lambda, S3)                                            |
-| Observability              | LangSmith, CloudWatch                                       |
-| Infrastructure as Code     | Terraform                                                   |
-| Similarity Search          | Levenshtein, Text Embeddings                                |
+| Component                  | Technology/Tool                         |
+| -------------------------- |-----------------------------------------|
+| Programming Language       | Python >= 3.11                          |
+| Package Management         | Astral UV                               |
+| Containerization           | Docker                                  |
+| LLM                        | OpenAI GPT-4o Mini, OpenAI DALL·E 3     |
+| Agent Orchestration        | LangChain, LangGraph                    |
+| Agent Tooling              | MCP, Custom Implementations             |
+| Agent Web Search           | Tavily, SerperDev                       |
+| Testing                    | Pytest, MagikMock                       |
+| CI/CD                      | GitHub, GitHub Actions                  |
+| Cloud Infrastructure       | AWS - Eventbridge, IAM, Lambda, S3, ECR |
+| Observability              | LangSmith, CloudWatch                   |
+| Infrastructure as Code     | Terraform                               |
+| Similarity Search          | Levenshtein, Text Embeddings            |
 
 ---
 
@@ -94,52 +95,78 @@
 
 ## Project Structure
 ```
-├── README.md                              # Project documentation and usage instructions
-└── app                                    # Main application directory
-    ├── agents                             # Contains agent-related logic and workflows
-    │   └── meme_gen                       # Specific implementation for the MemeGen agent
-    │       ├── agent.py                   # MemeGen Agent entrypoint
-    │       ├── graph.py                   # Workflow graph definition for MemeGen
-    │       ├── nodes                      # Individual nodes in the workflow
-    │       │   ├── node_00_initializer.py # Node for initializing the workflow
-    │       │   ├── node_01_researcher.py  # Node for conducting research tasks
-    │       │   ├── node_02_validator.py   # Node for validating research results
-    │       │   ├── node_03_editor.py      # Node for editing and processing data
-    │       │   ├── node_04_publisher.py   # Node for publishing the final output
-    │       │   ├── node_05_failure.py     # Node for handling failure states
-    │       │   ├── node_06_success.py     # Node for handling success states
-    │       │   └── node_base.py           # Base class for all nodes
-    │       ├── persistence                # Persistence-related files
-    │       │   └── memegen_graph.png      # Visualization of the workflow graph
-    │       ├── prompts.yml                # YAML file containing prompts for the agent
-    │       └── state.py                   # State management for the MemeGen workflow
-    ├── configs.json                       # Default configuration file
-    ├── configs.local.json                 # Local configuration overrides
-    ├── configurations                     # Configuration management module
-    │   ├── configs.py                     # Configuration definitions
-    │   ├── configs_parser.py              # Parser for configuration files
-    │   ├── configuration_module.py        # Configuration module logic
-    │   ├── di_container.py                # Dependency injection container
-    │   └── di_services.py                 # Dependency injection services
-    ├── controllers                        # Controllers for managing workflows
-    │   ├── controller.py                  # Main controller logic
-    │   └── worker.py                      # Handles application lifecycle and graceful shutdown
-    ├── crosscutting                       # Cross-cutting concerns (e.g., logging, caching)
-    │   ├── background_service.py          # Background service implementation
-    │   ├── logging                        # Logging-related files
-    │   │   ├── app_logger.py              # Custom logger implementation
-    │   │   └── app_logger_config.py       # Logger configuration
-    │   ├── memoize_method.py              # Memoization utility for methods
-    │   └── semantic_cache.py              # Semantic caching implementation
-    ├── handler_meme_gen.py                # Entry point for handling MemeGen agent tasks
-    ├── infrastructure                     # Infrastructure-related clients and services
-    │   ├── google_trends_client.py        # Client for Google Trends API
-    │   ├── serper_dev_client.py           # Client for Serper.dev API
-    │   └── tavily_client.py               # Client for Tavily API
-    ├── logger_configs.json                # Default logger configuration
-    ├── logger_configs.local.json          # Local logger configuration overrides
-    └── repositories                       # Data access layer
-        └── web_search_repository.py       # Repository for web search operations
+├── app
+│   ├── agents
+│   │   └── meme_gen
+│   │       ├── deliverables
+│   │       │   └── image_generation_disabled.png  # Placeholder image for when image generation is disabled
+│   │       ├── nodes                              # Contains individual processing nodes for the meme generation agent
+│   │       │   ├── node_00_initializer.py         # Initializes the meme generation process
+│   │       │   ├── node_01_researcher.py          # Researches trending topics for meme creation
+│   │       │   ├── node_02_validator.py           # Validates topics for ethical and moral compliance
+│   │       │   ├── node_03_editor.py              # Edits and prepares the meme content
+│   │       │   ├── node_04_publisher.py           # Publishes the generated meme to social media
+│   │       │   ├── node_05_failure.py             # Handles failure scenarios in the process
+│   │       │   ├── node_06_success.py             # Handles successful completion of the process
+│   │       │   ├── node_07_terminate.py           # Terminates the process and cleans up resources
+│   │       │   └── node_base.py                   # Base class for all nodes in the meme generation process
+│   │       ├── persistence                        # Stores persistent data for the meme generation agent
+│   │       │   ├── memegen_graph.png              # Visual representation of the meme generation process
+│   │       │   ├── used_topics_cache.pkl          # Cache of previously used topics
+│   │       │   └── web_search_cache.pkl           # Cache of web search results
+│   │       ├── agent.py                           # Main agent logic for meme generation
+│   │       ├── graph.py                           # Defines the graph structure for the agent's workflow
+│   │       ├── prompts.yml                        # YAML file containing prompts for the LLM
+│   │       └── state.py                           # Manages the state of the meme generation process
+│   ├── configurations                             # Configuration management for the application
+│   │   ├── configs.py                             # Core configuration definitions
+│   │   ├── configs_parser.py                      # Parses configuration files
+│   │   ├── configuration_module.py                # Module for managing configurations
+│   │   └── di_services.py                         # Dependency injection services
+│   ├── controllers                                # Application controllers for managing workflows
+│   │   ├── controller.py                          # Main application controller
+│   │   ├── web_ui.py                              # Controller for the web user interface
+│   │   └── worker.py                              # Background worker for asynchronous tasks
+│   ├── crosscutting                               # Cross-cutting concerns shared across the application
+│   │   ├── background_service
+│   │   │   ├── cancellation_token.py              # Handles task cancellation tokens
+│   │   │   ├── multi_shot_background_service.py   # Background service for multi-shot tasks
+│   │   │   └── one_shot_background_service.py     # Background service for one-shot tasks
+│   │   ├── logging
+│   │   │   ├── app_logger.py                      # Application logging utility
+│   │   │   └── app_logger_config.py               # Configuration for application logging
+│   │   ├── semantic_cache.py                      # In-memory caching for semantic data
+│   │   └── service_provider.py                    # Provides services for dependency injection
+│   ├── infrastructure                             # Infrastructure-related clients and utilities
+│   │   ├── google_trends_client.py                # Client for interacting with Google Trends
+│   │   ├── serper_dev_client.py                   # Client for interacting with SerperDev
+│   │   └── tavily_client.py                       # Client for interacting with Tavily
+│   ├── mcp_servers                                # Manages connections to external MCP servers
+│   │   └── social_networks.py                     # Handles interactions with social networks
+│   ├── repositories                               # Data repositories for accessing and managing data
+│   │   ├── image_repository.py                    # Repository for managing image data
+│   │   ├── social_networks_repository.py          # Repository for social network data
+│   │   ├── used_topics_repository.py              # Repository for used topics
+│   │   ├── web_search_repository.py               # Repository for web search data
+│   │   └── web_trends_repository.py               # Repository for web trends data
+│   ├── tests                                      # Automated tests for the application
+│   │   ├── integration                            # Integration tests for end-to-end workflows
+│   │   └── unit                                   # Unit tests for individual components
+│   ├── Dockerfile                                 # Dockerfile for containerizing the application
+│   ├── configs.json                               # Default configuration file
+│   ├── configs.local.json                         # Local environment configuration
+│   ├── configs.tests.json                         # Test environment configuration
+│   ├── configs_logger.json                        # Default logger configuration
+│   ├── configs_logger.local.json                  # Local logger configuration
+│   ├── configs_logger.tests.json                  # Test logger configuration
+│   ├── configs_mcp.json                           # MCP-specific configuration
+│   ├── handler_lambda.py                          # Lambda function handler
+│   ├── handler_web_ui.py                          # Web UI handler
+│   ├── pyproject.toml                             # Python project configuration
+│   └── pytest.ini                                 # Pytest configuration
+├── infra                                          # Terraform infrastructure as code.
+└── README.md                                      # Project documentation
+
 ```
 
 ---
