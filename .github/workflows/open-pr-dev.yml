@@ -46,8 +46,8 @@ jobs:
       - name: Echo Python Version
         run: python -V
 
-      - name: Install the project
-        run: uv sync --locked --all-extras --dev
+      - name: Install project dependencies
+        run: uv sync --locked --all-extras --dev --project "./app"
 
       - name: Run tests
         run: uv run pytest tests
