@@ -29,4 +29,6 @@ dependencies = [
 
 [tool.pytest.ini_options]
 pythonpath = "."
-
+markers = [
+    "cd_bypass: marks a test to be ignored on deployment pipeline.",
+]
