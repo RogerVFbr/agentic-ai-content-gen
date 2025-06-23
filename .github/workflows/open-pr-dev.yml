@@ -18,6 +18,11 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       APP_ENV: tests
       LOGGER_ENV: tests
+      LANGSMITH_TRACING: true
+      LANGSMITH_ENDPOINT: https://api.smith.langchain.com
+      LANGSMITH_PROJECT: MemeGen (Tests)
+      PYTHONWARNINGS: "ignore::DeprecationWarning"
+      TOKENIZERS_PARALLELISM: false
 
     defaults:
       run:
