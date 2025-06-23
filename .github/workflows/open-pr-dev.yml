@@ -32,6 +32,9 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
+      - name: Echo App Contents
+        run: tree ../app
+
       - name: Install Astral UV Package Manager
         uses: astral-sh/setup-uv@v5
 
