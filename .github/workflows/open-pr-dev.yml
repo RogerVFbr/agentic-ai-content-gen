@@ -46,6 +46,12 @@ jobs:
       - name: Echo Python Version
         run: python -V
 
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
+
+      - name: Run tests
+        run: uv run pytest tests
+
       - name: Terraform Init
         run: terraform init -backend-config="key=$APPLICATION_NAME-develop.tfstate"
 
