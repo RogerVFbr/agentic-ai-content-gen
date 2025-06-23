@@ -15,7 +15,6 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: us-east-1
       APPLICATION_NAME: memegen
-      MODELS_BUCKET_NAME: fiap-ml-models-monorepo-bucket
       DOCKER_API_VERSION: 1.25
       GH_TOKEN: ${{ github.token }}
 
@@ -56,12 +55,12 @@ jobs:
       run: terraform init -backend-config="key=$APPLICATION_NAME-${{ steps.extract_branch.outputs.branch }}.tfstate"
 
     - name: Terraform Plan
-      run: terraform plan -var 'environment=${{ steps.extract_branch.outputs.branch }}' -var "bucket_name=$MODELS_BUCKET_NAME" -input=false
+      run: terraform plan -var 'environment=${{ steps.extract_branch.outputs.branch }}' -input=false
 
     - name: Terraform Apply
-      run: terraform apply -auto-approve -input=false -var 'environment=${{ steps.extract_branch.outputs.branch }}' -var "bucket_name=$MODELS_BUCKET_NAME"
+      run: terraform apply -auto-approve -input=false -var 'environment=${{ steps.extract_branch.outputs.branch }}'
 
     - name: Create Pull Request to Develop
       if: steps.extract_branch.outputs.branch == 'develop'
       run: |
-        gh pr create --base develop --title "Automated PR to Develop" --body "This PR was created automatically by GitHub Actions."
+        gh pr create --base main --title "Automated PR to Develop" --body "This PR was created automatically by GitHub Actions."
