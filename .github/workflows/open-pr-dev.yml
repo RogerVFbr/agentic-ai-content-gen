@@ -15,8 +15,9 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: us-east-1
       APPLICATION_NAME: memegen
-      MODELS_BUCKET_NAME: fiap-ml-models-monorepo-bucket
       GH_TOKEN: ${{ github.token }}
+      APP_ENV: tests
+      LOGGER_ENV: tests
 
     defaults:
       run:
