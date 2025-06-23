@@ -1,6 +1,6 @@
 
 locals{
-  bucket = "${var.bucket_name}-${var.environment}"
+  bucket = "memegen-persistence-${var.environment}"
 }
 
 resource "aws_iam_role" "memegen_role" {
