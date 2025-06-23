@@ -38,19 +38,13 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: Echo App Contents
-        run: tree ../app
-
       - name: Install Astral UV Package Manager
         uses: astral-sh/setup-uv@v5
 
-      - name: Set up Python
+      - name: Install Python
         uses: actions/setup-python@v5
         with:
           python-version-file: "./app/pyproject.toml"
-
-      - name: Echo Python Version
-        run: python -V
 
       - name: Install project dependencies
         run: uv sync --locked --all-extras --dev --directory ../app
@@ -59,6 +53,9 @@ jobs:
         run: |
           export PYTHONPATH=/home/runner/work/agentic-ai-content-gen/agentic-ai-content-gen/app:$PYTHONPATH
           uv run --directory ../app/tests pytest -m "not cd_bypass"
+
+      - name: Cleanup project
+        uses: actions/checkout@v4
 
       - name: Terraform Init
         run: terraform init -backend-config="key=$APPLICATION_NAME-develop.tfstate"
