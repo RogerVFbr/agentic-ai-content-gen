@@ -16,7 +16,6 @@ dependencies = [
     "langchain-openai>=0.3.9",
     "langgraph>=0.3.18",
     "langsmith>=0.3.18",
-    "lock>=2018.3.25.2110",
     "openai>=1.68.2",
     "pytest>=8.3.5",
     "pytest-asyncio>=1.0.0",
@@ -26,6 +25,8 @@ dependencies = [
     "sentence-transformers>=4.1.0",
     "tavily-python>=0.7.2",
     "trendspy>=0.1.6",
-    "uv>=0.7.13",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = "."
 
