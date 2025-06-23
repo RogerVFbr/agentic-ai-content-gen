@@ -47,7 +47,7 @@ jobs:
         run: python -V
 
       - name: Install project dependencies
-        run: uv sync --locked --all-extras --dev --directory "./app"
+        run: uv sync --locked --all-extras --dev --directory "../app"
 
       - name: Run tests
         run: uv run pytest tests
