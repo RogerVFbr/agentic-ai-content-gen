@@ -50,7 +50,7 @@ jobs:
         run: uv sync --locked --all-extras --dev --directory ../app
 
       - name: Run tests
-        run: uv run pytest ../app/tests
+        run: uv run pytest --directory ../app tests
 
       - name: Terraform Init
         run: terraform init -backend-config="key=$APPLICATION_NAME-develop.tfstate"
