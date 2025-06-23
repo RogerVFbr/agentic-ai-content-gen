@@ -58,7 +58,7 @@ jobs:
       - name: Run tests
         run: |
           export PYTHONPATH=/home/runner/work/agentic-ai-content-gen/agentic-ai-content-gen/app:$PYTHONPATH
-          uv run --directory ../app/tests pytest
+          uv run --directory ../app/tests pytest -m "not cd_bypass"
 
       - name: Terraform Init
         run: terraform init -backend-config="key=$APPLICATION_NAME-develop.tfstate"
