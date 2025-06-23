@@ -33,7 +33,7 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Echo App Contents
-        run: ls && tree ../app
+        run: tree ../app
 
       - name: Install Astral UV Package Manager
         uses: astral-sh/setup-uv@v5
@@ -42,6 +42,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version-file: "./app/pyproject.toml"
+
+      - name: Echo Python Version
+        run: python -V
 
       - name: Terraform Init
         run: terraform init -backend-config="key=$APPLICATION_NAME-develop.tfstate"
