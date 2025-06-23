@@ -55,24 +55,24 @@
 ## Solution Metrics
 
 
-| Metric                  | Value                     |
-|-------------------------| ------------------------- |
-| Latency *               | 2 minutes, 30 seconds     |
-| Token Count * (Input)   | 30k                       |
-| Token Count * (Output)  | 15k                       |
-| Estimated Cost *        | US$ 0.07                  |
-| Container Size          | 3GB                       |
-| Deployment Time         | 5 minutes                 | 
-| Peak Memory Consumption | 3GB                       |
+| Metric                  | Value                                    |
+|-------------------------|------------------------------------------|
+| Latency *               | P50: 77.03s, P99: 189.96s                |
+| Token Count * (Input)   | 10k                                      |
+| Token Count * (Output)  | 5k                                       |
+| Estimated Cost *        | US$ 0.03                                 |
+| Container Size          | 4.5 GB (Uncompressed), 3 GB (Compressed) |
+| Deployment Time         | 6 minutes                                | 
+| Peak Memory Consumption | 3 GB                                     |
 
-\* *(Avegage, per run)*
+\* *(Average or percentile if specified, per run)*
 
 ---
 
 ## Technology Stack
 | Component                  | Technology/Tool                         |
 | -------------------------- |-----------------------------------------|
-| Programming Language       | Python >= 3.11                          |
+| Programming Language       | Python >= 3.13                          |
 | Package Management         | Astral UV                               |
 | Containerization           | Docker                                  |
 | LLM                        | OpenAI GPT-4o Mini, OpenAI DALL·E 3     |
@@ -186,26 +186,48 @@
 *(W.I.P)*
 
 ### Prerequisites
-- Python 3.11 or higher
+- Python 3.13 or higher
+- OpenAI account and API Key with organization validation
+- Twitter (X) Developer account and API Key
 
 ### No docker:
 * Install UV
 * Navigate to your default projects folder
 * Clone repo
 * Navigate to app folder
+* Create virtual environment
+* Activate virtual environment
 * Uv sync
+* Create and populate .env file
 * Run tests
 * Run application
 
 ### Docker
-* Install Docker
-* Start docker
-* Navigate to your default projects folder
-* Clone Repo
-* Navigate to app folder
-* Build image
-* Run image
-* Ping image
+* Install Docker & CURL
+* Start Docker Desktop
+* Open terminal
+```bash
+    # Navigate to your default projects folder
+    cd ~/projects
+    
+    # Clone Repo
+    git clone https://github.com/RogerVFbr/agentic-ai-content-gen.git
+    
+    # Navigate to app folder
+    cd app
+    
+    # Create and populate .env file
+    touch .env
+    
+    # Build image
+    docker build --no-cache -t memegen . 
+    
+    # Run image
+    docker run -p 9000:8080 memegen
+    
+    # Ping image
+    curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
+```
 
 ---
 

@@ -18,7 +18,14 @@
     "quota_per_node": 2
   },
   "remote_credentials": {
-    "OPENAI_API_KEY": "/ContentGenerator/Credentials/OpenAi/Password"
+    "OPENAI_API_KEY": "/Memegen/Credentials/OpenApi",
+    "SERPERDEV_API_KEY": "/MemeGen/Credentials/SerperDev",
+    "TAVILY_API_KEY": "/MemeGen/Credentials/Tavily",
+    "LANGSMITH_API_KEY": "/MemeGen/Credentials/LangSmith",
+    "X_CONSUMER_KEY": "/MemeGen/Credentials/TwitterX/ConsumerKey",
+    "X_CONSUMER_SECRET": "/MemeGen/Credentials/TwitterX/ConsumerSecret",
+    "X_ACCESS_TOKEN": "/MemeGen/Credentials/TwitterX/AccessToken",
+    "X_ACCESS_TOKEN_SECRET": "/MemeGen/Credentials/TwitterX/AccessTokenSecret"
   },
   "flags": {
     "raise_exception_on_critical_failure": false,

@@ -15,8 +15,14 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: us-east-1
       APPLICATION_NAME: memegen
-      MODELS_BUCKET_NAME: fiap-ml-models-monorepo-bucket
       GH_TOKEN: ${{ github.token }}
+      APP_ENV: tests
+      LOGGER_ENV: tests
+      LANGSMITH_TRACING: true
+      LANGSMITH_ENDPOINT: https://api.smith.langchain.com
+      LANGSMITH_PROJECT: MemeGen (Tests)
+      PYTHONWARNINGS: "ignore::DeprecationWarning"
+      TOKENIZERS_PARALLELISM: false
 
     defaults:
       run:
@@ -25,18 +31,37 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
+      - name: Install Astral UV Package Manager
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "./app/pyproject.toml"
+
+      - name: Install project dependencies
+        run: uv sync --locked --all-extras --dev --directory ../app
+
+      - name: Run tests
+        run: |
+          export PYTHONPATH=/home/runner/work/agentic-ai-content-gen/agentic-ai-content-gen/app:$PYTHONPATH
+          uv run --directory ../app/tests pytest -m "not cd_bypass"
+
+      - name: Cleanup project
+        uses: actions/checkout@v4
+
       - name: Terraform Init
         run: terraform init -backend-config="key=$APPLICATION_NAME-develop.tfstate"
 
       - name: Terraform Plan
-        run: terraform plan -var 'environment=develop' -var "bucket_name=$MODELS_BUCKET_NAME" -input=false
+        run: terraform plan -var 'environment=develop' -input=false
 
       - name: Create Pull Request to Develop
         run: |

@@ -1,5 +1,11 @@
 locals {
   lambda_name = "memegen-${var.environment}"
+
+  langsmith_project_name = {
+    develop = "MemeGen (Develop)"
+    staging = "MemeGen (Staging)"
+    main    = "MemeGen (Production)"
+  }
 }
 
 resource "aws_cloudwatch_log_group" "memegen" {
@@ -24,21 +30,21 @@ resource "aws_lambda_function" "memegen" {
 
   environment {
     variables = {
-      APP_ENV=var.environment
-      LOGGER_ENV=var.environment
-      OPENAI_API_KEY="mock"
-      SERPERDEV_API_KEY="mock"
-      TAVILY_API_KEY="mock"
-      LANGSMITH_TRACING=true
-      LANGSMITH_ENDPOINT="https://api.smith.langchain.com"
-      LANGSMITH_API_KEY="mock"
-      LANGSMITH_PROJECT="MemeGen"
-      X_CONSUMER_KEY=""
-      X_CONSUMER_SECRET=""
-      X_ACCESS_TOKEN=""
-      X_ACCESS_TOKEN_SECRET=""
-      PYTHONWARNINGS="ignore::DeprecationWarning"
-      TOKENIZERS_PARALLELISM=false
+      APP_ENV                = var.environment
+      LOGGER_ENV             = var.environment
+      OPENAI_API_KEY         = "mock"
+      SERPERDEV_API_KEY      = "mock"
+      TAVILY_API_KEY         = "mock"
+      LANGSMITH_TRACING      = true
+      LANGSMITH_ENDPOINT     = "https://api.smith.langchain.com"
+      LANGSMITH_API_KEY      = "mock"
+      LANGSMITH_PROJECT      = local.langsmith_project_name[var.environment]
+      X_CONSUMER_KEY         = ""
+      X_CONSUMER_SECRET      = ""
+      X_ACCESS_TOKEN         = ""
+      X_ACCESS_TOKEN_SECRET  = ""
+      PYTHONWARNINGS         = "ignore::DeprecationWarning"
+      TOKENIZERS_PARALLELISM = false
     }
   }
 }

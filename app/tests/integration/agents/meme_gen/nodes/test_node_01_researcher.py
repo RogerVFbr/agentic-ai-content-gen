@@ -23,6 +23,7 @@ class TestMemeGenTrendResearcher:
         return researcher
 
     @pytest.mark.asyncio
+    @pytest.mark.cd_bypass
     async def test_run(self, node: MemeGenTrendResearcher, mocks: Dict[Type[Any], Any]):
         # Arrange
         state = MemeGenState()
