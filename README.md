@@ -91,9 +91,13 @@
 ## Architecture and Design Decisions
 *(W.I.P.)*
 
-### Cloud Infrastructure and Deployment Diagrams
+### Cloud Infrastructure and Deployment
 
 ![Architecture Diagram](docs/infra-arch.drawio.png)
+
+### Software Architecture
+
+![Architecture Diagram](docs/software-arch.drawio.png)
 
 
 
@@ -223,7 +227,7 @@
     # Navigate to app folder
     cd app
     
-    # Create and populate .env file
+    # Create and populate .env file as per .env_example
     touch .env
     
     # Build image
