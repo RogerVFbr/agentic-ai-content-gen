@@ -91,6 +91,12 @@
 ## Architecture and Design Decisions
 *(W.I.P.)*
 
+### Cloud Infrastructure and Deployment Diagrams
+
+![Architecture Diagram](docs/infra-arch.drawio.png)
+
+
+
 ---
 
 ## Project Structure

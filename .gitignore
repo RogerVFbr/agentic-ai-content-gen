@@ -4,6 +4,8 @@ __pycache__/
 .DS_Store
 .idea/
 app/imgur_tokens.json
+*.bkp
+*.dtmp
 
 
 
