@@ -179,6 +179,7 @@
 * Meme joke quality questionable
 * Meme text on images might be defective
 * Lack of prompt evals
+* Infra networking - VPC, Subnets, Security Groups, etc.
 
 ---
 

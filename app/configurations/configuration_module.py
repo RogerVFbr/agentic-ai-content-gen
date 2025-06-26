@@ -9,10 +9,10 @@ import warnings
 warnings.warn = lambda *args, **kwargs: None
 
 
-from configurations.configs import Configs
-from configurations.configs_parser import ConfigsParser
-from crosscutting.logging.app_logger import AppLogger
-from crosscutting.service_provider import ServiceCollection
+from configurations.configs import Configs  # noqa: E402
+from configurations.configs_parser import ConfigsParser  # noqa: E402
+from crosscutting.logging.app_logger import AppLogger  # noqa: E402
+from crosscutting.service_provider import ServiceCollection  # noqa: E402
 
 
 class ConfigurationModule:
@@ -36,7 +36,7 @@ class ConfigurationModule:
 
     @AppLogger.timeit()
     def initialize(self, service_collection: ServiceCollection) -> bool:
-        AppLogger.highlight_1(f"Initializing configuration ...")
+        AppLogger.highlight_1("Initializing configuration ...")
 
         try:
             self._load_env_vars()
@@ -48,7 +48,7 @@ class ConfigurationModule:
             AppLogger.critical(f"Unable to finish application initialization -> {type(e).__name__}: {e}", exception=e)
             return False
 
-        AppLogger.highlight_1(f"Configuration completed.")
+        AppLogger.highlight_1("Configuration completed.")
         return True
 
     def _load_env_vars(self) -> None:
@@ -60,7 +60,7 @@ class ConfigurationModule:
                 AppLogger.debug(f"'.env' File environment variables loaded. Path: '{dotenv_path}'.")
 
             if not os.getenv("APP_ENV"):
-                raise ValueError(f"Missing required environment variable: 'APP_ENV'.")
+                raise ValueError("Missing required environment variable: 'APP_ENV'.")
 
             AppLogger.debug(f"Application environment: '{os.getenv('APP_ENV')}'.")
 
@@ -70,10 +70,10 @@ class ConfigurationModule:
 
     def _load_configs(self) -> Configs:
         try:
-            parser = ConfigsParser()
+            cp = ConfigsParser()
             placeholders = {"BASE_DIR": Path(__file__).resolve().parent.parent}
-            configs: Configs = Configs(**parser.parse(config_file="configs.json", require_env_override=True))
-            configs.mcp.servers = parser.parse(config_file="configs_mcp.json", require_env_override=False, placeholders=placeholders)
+            configs: Configs = cp.parse(config_file="configs.json", require_env_override=True, parse_as=Configs)
+            configs.mcp.servers = cp.parse(config_file="configs_mcp.json", require_env_override=False, parse_as=dict, placeholders=placeholders)
             AppLogger.debug("Configs loaded.")
             return configs
         except Exception as e:
@@ -111,7 +111,7 @@ class ConfigurationModule:
             AppLogger.error(f"Failed to load or verify environment variable(s): {env_vars}.")
             raise ValueError(f"Missing required environment variable(s): {env_vars}")
 
-        AppLogger.debug(f"Environment variables validated.")
+        AppLogger.debug("Environment variables validated.")
 
     def _build_service_provider(self, service_collection: ServiceCollection, configs: Configs) -> None:
         try:
