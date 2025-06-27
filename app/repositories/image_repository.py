@@ -23,7 +23,7 @@ class ImageRepository:
             self._logger.warn("Image generation is disabled by configuration. Returning default image id.")
             return None, 'image_generation_disabled'
 
-        self._logger.debug(f"Generating image ...")
+        self._logger.debug("Generating image ...")
 
         try:
             response = self._client.responses.create(
@@ -32,7 +32,7 @@ class ImageRepository:
                 tools=[{"type": "image_generation"}],
             )
 
-            self._logger.debug(f"Verifying image tool usage ...")
+            self._logger.debug("Verifying image tool usage ...")
 
             image_data = [
                 output.result
@@ -46,7 +46,7 @@ class ImageRepository:
             output_file = os.path.join(output_dir, f"{current_time}.png")
 
             if image_data:
-                self._logger.debug(f"Image data found. Saving ...")
+                self._logger.debug("Image data found. Saving ...")
                 image_base64 = image_data[0]
                 with open(output_file, "wb") as f:
                     f.write(base64.b64decode(image_base64))

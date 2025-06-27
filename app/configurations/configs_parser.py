@@ -1,14 +1,20 @@
 import json
 import os
 from string import Template
-from typing import Dict, Any
+from typing import Dict, Any, Type
 
 
 class ConfigsParser:
 
     SEARCH_LEVELS = 10
 
-    def parse(self, config_file: str , environment_env_var: str = "APP_ENV", require_env_override: bool = False, placeholders: Dict[str, Any] = None) -> dict:
+    def parse(self,
+              config_file: str,
+              environment_env_var: str = "APP_ENV",
+              require_env_override: bool = False,
+              placeholders: Dict[str, Any] = None,
+              parse_as: Type[Any] = None) -> Any:
+
         base_config_file, env_config_file = self._find_files(config_file, environment_env_var)
 
         if os.path.exists(base_config_file):
@@ -33,6 +39,9 @@ class ConfigsParser:
             config = self._merge_configs(config, env_config)
         elif require_env_override:
             raise FileNotFoundError(f"Environment configuration file '{env_config_file}' not found.")
+
+        if parse_as:
+            return parse_as(**config)
 
         return config
 

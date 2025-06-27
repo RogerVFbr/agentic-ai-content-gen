@@ -1,4 +1,3 @@
-import json
 import sys
 from pathlib import Path
 import warnings
@@ -8,10 +7,10 @@ warnings.filterwarnings("ignore", category=DeprecationWarning, module="importlib
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from configurations.configs import Configs
-from configurations.configuration_module import ConfigurationModule
-from configurations.di_services import AppDi
-from repositories.social_networks_repository import SocialNetworksRepository
+from configurations.configs import Configs  # noqa: E402
+from configurations.configuration_module import ConfigurationModule  # noqa: E402
+from configurations.di_services import AppDi  # noqa: E402
+from repositories.social_networks_repository import SocialNetworksRepository  # noqa: E402
 
 module = ConfigurationModule()
 services = AppDi.get_service_collection()
@@ -25,14 +24,12 @@ mcp = FastMCP("social_networks", log_level=configs.mcp.local_servers_log_level)
 
 
 @mcp.tool()
-async def tweet(message: str, ctx: Context) -> str:
+async def tweet(message: str, ctx: Context) -> dict:
     """Publishes a short message on Twitter (X)."""
     if not configs.flags.enable_publishing:
-        await ctx.warning("Publishing is disabled by configuration.")
-        return json.dumps({"success": False, "reason": "Publishing is disabled by configuration. Do not retry."})
+        return {"success": False, "reason": "Publishing is disabled by configuration. Do not retry."}
 
-    await repo.tweet(message)
-    return json.dumps({"success": True, "reason": "N.A."})
+    return await repo.tweet(message)
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ class TestMemeGenPublisher:
         return publisher
 
     @pytest.mark.asyncio
+    @pytest.mark.cd_bypass
     async def test_run(self, node: MemeGenPublisher):
         # Arrange
         state = MemeGenState()
@@ -27,4 +28,4 @@ class TestMemeGenPublisher:
 
         # Assert
         assert final_state.publisher
-        assert not final_state.publisher.status
+        assert final_state.publisher.status

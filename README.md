@@ -1,211 +1,265 @@
-# Multi-Agent Application Proof of Concept
-
-## Overview
-This project is a proof of concept for a multi-agent application that demonstrates production-ready features. It showcases a modular architecture, an orchestration layer powered by `LangGraph`, and robust application lifecycle management using a `BackgroundService` implementation. The project also includes a custom dependency injection solution, unit testing, semantic caching, tool quota control, and a custom logging solution for local and remote structured logging.
+# Agentic AI MemeGen
+*Not just another GenAI Meme Generator!* This project suggests a blueprint for integrating modern agentic AI implementations with software engineering best practices — ensuring maintainability, extensibility, portability, and scalability.
 
 ---
 
-## Features
-- **Modular Architecture**: Each component of the application is encapsulated in separate modules for better maintainability and scalability.
-- **Orchestration Layer**: Utilizes `LangGraph` to define and manage workflows with conditional transitions between states.
-- **Application Lifecycle Management**: Implements a `BackgroundService` for managing the lifecycle of the application.
-- **Custom Dependency Injection**: Provides a lightweight, custom-built dependency injection solution for managing dependencies.
-- **Unit Testing**: Comprehensive unit tests ensure the reliability of individual components.
-- **Semantic Caching**: Implements caching mechanisms to optimize performance and reduce redundant operations.
-- **Tool Quota Control**: Manages and enforces quotas for external tools and APIs to ensure efficient resource usage.
-- **Custom Logging Solution**: Provides structured logging for both local and remote environments, supporting JSON-based logs and integration with external logging services.
+## Table of Contents
+- [Business Case](#business-case)
+- [Technical Features](#technical-features)
+- [Solution Metrics](#solution-metrics)
+- [Technology Stack](#technology-stack)
+- [Architecture and Design Decisions](#architecture-and-design-decisions)
+- [Project Structure](#project-structure)
+- [Limitations and Future Improvements](#limitations-and-future-improvements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
+
+---
+
+## Business Case
+| Feature                           | Description                                                                                                                                                                                                                                                                                                    |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Industry                          | Content Creation, Marketing, Social Networks                                                                                                                                                                                                                                                                  |
+| Persona                           | Content Marketers, Copywriters, Social Media Managers, Agencies                                                                                                                                                                                                                                               |
+| Problem                           | Creating content at scale is time-consuming. Manual workflows limit throughput and consistency.                                                                                                                                                                                                              |
+| Solution                          | This application uses AI agents to autonomously generate content. It orchestrates multiple LLM-powered tasks including research, validation, edition, and publishing.                                                                                                                                        |
+| User Interface                    | Not applicable. Fully autonomous scheduled triggering.                                                                                                                                                                                                                                                        |
+| LLM Models                        | OpenAI GPT-4o Mini, OpenAI DALL·E 3                                                                                                                                                                                                                                                                             |
+| External Data Sources             | Google Trends, Web Search, Twitter (X)                                                                                                                                                                                                                                                                        |
+| Key Features                      | 1. Researches funny trends on the internet.<br>2. Validates chosen topics for morality and ethics.<br>3. Designs a meme and other deliverables.<br>4. Publishes the results on social media.                                                                                                                 |
+| Complexity                        | Medium — depends on API setup, agent configuration, and deployment requirements.                                                                                                                                                                                                                              |
+| Value Proposition / Benefits      | - Reduces content creation time from hours to minutes.<br>- Enables scaling content production without growing headcount.                                                                                                   |
+
+---
+
+## Technical Features
+- **Robust multi-environment configuration** - Enables seamless adaptation across local, development, testing, and production environments.
+- **Modular architecture (Onion-inspired)** - Enforces strict responsibility boundaries for high reusability and maintainability.
+- **Application lifecycle management** - Handles graceful shutdowns during cancellations or failures to ensure system integrity.
+- **Dependency injection with automatic resolution** - Simplifies development and testing through clean, decoupled component management.
+- **Fully asynchronous I/O architecture** - Improves performance and enables fast, reliable cancellation handling.
+- **Comprehensive automated testing** - Includes both unit and integration tests to guarantee maintainability and safe extensibility.
+- **Semantic in-memory caching** - Optimizes performance by reducing redundant LLM tool calls.
+- **Tool quota management** - Controls and enforces agent nodes’ usage limits for external APIs, ensuring efficient and predictable resource consumption.
+- **Flexible logging solution** - Provides developer-friendly logs formatting locally while structuring logs in JSON for production environments.
+- **LLM and traditional observability integration** - Provides deep insights for troubleshooting, monitoring, and performance optimization.
+- **Automated deployment pipeline** - Enables consistent, governed version releases without manual intervention.
+- **Containerized deployment** - Ensures cross-environment portability and operational consistency.
+- **Serverless cloud architecture** - Simplifies deployment with low-cost, low-maintenance infrastructure, accelerating time to market.
+
+---
+
+## Solution Metrics
+
+
+| Metric                  | Value                                    |
+|-------------------------|------------------------------------------|
+| Latency *               | P50: 77.03s, P99: 189.96s                |
+| Token Count * (Input)   | 10k                                      |
+| Token Count * (Output)  | 5k                                       |
+| Estimated Cost *        | US$ 0.03                                 |
+| Container Size          | 4.5 GB (Uncompressed), 3 GB (Compressed) |
+| Deployment Time         | 6 minutes                                | 
+| Peak Memory Consumption | 3 GB                                     |
+
+\* *(Average or percentile if specified, per run)*
+
+---
+
+## Technology Stack
+| Component                  | Technology/Tool                         |
+| -------------------------- |-----------------------------------------|
+| Programming Language       | Python >= 3.13                          |
+| Package Management         | Astral UV                               |
+| Containerization           | Docker                                  |
+| LLM                        | OpenAI GPT-4o Mini, OpenAI DALL·E 3     |
+| Agent Orchestration        | LangChain, LangGraph                    |
+| Agent Tooling              | MCP, Custom Implementations             |
+| Agent Web Search           | Tavily, SerperDev                       |
+| Testing                    | Pytest, MagikMock                       |
+| CI/CD                      | GitHub, GitHub Actions                  |
+| Cloud Infrastructure       | AWS - Eventbridge, IAM, Lambda, S3, ECR |
+| Observability              | LangSmith, CloudWatch                   |
+| Infrastructure as Code     | Terraform                               |
+| Similarity Search          | Levenshtein, Text Embeddings            |
+
+---
+
+## Architecture and Design Decisions
+*(W.I.P.)*
+
+### Cloud Infrastructure and Deployment
+
+![Architecture Diagram](docs/infra-arch.drawio.png)
+
+### Software Architecture
+
+![Architecture Diagram](docs/software-arch.drawio.png)
+
+
 
 ---
 
 ## Project Structure
 ```
-├── README.md                              # Project documentation and usage instructions
-└── app                                    # Main application directory
-    ├── agents                             # Contains agent-related logic and workflows
-    │   └── meme_gen                       # Specific implementation for the MemeGen agent
-    │       ├── agent.py                   # MemeGen Agent entrypoint
-    │       ├── graph.py                   # Workflow graph definition for MemeGen
-    │       ├── nodes                      # Individual nodes in the workflow
-    │       │   ├── node_00_initializer.py # Node for initializing the workflow
-    │       │   ├── node_01_researcher.py  # Node for conducting research tasks
-    │       │   ├── node_02_validator.py   # Node for validating research results
-    │       │   ├── node_03_editor.py      # Node for editing and processing data
-    │       │   ├── node_04_publisher.py   # Node for publishing the final output
-    │       │   ├── node_05_failure.py     # Node for handling failure states
-    │       │   ├── node_06_success.py     # Node for handling success states
-    │       │   └── node_base.py           # Base class for all nodes
-    │       ├── persistence                # Persistence-related files
-    │       │   └── memegen_graph.png      # Visualization of the workflow graph
-    │       ├── prompts.yml                # YAML file containing prompts for the agent
-    │       └── state.py                   # State management for the MemeGen workflow
-    ├── configs.json                       # Default configuration file
-    ├── configs.local.json                 # Local configuration overrides
-    ├── configurations                     # Configuration management module
-    │   ├── configs.py                     # Configuration definitions
-    │   ├── configs_parser.py              # Parser for configuration files
-    │   ├── configuration_module.py        # Configuration module logic
-    │   ├── di_container.py                # Dependency injection container
-    │   └── di_services.py                 # Dependency injection services
-    ├── controllers                        # Controllers for managing workflows
-    │   ├── controller.py                  # Main controller logic
-    │   └── worker.py                      # Handles application lifecycle and graceful shutdown
-    ├── crosscutting                       # Cross-cutting concerns (e.g., logging, caching)
-    │   ├── background_service.py          # Background service implementation
-    │   ├── logging                        # Logging-related files
-    │   │   ├── app_logger.py              # Custom logger implementation
-    │   │   └── app_logger_config.py       # Logger configuration
-    │   ├── memoize_method.py              # Memoization utility for methods
-    │   └── semantic_cache.py              # Semantic caching implementation
-    ├── handler_meme_gen.py                # Entry point for handling MemeGen agent tasks
-    ├── infrastructure                     # Infrastructure-related clients and services
-    │   ├── google_trends_client.py        # Client for Google Trends API
-    │   ├── serper_dev_client.py           # Client for Serper.dev API
-    │   └── tavily_client.py               # Client for Tavily API
-    ├── logger_configs.json                # Default logger configuration
-    ├── logger_configs.local.json          # Local logger configuration overrides
-    └── repositories                       # Data access layer
-        └── web_search_repository.py       # Repository for web search operations
+├── app
+│   ├── agents
+│   │   └── meme_gen
+│   │       ├── deliverables
+│   │       │   └── image_generation_disabled.png  # Placeholder image for when image generation is disabled
+│   │       ├── nodes                              # Contains individual processing nodes for the meme generation agent
+│   │       │   ├── node_00_initializer.py         # Initializes the meme generation process
+│   │       │   ├── node_01_researcher.py          # Researches trending topics for meme creation
+│   │       │   ├── node_02_validator.py           # Validates topics for ethical and moral compliance
+│   │       │   ├── node_03_editor.py              # Edits and prepares the meme content
+│   │       │   ├── node_04_publisher.py           # Publishes the generated meme to social media
+│   │       │   ├── node_05_failure.py             # Handles failure scenarios in the process
+│   │       │   ├── node_06_success.py             # Handles successful completion of the process
+│   │       │   ├── node_07_terminate.py           # Terminates the process and cleans up resources
+│   │       │   └── node_base.py                   # Base class for all nodes in the meme generation process
+│   │       ├── persistence                        # Stores persistent data for the meme generation agent
+│   │       │   ├── memegen_graph.png              # Visual representation of the meme generation process
+│   │       │   ├── used_topics_cache.pkl          # Cache of previously used topics
+│   │       │   └── web_search_cache.pkl           # Cache of web search results
+│   │       ├── agent.py                           # Main agent logic for meme generation
+│   │       ├── graph.py                           # Defines the graph structure for the agent's workflow
+│   │       ├── prompts.yml                        # YAML file containing prompts for the LLM
+│   │       └── state.py                           # Manages the state of the meme generation process
+│   ├── configurations                             # Configuration management for the application
+│   │   ├── configs.py                             # Core configuration definitions
+│   │   ├── configs_parser.py                      # Parses configuration files
+│   │   ├── configuration_module.py                # Module for managing configurations
+│   │   └── di_services.py                         # Dependency injection services
+│   ├── controllers                                # Application controllers for managing workflows
+│   │   ├── controller.py                          # Main application controller
+│   │   ├── web_ui.py                              # Controller for the web user interface
+│   │   └── worker.py                              # Background worker for asynchronous tasks
+│   ├── crosscutting                               # Cross-cutting concerns shared across the application
+│   │   ├── background_service
+│   │   │   ├── cancellation_token.py              # Handles task cancellation tokens
+│   │   │   ├── multi_shot_background_service.py   # Background service for multi-shot tasks
+│   │   │   └── one_shot_background_service.py     # Background service for one-shot tasks
+│   │   ├── logging
+│   │   │   ├── app_logger.py                      # Application logging utility
+│   │   │   └── app_logger_config.py               # Configuration for application logging
+│   │   ├── semantic_cache.py                      # In-memory caching for semantic data
+│   │   └── service_provider.py                    # Provides services for dependency injection
+│   ├── infrastructure                             # Infrastructure-related clients and utilities
+│   │   ├── google_trends_client.py                # Client for interacting with Google Trends
+│   │   ├── serper_dev_client.py                   # Client for interacting with SerperDev
+│   │   └── tavily_client.py                       # Client for interacting with Tavily
+│   ├── mcp_servers                                # Manages connections to external MCP servers
+│   │   └── social_networks.py                     # Handles interactions with social networks
+│   ├── repositories                               # Data repositories for accessing and managing data
+│   │   ├── image_repository.py                    # Repository for managing image data
+│   │   ├── social_networks_repository.py          # Repository for social network data
+│   │   ├── used_topics_repository.py              # Repository for used topics
+│   │   ├── web_search_repository.py               # Repository for web search data
+│   │   └── web_trends_repository.py               # Repository for web trends data
+│   ├── tests                                      # Automated tests for the application
+│   │   ├── integration                            # Integration tests for end-to-end workflows
+│   │   └── unit                                   # Unit tests for individual components
+│   ├── Dockerfile                                 # Dockerfile for containerizing the application
+│   ├── configs.json                               # Default configuration file
+│   ├── configs.local.json                         # Local environment configuration
+│   ├── configs.tests.json                         # Test environment configuration
+│   ├── configs_logger.json                        # Default logger configuration
+│   ├── configs_logger.local.json                  # Local logger configuration
+│   ├── configs_logger.tests.json                  # Test logger configuration
+│   ├── configs_mcp.json                           # MCP-specific configuration
+│   ├── handler_lambda.py                          # Lambda function handler
+│   ├── handler_web_ui.py                          # Web UI handler
+│   ├── pyproject.toml                             # Python project configuration
+│   └── pytest.ini                                 # Pytest configuration
+├── infra                                          # Terraform infrastructure as code.
+└── README.md                                      # Project documentation
+
 ```
+
+---
+
+## Limitations and Future Improvements
+*(W.I.P)*
+
+* Single instance run per time
+* Lacks human in the loop
+* Meme joke quality questionable
+* Meme text on images might be defective
+* Lack of prompt evals
+* Infra networking - VPC, Subnets, Security Groups, etc.
 
 ---
 
 ## Installation
+*(W.I.P)*
 
 ### Prerequisites
-- Python 3.8 or higher
-- `pip` (Python package manager)
+- Python 3.13 or higher
+- OpenAI account and API Key with organization validation
+- Twitter (X) Developer account and API Key
 
-### Steps
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/multi-agent-poc.git
-   cd multi-agent-poc
-   ```
+### No docker:
+* Install UV
+* Navigate to your default projects folder
+* Clone repo
+* Navigate to app folder
+* Create virtual environment
+* Activate virtual environment
+* Uv sync
+* Create and populate .env file
+* Run tests
+* Run application
 
-2. Create a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Run the tests to ensure everything is set up correctly:
-   ```bash
-   pytest
-   ```
+### Docker
+* Install Docker & CURL
+* Start Docker Desktop
+* Open terminal
+```bash
+    # Navigate to your default projects folder
+    cd ~/projects
+    
+    # Clone Repo
+    git clone https://github.com/RogerVFbr/agentic-ai-content-gen.git
+    
+    # Navigate to app folder
+    cd app
+    
+    # Create and populate .env file as per .env_example
+    touch .env
+    
+    # Build image
+    docker build --no-cache -t memegen . 
+    
+    # Run image
+    docker run -p 9000:8080 memegen
+    
+    # Ping image
+    curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
+```
 
 ---
 
 ## Usage
-
-### Building the Workflow
-The `MultiAgentGraph` class defines the workflow. To build and visualize the graph:
-```python
-from app.agents.multi_agent.graph import MultiAgentGraph
-
-# Initialize dependencies
-graph = MultiAgentGraph(logger, initializer, researcher, validator, editor, publisher, failure, success)
-
-# Build the graph
-await graph.build()
-```
-
-### Running the Controller
-The `MultiAgentController` manages the execution of the workflow:
-```python
-from app.controllers.controller import MultiAgentController
-
-controller = MultiAgentController(agent=graph)
-await controller.run({"input_key": "input_value"})
-```
-
-### Visualizing the Workflow
-The workflow graph is saved as a PNG file in the `persistence` directory:
-```
-app/agents/multi_agent/persistence/multi_agent_graph.png
-```
-
----
-
-## Testing
-Unit tests are provided for all major components. To run the tests:
-```bash
-pytest
-```
-
----
-
-## Key Components
-
-### `MultiAgentGraph`
-- **Purpose**: Defines the state-driven workflow for the multi-agent application.
-- **Nodes**:
-  - `Initializer`: Initializes the process.
-  - `Researcher`: Conducts research tasks.
-  - `Validator`: Validates research results.
-  - `Editor`: Processes and edits data.
-  - `Publisher`: Publishes the final output.
-  - `Failure`: Handles failure states.
-  - `Success`: Handles success states.
-
-### `MultiAgentController`
-- **Purpose**: Orchestrates the execution of the workflow.
-- **Features**:
-  - Handles input and output.
-  - Manages logging and error handling.
-
-### Logging
-- **Implementation**: The custom logging solution includes:
-  - **Local Logging**: Logs structured data to local files in JSON format.
-  - **Remote Logging**: Integrates with external logging services for centralized log management.
-  - **AppLogger**: Provides decorators like `@timeit` for measuring execution time.
+*(W.I.P)*
 
 ---
 
 ## Contributing
-1. Fork the repository.
-2. Create a feature branch:
-   ```bash
-   git checkout -b feature-name
-   ```
-3. Commit your changes:
-   ```bash
-   git commit -m "Add feature description"
-   ```
-4. Push to your branch:
-   ```bash
-   git push origin feature-name
-   ```
-5. Open a pull request.
+*(W.I.P)*
 
 ---
-
-## Docker
-   ```bash
-      uv lock
-   ```
-   ```bash
-      docker build -t memegen .
-   ```
-   ```bash
-      docker run -p 9000:8080 memegen
-   ```
-   ```bash
-      curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"payload":"hello world!"}'
-   ```
 
 ## License
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+*(W.I.P)*
 
 ---
 
-## Acknowledgments
-- [LangGraph](https://github.com/langgraph) for the state graph framework.
-- Contributors and maintainers of this project.
+## Contact
+*(W.I.P)*
+
 
 
 
