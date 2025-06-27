@@ -63,4 +63,4 @@ jobs:
     - name: Create Pull Request to Develop
       if: steps.extract_branch.outputs.branch == 'develop'
       run: |
-        gh pr create --base main --title "Automated PR to Develop" --body "This PR was created automatically by GitHub Actions."
+        gh pr create --base main --title "Automated PR to Main" --body "This PR was created automatically by GitHub Actions."

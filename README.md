@@ -91,6 +91,16 @@
 ## Architecture and Design Decisions
 *(W.I.P.)*
 
+### Cloud Infrastructure and Deployment
+
+![Architecture Diagram](docs/infra-arch.drawio.png)
+
+### Software Architecture
+
+![Architecture Diagram](docs/software-arch.drawio.png)
+
+
+
 ---
 
 ## Project Structure
@@ -179,6 +189,7 @@
 * Meme joke quality questionable
 * Meme text on images might be defective
 * Lack of prompt evals
+* Infra networking - VPC, Subnets, Security Groups, etc.
 
 ---
 
@@ -216,7 +227,7 @@
     # Navigate to app folder
     cd app
     
-    # Create and populate .env file
+    # Create and populate .env file as per .env_example
     touch .env
     
     # Build image
