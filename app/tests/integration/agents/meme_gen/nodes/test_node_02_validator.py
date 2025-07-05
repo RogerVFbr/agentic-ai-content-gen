@@ -1,7 +1,7 @@
 import pytest
 
 from agents.meme_gen.nodes.node_02_validator import MemeGenTrendValidator
-from agents.meme_gen.state import MemeGenState, Research
+from agents.meme_gen.state import MemeGenState
 from integration.configuration_module_factory import ConfigurationModuleFactory
 from integration.test_state_factory import TestStateFactory
 

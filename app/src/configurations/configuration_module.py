@@ -9,8 +9,8 @@ import warnings
 warnings.warn = lambda *args, **kwargs: None
 
 
-from configurations.configs import Configs  # noqa: E402
 from configurations.configs_parser import ConfigsParser  # noqa: E402
+from configurations.configs import Configs  # noqa: E402
 from crosscutting.logging.app_logger import AppLogger  # noqa: E402
 from crosscutting.service_provider import ServiceCollection  # noqa: E402
 
@@ -39,6 +39,7 @@ class ConfigurationModule:
         AppLogger.highlight_1("Initializing configuration ...")
 
         try:
+            self.print_paths()
             self._load_env_vars()
             configs = self._load_configs()
             self._override_env_vars(configs.remote_credentials)
@@ -50,6 +51,10 @@ class ConfigurationModule:
 
         AppLogger.highlight_1("Configuration completed.")
         return True
+
+    def print_paths(self) -> None:
+        AppLogger.debug(f"Current working directory: '{Path.cwd()}'")
+        AppLogger.debug(f"Python path: '{os.getenv('PYTHONPATH', '')}'")
 
     def _load_env_vars(self) -> None:
         try:
@@ -71,7 +76,12 @@ class ConfigurationModule:
     def _load_configs(self) -> Configs:
         try:
             cp = ConfigsParser()
-            placeholders = {"BASE_DIR": Path(__file__).resolve().parent.parent}
+
+            placeholders = {
+                "BASE_DIR": Path(__file__).resolve().parent.parent,
+                "PYTHON_PATH": os.getenv('PYTHONPATH', '')
+            }
+
             configs: Configs = cp.parse(config_file="configs.json", require_env_override=True, parse_as=Configs)
             configs.mcp.servers = cp.parse(config_file="configs_mcp.json", require_env_override=False, parse_as=dict, placeholders=placeholders)
             AppLogger.debug("Configs loaded.")

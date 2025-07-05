@@ -1,4 +1,4 @@
-from agents.meme_gen.state import Research, Validation, Edition
+from src.agents.meme_gen.state import Research, Validation, Edition
 
 
 class TestStateFactory:

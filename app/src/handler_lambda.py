@@ -1,8 +1,8 @@
 import asyncio
 
-from controllers.worker import MemeGenWorker
-from configurations.di_services import AppDi
 from configurations.configuration_module import ConfigurationModule
+from configurations.di_services import AppDi
+from controllers.worker import MemeGenWorker
 from tests.mock_input import MockInput
 
 

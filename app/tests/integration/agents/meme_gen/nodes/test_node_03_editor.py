@@ -2,11 +2,11 @@ import pytest
 from typing import Dict, Type, Any
 from unittest.mock import AsyncMock
 
+from repositories.image_repository import ImageRepository
 from agents.meme_gen.nodes.node_03_editor import MemeGenEditor
 from agents.meme_gen.state import MemeGenState
 from integration.configuration_module_factory import ConfigurationModuleFactory
 from integration.test_state_factory import TestStateFactory
-from repositories.image_repository import ImageRepository
 
 
 class TestMemegenEditor:

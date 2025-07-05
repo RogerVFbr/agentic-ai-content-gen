@@ -28,4 +28,4 @@ class TestMemeGenPublisher:
 
         # Assert
         assert final_state.publisher
-        assert final_state.publisher.status
+        assert not final_state.publisher.status

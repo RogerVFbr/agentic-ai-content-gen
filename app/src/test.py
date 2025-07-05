@@ -1,9 +1,8 @@
 import asyncio
-import os
 
-from configurations.di_services import AppDi
-from configurations.configuration_module import ConfigurationModule
-from repositories.social_networks_repository import SocialNetworksRepository
+from src.configurations import AppDi
+from src.configurations import ConfigurationModule
+from src.repositories import SocialNetworksRepository
 from tests.mock_input import MockInput
 
 
