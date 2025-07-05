@@ -51,7 +51,7 @@ jobs:
 
       - name: Run tests
         run: |
-          export PYTHONPATH=/home/runner/work/agentic-ai-content-gen/agentic-ai-content-gen/app:$PYTHONPATH
+          export PYTHONPATH=/home/runner/work/agentic-ai-content-gen/agentic-ai-content-gen/app/src:$PYTHONPATH
           uv run --directory ../app/tests pytest -m "not cd_bypass"
 
       - name: Cleanup project
