@@ -8,7 +8,7 @@ class TestMemeGenController:
 
     @pytest.fixture
     def mock_dependencies(self, request):
-        log_execution_time_patcher = patch('src.crosscutting.logging.app_logger.AppLogger._log_execution_time', MagicMock())
+        log_execution_time_patcher = patch('crosscutting.logging.app_logger.AppLogger._log_execution_time', MagicMock())
         log_execution_time_patcher.start()
         request.addfinalizer(log_execution_time_patcher.stop)
 

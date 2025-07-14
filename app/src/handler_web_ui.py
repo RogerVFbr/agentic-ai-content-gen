@@ -1,6 +1,6 @@
-from src.configurations.configuration_module import ConfigurationModule
-from src.configurations.di_services import AppDi
-from src.controllers.web_ui import MemeGenWebUi
+from configurations.configuration_module import ConfigurationModule
+from configurations.di_services import AppDi
+from controllers.web_ui import MemeGenWebUi
 
 
 module = ConfigurationModule()

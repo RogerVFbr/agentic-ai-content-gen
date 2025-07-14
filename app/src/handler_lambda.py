@@ -3,7 +3,6 @@ import asyncio
 from configurations.configuration_module import ConfigurationModule
 from configurations.di_services import AppDi
 from controllers.worker import MemeGenWorker
-from tests.mock_input import MockInput
 
 
 module = ConfigurationModule()
@@ -18,5 +17,4 @@ def handler(event, context):
 
 
 if __name__ == "__main__":
-    mock_input = MockInput.get_basic_research()
-    handler(mock_input, None)
+    handler({}, None)

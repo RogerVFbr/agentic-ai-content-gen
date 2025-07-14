@@ -1,8 +1,8 @@
 from typing import Type, Any, Union, Dict
 
-from src.configurations.configuration_module import ConfigurationModule
-from src.configurations.di_services import AppDi
-from src.crosscutting.service_provider import ServiceCollection
+from configurations.configuration_module import ConfigurationModule
+from configurations.di_services import AppDi
+from crosscutting.service_provider import ServiceCollection
 
 
 class ConfigurationModuleFactory:

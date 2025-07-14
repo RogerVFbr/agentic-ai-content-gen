@@ -1,10 +1,8 @@
-from pathlib import Path
-
-from typing import Dict
-
 import boto3
 import os
 from dotenv import load_dotenv, find_dotenv
+from pathlib import Path
+from typing import Dict
 import warnings
 warnings.warn = lambda *args, **kwargs: None
 
@@ -107,7 +105,6 @@ class ConfigurationModule:
                 AppLogger.info(f"Overridden environment variables: {', '.join(overridden_values)}")
         except Exception as e:
             AppLogger.error(f"Failed to override environment variables: {e}")
-            raise
 
     def _validate_env_vars(self) -> None:
         missing_env_vars = []

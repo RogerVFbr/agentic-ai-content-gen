@@ -67,7 +67,7 @@ class MemeGenEditor(MemeGenBase):
             response = step
 
         state = await self._update_state(state, response)
-        self._logger.info(f"Completed.", data=state.editor.__dict__)
+        self._logger.info("Completed.", data=state.editor.__dict__)
         return state
 
     async def _build_prompt(self, state: MemeGenState):
