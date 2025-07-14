@@ -53,15 +53,6 @@ jobs:
           export PYTHONPATH=/home/runner/work/agentic-ai-content-gen/agentic-ai-content-gen/app/src:$PYTHONPATH
           uv run --directory ../app/tests pytest -m "not cd_bypass"
 
-      - name: Cleanup project
-        uses: actions/checkout@v4
-
-      - name: Terraform Init
-        run: terraform init -backend-config="key=$APPLICATION_NAME-develop.tfstate"
-
-      - name: Terraform Plan
-        run: terraform plan -var 'environment=develop' -input=false
-
   iac:
     name: 'Infra as Code'
     runs-on: ubuntu-latest
@@ -89,6 +80,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [tests, iac]
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Create Pull Request to Develop
         run: |
           gh pr create --base develop --title "Automated PR to Develop" --body "This PR was created automatically by GitHub Actions."
