@@ -1,7 +1,40 @@
 from agents.meme_gen.state import Research, Validation, Edition
 
 
-class TestStateFactory:
+class TestDataFactory:
+
+    @staticmethod
+    def get_web_trends_mock_results():
+        return [
+            {
+                "trend_name": "afganistan war",
+                "trending_associated_keywords": ["war", "conflict", "troops"],
+                "number_of_searches": 10000,
+                "volume_growth_pct": 1000,
+                "categories": ["Geopolitics"],
+            },
+            {
+                "trend_name": "covid 19",
+                "trending_associated_keywords": ["disease", "pandemic"],
+                "number_of_searches": 9990,
+                "volume_growth_pct": 1000,
+                "categories": ["Health"],
+            },
+            {
+                "trend_name": "birthday party",
+                "trending_associated_keywords": ["birthday cake", "candles"],
+                "number_of_searches": 100,
+                "volume_growth_pct": 10,
+                "categories": ["Technology"]
+            },
+            {
+                "trend_name": "mountain hike",
+                "trending_associated_keywords": ["nature", "sight seeing"],
+                "number_of_searches": 200,
+                "volume_growth_pct": 20,
+                "categories": ["Sports"]
+            }
+        ]
 
     @staticmethod
     def get_valid_trends():

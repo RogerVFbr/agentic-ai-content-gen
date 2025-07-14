@@ -209,7 +209,8 @@
 * Create virtual environment
 * Activate virtual environment
 * Uv sync
-* Create and populate .env file
+* Create and populate root .env file
+* Create and populate tests .env file (under tests folder)
 * Run tests
 * Run application
 

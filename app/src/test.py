@@ -1,11 +1,8 @@
 import asyncio
-import os
 
-from configurations.di_services import AppDi
 from configurations.configuration_module import ConfigurationModule
+from configurations.di_services import AppDi
 from repositories.social_networks_repository import SocialNetworksRepository
-from tests.mock_input import MockInput
-
 
 module = ConfigurationModule()
 services = AppDi.get_service_collection()
@@ -19,5 +16,4 @@ def handler(event, context):
 
 
 if __name__ == "__main__":
-    mock_input = MockInput.get_basic_research()
-    handler(mock_input, None)
+    handler({}, None)

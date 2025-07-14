@@ -1,9 +1,9 @@
 import pytest
 
 from agents.meme_gen.nodes.node_02_validator import MemeGenTrendValidator
-from agents.meme_gen.state import MemeGenState, Research
+from agents.meme_gen.state import MemeGenState
 from integration.configuration_module_factory import ConfigurationModuleFactory
-from integration.test_state_factory import TestStateFactory
+from integration.test_data_factory import TestDataFactory
 
 
 class TestMemeGenTrendValidator:
@@ -18,7 +18,7 @@ class TestMemeGenTrendValidator:
     async def test_run_valid_trends(self, node: MemeGenTrendValidator):
         # Arrange
         state = MemeGenState()
-        state.research = TestStateFactory.get_valid_trends()
+        state.research = TestDataFactory.get_valid_trends()
         state.validation = None
 
         # Act
@@ -37,7 +37,7 @@ class TestMemeGenTrendValidator:
     async def test_run_invalid_trends(self, node: MemeGenTrendValidator):
         # Arrange
         state = MemeGenState()
-        state.research = TestStateFactory.get_invalid_trends()
+        state.research = TestDataFactory.get_invalid_trends()
         state.validation = None
 
         # Act

@@ -4,10 +4,10 @@ from typing import Any, Type, Dict
 
 import pytest
 
-from agents.meme_gen.nodes.node_00_initializer import MemeGenInitializer
-from agents.meme_gen.state import MemeGenState
 from integration.configuration_module_factory import ConfigurationModuleFactory
 from repositories.used_topics_repository import UsedTopicsRepository
+from agents.meme_gen.nodes.node_00_initializer import MemeGenInitializer
+from agents.meme_gen.state import MemeGenState
 
 
 class TestMemeGenInitializer:

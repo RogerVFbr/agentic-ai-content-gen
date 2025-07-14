@@ -5,30 +5,29 @@ on:
     branches:
       - 'feature/*'       # matches every branch containing a single '/'
 
+defaults:
+  run:
+    shell: bash
+    working-directory: ./infra
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: us-east-1
+  APPLICATION_NAME: memegen
+  GH_TOKEN: ${{ github.token }}
+  APP_ENV: tests
+  LOGGER_ENV: tests
+  LANGSMITH_TRACING: true
+  LANGSMITH_ENDPOINT: https://api.smith.langchain.com
+  LANGSMITH_PROJECT: MemeGen (Tests)
+  PYTHONWARNINGS: "ignore::DeprecationWarning"
+  TOKENIZERS_PARALLELISM: false
+
 jobs:
-  terraform:
-    name: 'Open PR to DEV'
+  tests:
+    name: 'Tests'
     runs-on: ubuntu-latest
-
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: us-east-1
-      APPLICATION_NAME: memegen
-      GH_TOKEN: ${{ github.token }}
-      APP_ENV: tests
-      LOGGER_ENV: tests
-      LANGSMITH_TRACING: true
-      LANGSMITH_ENDPOINT: https://api.smith.langchain.com
-      LANGSMITH_PROJECT: MemeGen (Tests)
-      PYTHONWARNINGS: "ignore::DeprecationWarning"
-      TOKENIZERS_PARALLELISM: false
-
-    defaults:
-      run:
-        shell: bash
-        working-directory: ./infra
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -51,17 +50,38 @@ jobs:
 
       - name: Run tests
         run: |
-          export PYTHONPATH=/home/runner/work/agentic-ai-content-gen/agentic-ai-content-gen/app:$PYTHONPATH
+          export PYTHONPATH=/home/runner/work/agentic-ai-content-gen/agentic-ai-content-gen/app/src:$PYTHONPATH
           uv run --directory ../app/tests pytest -m "not cd_bypass"
 
-      - name: Cleanup project
+  iac:
+    name: 'Infra as Code'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Terraform Init
         run: terraform init -backend-config="key=$APPLICATION_NAME-develop.tfstate"
 
       - name: Terraform Plan
         run: terraform plan -var 'environment=develop' -input=false
+
+      - name: Create Pull Request to Develop
+        run: |
+          gh pr create --base develop --title "Automated PR to Develop" --body "This PR was created automatically by GitHub Actions."
+
+  pr:
+    name: 'Open PR to DEV'
+    runs-on: ubuntu-latest
+    needs: [tests, iac]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Create Pull Request to Develop
         run: |

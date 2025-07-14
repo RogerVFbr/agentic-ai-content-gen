@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from app.agents.meme_gen.graph import MemeGenGraphBuilder
+from agents.meme_gen.graph import MemeGenGraphBuilder
 
 
 class TestMemeGenGraphBuilder:
@@ -37,7 +37,7 @@ class TestMemeGenGraphBuilder:
     @pytest.mark.asyncio
     async def test_build(self, builder: MemeGenGraphBuilder, mock_dependencies):
         # Arrange: Mock required methods
-        with patch("app.agents.meme_gen.graph.StateGraph") as MockStateGraph, \
+        with patch("agents.meme_gen.graph.StateGraph") as MockStateGraph, \
                 patch.object(builder, "_save_graph_image", new_callable=AsyncMock) as mock_save_image:
 
             mock_builder = MockStateGraph.return_value

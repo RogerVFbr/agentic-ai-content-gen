@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock
 
-from app.crosscutting.service_provider import ServiceCollection
+from crosscutting.service_provider import ServiceCollection
 
 
 class TestServiceProvider:

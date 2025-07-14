@@ -1,11 +1,7 @@
-import sys
-from pathlib import Path
 import warnings
 from fastmcp import FastMCP, Context
 
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="importlib")
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
 
 from configurations.configs import Configs  # noqa: E402
 from configurations.configuration_module import ConfigurationModule  # noqa: E402

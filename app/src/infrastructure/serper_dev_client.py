@@ -1,10 +1,6 @@
-import asyncio
-
 import http.client
 import json
 import os
-
-from crosscutting.logging.app_logger import AppLogger
 
 
 class SerperDevClient:
@@ -23,10 +19,3 @@ class SerperDevClient:
         data = res.read()
         data = data.decode("utf-8")
         return json.loads(data)
-
-
-if __name__ == "__main__":
-    AppLogger.CONFIGS.is_structured = False
-    client = SerperDevClient()
-    result = asyncio.run(client.search(query="Steve Jobs"))
-    AppLogger.debug(f"Result.", data=result)
